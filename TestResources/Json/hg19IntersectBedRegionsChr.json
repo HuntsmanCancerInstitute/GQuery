@@ -1,0 +1,41 @@
+{
+ "responseCode": 200,
+ "indexQueryStats": {
+  "skippedUserQueries": 0,
+  "searchedUserQueries": 1,
+  "totalIndexHits": 3,
+  "queriesWithIndexHits": 1,
+  "millSecForIndexSearch": 1
+ },
+ "dataRetrievalStats": {
+  "recordsRetrieved": 2,
+  "millSecToLoadRecords": 1,
+  "recordsReturnedToUser": 2,
+  "queriesWithTabixRecords": 1
+ },
+ "indexFileFilteringStats": {
+  "filesPreFiltering": 3,
+  "filesPostFiltering": 1
+ },
+ "querySettings": {
+  "fetchData": true,
+  "forceFetchData": false,
+  "regExAll": [".*/Hg19/.*"],
+  "includeHeaders": false,
+  "matchVcf": false
+ },
+ "url": "http://localhost:8080/GQuery/search?bed=22%3A25%2C973%2C988-27%2C015%2C054&regExAll=%2FHg19%2F&fetchData=true",
+ "queryResults": [{
+  "stop": 27015054,
+  "input": "22:25,973,988-27,015,054",
+  "hits": [{
+   "source": "Data/Hg19/chr20-22Ribo.bed.gz",
+   "data": [
+    "chr22\t26111008\t26111136",
+    "chr22\t26786633\t26786742"
+   ]
+  }],
+  "start": 25973988,
+  "chr": "22"
+ }]
+}

@@ -1,0 +1,37 @@
+{
+ "responseCode": 200,
+ "indexQueryStats": {
+  "skippedUserQueries": 0,
+  "searchedUserQueries": 1,
+  "totalIndexHits": 3,
+  "queriesWithIndexHits": 1,
+  "millSecForIndexSearch": 0
+ },
+ "indexFileFilteringStats": {
+  "filesPreFiltering": 3,
+  "filesPostFiltering": 2
+ },
+ "querySettings": {
+  "fetchData": false,
+  "regExOneUser": [
+   ".+/Data/B37/BedData/.+",
+   ".+/Data/B37/TCGA/.+",
+   ".+/Data/B37/VCFData/.+"
+  ],
+  "forceFetchData": false,
+  "userName": "Guest",
+  "includeHeaders": false,
+  "matchVcf": false
+ },
+ "url": "http://localhost:8080/GQuery/search?bed=chr22%3A39%2C281%2C892-39%2C515%2C517",
+ "queryResults": [{
+  "stop": 39515517,
+  "input": "chr22:39,281,892-39,515,517",
+  "hits": [
+   {"source": "Data/B37/VCFData/chr20_cosmic.vcf.gz"},
+   {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}
+  ],
+  "start": 39281892,
+  "chr": "22"
+ }]
+}

@@ -1,0 +1,5 @@
+host hci-clingen1.hci.utah.edu
+queryUrl http://hci-clingen1.hci.utah.edu:8080/Query/
+realm QueryAPI
+userName QueryAll
+password 

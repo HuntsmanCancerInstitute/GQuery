@@ -1,0 +1,106 @@
+{
+ "responseCode": 200,
+ "queryOptionsAndFilters": [
+  {
+   "description": "Returns this list of options and filters, see https://github.com/HuntsmanCancerInstitute/Query for examples.",
+   "name": "fetchOptions"
+  },
+  {
+   "description": "Region(s) of interest to query in region format, semicolon delimited. Commas and prepended 'chr' are ignored. ",
+   "name": "bed",
+   "examples": [
+    "chr21:145569-145594",
+    "21:145,569-145,594",
+    "21:145569-145594;22:4965784-4965881;X:8594-8599",
+    "21\t11058198\t11058237\tMYCInt\t4.3\t-"
+   ]
+  },
+  {
+   "description": "Region(s) of interest to query in vcf format, semicolon delimited. Prepended 'chr' are ignored. Watch out for semicolons in the vcf INFO and FORMAT fields.  These will break the input parser.",
+   "name": "vcf",
+   "examples": [
+    "chr20\t4162847\t.\tC\tT\t.\tPASS\t.",
+    "20\t4163144\t.\tC\tA\t.\t.\t.;20\t4228734\t.\tC\tCCAAG\t.\tPASS\tAF=0.5"
+   ]
+  },
+  {
+   "description": "Pull records from disk (slow). Setting to 'force' and providing at least one regEx filter, enables access to the forceFetchDataSources. Use with a very restrictive regEx filter set, ideally on specific named file paths. Force turns the Query web app into a tabix data retrieval utility.",
+   "name": "fetchData",
+   "defaultOption": false,
+   "options": [
+    "true",
+    "false",
+    "force"
+   ]
+  },
+  {
+   "description": "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.",
+   "name": "matchVcf",
+   "defaultOption": false,
+   "options": [
+    true,
+    false
+   ]
+  },
+  {
+   "description": "Return the file headers associated with the intersecting datasets.",
+   "name": "includeHeaders",
+   "defaultOption": false,
+   "options": [
+    true,
+    false
+   ]
+  },
+  {
+   "description": "Require records to belong to a file whose path matches all of these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx.",
+   "name": "regExAll",
+   "examples": [
+    "/B37/",
+    "\\.vcf\\.gz"
+   ]
+  },
+  {
+   "description": "Require records to belong to a file whose path matches at least one of these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx.",
+   "name": "regExOne",
+   "examples": ["\\.vcf\\.gz;\\.maf\\.txt\\.gz"]
+  },
+  {
+   "description": "Require each record to match all of the provided java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true. Case insensitive.",
+   "name": "regExAllData",
+   "examples": [
+    "Pathogenic",
+    "LOF"
+   ]
+  },
+  {
+   "description": "Require each record to match at least one of the provided java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true. Case insensitive.",
+   "name": "regExOneData",
+   "examples": [
+    "Pathogenic",
+    "Uncertain;Benign"
+   ]
+  },
+  {
+   "description": "Data sources available for interval tree intersection and tabix data retrieval.",
+   "name": "dataSources",
+   "options": [
+    "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz",
+    "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz",
+    "Data/B37/TCGA/AP/AP_Test.maf.txt.gz",
+    "Data/B37/TCGA/CU/CU_Test.maf.txt.gz",
+    "Data/B37/Thor/3994-7.mt2.pass.vcf.gz",
+    "Data/B37/VCFData/chr20-21TRF037738.vcf.gz",
+    "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz",
+    "Data/B37/VCFData/chr20_cosmic.vcf.gz",
+    "Data/B38/clinvar_B38_chr21.vcf.gz",
+    "Data/Hg19/chr20-22Ribo.bed.gz"
+   ]
+  },
+  {
+   "description": "Data sources only available for tabix data retrieval. No initial interval tree lookup is performed. To access, set fetchData=force and provide one or more regEx file path filters.",
+   "name": "forceFetchDataSources",
+   "options": ["Data/B37/GVCFs/wgSeq_chr22.g.vcf.gz"]
+  }
+ ],
+ "url": "http://localhost:8080/GQuery/search?fetchOptions=true"
+}

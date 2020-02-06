@@ -1,0 +1,51 @@
+{
+ "responseCode": 200,
+ "indexQueryStats": {
+  "skippedUserQueries": 0,
+  "searchedUserQueries": 3,
+  "totalIndexHits": 11,
+  "queriesWithIndexHits": 3,
+  "millSecForIndexSearch": 0
+ },
+ "indexFileFilteringStats": {
+  "filesPreFiltering": 6,
+  "filesPostFiltering": 2
+ },
+ "querySettings": {
+  "fetchData": false,
+  "forceFetchData": false,
+  "regExOne": [
+   ".*Data/B37/TCGA/AP/AP_Test\\.maf\\.txt\\.gz.*",
+   ".*Data/B37/BedData/chr20-21_Exome_UniObRC\\.bedGraph\\.gz.*"
+  ],
+  "includeHeaders": false,
+  "matchVcf": false
+ },
+ "url": "http://localhost:8080/GQuery/search?bed=20%094162827%094162867%3B21%0911058198%0911058237%09testX%094.3%09-&bed=20%093893036%093898261%09justName&regExOne=Data%2FB37%2FTCGA%2FAP%2FAP_Test%5C.maf%5C.txt%5C.gz&regExOne=Data%2FB37%2FBedData%2Fchr20-21_Exome_UniObRC%5C.bedGraph%5C.gz",
+ "queryResults": [
+  {
+   "stop": 11058237,
+   "input": "21\t11058198\t11058237\ttestX\t4.3\t-",
+   "hits": [{"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"}],
+   "start": 11058198,
+   "chr": "21"
+  },
+  {
+   "stop": 3898261,
+   "input": "20\t3893036\t3898261\tjustName",
+   "hits": [{"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"}],
+   "start": 3893036,
+   "chr": "20"
+  },
+  {
+   "stop": 4162867,
+   "input": "20\t4162827\t4162867",
+   "hits": [
+    {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+    {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"}
+   ],
+   "start": 4162827,
+   "chr": "20"
+  }
+ ]
+}

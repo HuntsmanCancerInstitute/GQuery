@@ -1,0 +1,18 @@
+HTTP/1.1 401 
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+WWW-Authenticate: Digest realm="GQuery", qop="auth", nonce="1580326081142:000b0b6ac03de2cba1299e6c3a730d75", opaque="934156AC80B5DAE76269CEE98F919135"
+Content-Type: text/html;charset=utf-8
+Content-Language: en
+Content-Length: 669
+Date: Wed, 29 Jan 2020 19:28:01 GMT
+
+HTTP/1.1 401 
+Cache-Control: private
+Expires: Thu, 01 Jan 1970 00:00:00 GMT
+WWW-Authenticate: Digest realm="GQuery", qop="auth", nonce="1580326081146:82349e696f8c6ac811c648e65c5e0e81", opaque="934156AC80B5DAE76269CEE98F919135"
+Content-Type: text/html;charset=utf-8
+Content-Language: en
+Content-Length: 669
+Date: Wed, 29 Jan 2020 19:28:01 GMT
+

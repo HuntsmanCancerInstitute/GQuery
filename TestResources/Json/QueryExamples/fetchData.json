@@ -1,0 +1,77 @@
+{
+ "indexQueryStats": {
+  "skippedUserQueries": 0,
+  "searchedUserQueries": 1,
+  "totalIndexHits": 4,
+  "queriesWithIndexHits": 1,
+  "millSecForIndexSearch": 1
+ },
+ "dataRetrievalStats": {
+  "recordsRetrieved": 34,
+  "millSecToLoadRecords": 2,
+  "recordsReturnedToUser": 34,
+  "queriesWithTabixRecords": 4
+ },
+ "querySettings": {
+  "fetchData": true,
+  "forceFetchData": false,
+  "includeHeaders": false,
+  "matchVcf": false
+ },
+ "queryResults": [{
+  "stop": 4162867,
+  "hits": [
+   {
+    "source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz",
+    "data": ["SMOX\t54498\thgsc.bcm.edu\t37\t20\t4162847\t4162847\t+\tMissense_Mutation\tSNP\tC\tC\tT\t\t\tTCGA-OR-A5J1-01A-11D-A29I-10\tTCGA-OR-A5J1-10A-01D-A29L-10\tC\tC\t-\t-\t-\t-\tUnknown\tUntested\tSomatic\tPhase_I\tWXS\tnone\t.\t\tIllumina GAIIx\t352062e7-9b06-41cd-880c-38fe268c9bf3\t1d288ab9-ab2d-4483-af84-f5d0f5837cda\tg.chr20:4162847C>T\tENST00000305958.4\t+\t5\t946\tc.721C>T\tc.(721-723)Cgg>Tgg\tp.R241W\tSMOX_ENST00000379460.2_Missense_Mutation_p.R241W|SMOX_ENST00000346595.2_Intron|SMOX_ENST00000339123.6_Missense_Mutation_p.R241W|SMOX_ENST00000278795.3_Missense_Mutation_p.R241W\tNM_175839.2\tNP_787033.1\tQ9NWM0\tSMOX_HUMAN\tspermine oxidase\t241\t\t\t\t\tcellular nitrogen compound metabolic process (GO:0034641)|oxidation-reduction process (GO:0055114)|polyamine biosynthetic process (GO:0006596)|polyamine catabolic process (GO:0006598)|polyamine metabolic process (GO:0006595)|small molecule metabolic process (GO:0044281)|spermine catabolic process (GO:0046208)|xenobiotic metabolic process (GO:0006805)\tcytoplasm (GO:0005737)|cytosol (GO:0005829)|nucleus (GO:0005634)\tN1-acetylspermine:oxygen oxidoreductase (N1-acetylspermidine-forming) activity (GO:0052895)|norspermine:oxygen oxidoreductase activity (GO:0052894)|polyamine oxidase activity (GO:0046592)|spermine:oxygen oxidoreductase (spermidine-forming) activity (GO:0052901)\t\t\tbreast(1)|cervix(1)|endometrium(8)|kidney(1)|large_intestine(7)|lung(5)|skin(2)|urinary_tract(1)\t26\t\t\t\t\tSpermine(DB00127)\tGGGCTTCATGCGGGTTGTGGA\t0.657\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tp.R241W\t\t.\t\t\t\t\t\t\t\t\t\t\t.\tSMOX-153\t0\t\t\tc.C721T\t\t\t\t\t\t.\t\t\t\t\t\t35\t36\t36\t\t\t\t\t20\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4162847\t\t2203\t4300\t6503\tSO:0001583\tmissense\t54498\texon5\t\t\tTTCATGCGGGTTG\tAK000753\tCCDS13075.1, CCDS13076.1, CCDS13077.1, CCDS13078.1, CCDS74702.1\t20p13\t10/15/03\t10/15/03\t10/15/03\tENSG00000088826\tENSG00000088826\t\t\t15862\tprotein-coding gene\tgene with protein product\t\t615854\t\"chromosome 20 open reading frame 16\"\tC20orf16\t\t11454677, 12398765\tStandard\tNM_175839\t\tApproved\tFLJ20746, dJ779E11.1, PAO, PAOh1, MGC1010, SMO\tuc002wkp.3\tQ9NWM0\tOTTHUMG00000031777\tENST00000305958.4:c.721C>T\t20.37:g.4162847C>T\tENSP00000307252:p.Arg241Trp\t63\t0\t\t65\t4\tNM_175839\t0\t0\t0\t0\t0\tA2A2P5|A2A2P6|A8BE87|D3DVZ4|Q5TE26|Q5TE27|Q6UY28|Q8IX00|Q96LC3|Q96LC4|Q96QT3|Q9BW38|Q9H6H1|Q9NP51|Q9NPY1|Q9NPY2\tMissense_Mutation\tSNP\tENST00000305958.4\t37\tCCDS13075.1\t.\t.\t.\t.\t.\t.\t.\t.\t.\t.\tC\t15.55\t2.86777\t0.51588\t.\t.\tENSG00000088826\tENST00000339123;ENST00000305958;ENST00000278795;ENST00000379460;ENST00000457205\tD;D;D;D;T\t0.92595\t-3.07;-3.07;-3.07;-3.07;2.9\t5.17\t3.19\t0.36642\tAmine oxidase (1);\t0.175907\t0.47093\tD\t0.000259\tD\t0.92782\t0.7705\tL\t0.56199\t1.76\t0.36966\tD\t0.8936\tD;D;D;D;D\t0.71674\t0.99;0.998;0.996;0.991;0.997\tP;P;P;B;P\t0.56474\t0.567;0.799;0.659;0.409;0.711\tD\t0.93426\t0.6781\t10\t0.66056\tD\t0.02\t-13.4298\t12.2078\t0.54363\t0.3104:0.6896:0.0:0.0\t.\t218;241;241;241;241\tB4DE63;Q9NWM0-6;Q9NWM0;Q9NWM0-2;Q9NWM0-4\t.;.;SMOX_HUMAN;.;.\tW\t241;241;241;241;98\tENSP00000344595:R241W;ENSP00000307252:R241W;ENSP00000278795:R241W;ENSP00000368773:R241W;ENSP00000407269:R98W\tENSP00000278795:R241W\tR\t+\t1\t2\tSMOX\t4110847\t1\t0.71417\t1\t0.80357\t0.761\t0.43186\t2.858\t0.48356\t0.551\t0.29008\t-0.32\t0.08662\tCGG\t.\t\t0.657\tSMOX-005\tKNOWN\tbasic|appris_principal|CCDS\tprotein_coding\tprotein_coding\tOTTHUMT00000077806.1\tNM_175842\t"]
+   },
+   {
+    "source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz",
+    "data": ["SMOX\t54498\thgsc.bcm.edu\t37\t20\t4162847\t4162847\t+\tMissense_Mutation\tSNP\tC\tC\tT\t\t\tTCGA-OR-A5J1-01A-11D-A29I-10\tTCGA-OR-A5J1-10A-01D-A29L-10\tC\tC\t-\t-\t-\t-\tUnknown\tUntested\tSomatic\tPhase_I\tWXS\tnone\t.\t\tIllumina GAIIx\t352062e7-9b06-41cd-880c-38fe268c9bf3\t1d288ab9-ab2d-4483-af84-f5d0f5837cda\tg.chr20:4162847C>T\tENST00000305958.4\t+\t5\t946\tc.721C>T\tc.(721-723)Cgg>Tgg\tp.R241W\tSMOX_ENST00000379460.2_Missense_Mutation_p.R241W|SMOX_ENST00000346595.2_Intron|SMOX_ENST00000339123.6_Missense_Mutation_p.R241W|SMOX_ENST00000278795.3_Missense_Mutation_p.R241W\tNM_175839.2\tNP_787033.1\tQ9NWM0\tSMOX_HUMAN\tspermine oxidase\t241\t\t\t\t\tcellular nitrogen compound metabolic process (GO:0034641)|oxidation-reduction process (GO:0055114)|polyamine biosynthetic process (GO:0006596)|polyamine catabolic process (GO:0006598)|polyamine metabolic process (GO:0006595)|small molecule metabolic process (GO:0044281)|spermine catabolic process (GO:0046208)|xenobiotic metabolic process (GO:0006805)\tcytoplasm (GO:0005737)|cytosol (GO:0005829)|nucleus (GO:0005634)\tN1-acetylspermine:oxygen oxidoreductase (N1-acetylspermidine-forming) activity (GO:0052895)|norspermine:oxygen oxidoreductase activity (GO:0052894)|polyamine oxidase activity (GO:0046592)|spermine:oxygen oxidoreductase (spermidine-forming) activity (GO:0052901)\t\t\tbreast(1)|cervix(1)|endometrium(8)|kidney(1)|large_intestine(7)|lung(5)|skin(2)|urinary_tract(1)\t26\t\t\t\t\tSpermine(DB00127)\tGGGCTTCATGCGGGTTGTGGA\t0.657\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tp.R241W\t\t.\t\t\t\t\t\t\t\t\t\t\t.\tSMOX-153\t0\t\t\tc.C721T\t\t\t\t\t\t.\t\t\t\t\t\t35\t36\t36\t\t\t\t\t20\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4162847\t\t2203\t4300\t6503\tSO:0001583\tmissense\t54498\texon5\t\t\tTTCATGCGGGTTG\tAK000753\tCCDS13075.1, CCDS13076.1, CCDS13077.1, CCDS13078.1, CCDS74702.1\t20p13\t10/15/03\t10/15/03\t10/15/03\tENSG00000088826\tENSG00000088826\t\t\t15862\tprotein-coding gene\tgene with protein product\t\t615854\t\"chromosome 20 open reading frame 16\"\tC20orf16\t\t11454677, 12398765\tStandard\tNM_175839\t\tApproved\tFLJ20746, dJ779E11.1, PAO, PAOh1, MGC1010, SMO\tuc002wkp.3\tQ9NWM0\tOTTHUMG00000031777\tENST00000305958.4:c.721C>T\t20.37:g.4162847C>T\tENSP00000307252:p.Arg241Trp\t63\t0\t\t65\t4\tNM_175839\t0\t0\t0\t0\t0\tA2A2P5|A2A2P6|A8BE87|D3DVZ4|Q5TE26|Q5TE27|Q6UY28|Q8IX00|Q96LC3|Q96LC4|Q96QT3|Q9BW38|Q9H6H1|Q9NP51|Q9NPY1|Q9NPY2\tMissense_Mutation\tSNP\tENST00000305958.4\t37\tCCDS13075.1\t.\t.\t.\t.\t.\t.\t.\t.\t.\t.\tC\t15.55\t2.86777\t0.51588\t.\t.\tENSG00000088826\tENST00000339123;ENST00000305958;ENST00000278795;ENST00000379460;ENST00000457205\tD;D;D;D;T\t0.92595\t-3.07;-3.07;-3.07;-3.07;2.9\t5.17\t3.19\t0.36642\tAmine oxidase (1);\t0.175907\t0.47093\tD\t0.000259\tD\t0.92782\t0.7705\tL\t0.56199\t1.76\t0.36966\tD\t0.8936\tD;D;D;D;D\t0.71674\t0.99;0.998;0.996;0.991;0.997\tP;P;P;B;P\t0.56474\t0.567;0.799;0.659;0.409;0.711\tD\t0.93426\t0.6781\t10\t0.66056\tD\t0.02\t-13.4298\t12.2078\t0.54363\t0.3104:0.6896:0.0:0.0\t.\t218;241;241;241;241\tB4DE63;Q9NWM0-6;Q9NWM0;Q9NWM0-2;Q9NWM0-4\t.;.;SMOX_HUMAN;.;.\tW\t241;241;241;241;98\tENSP00000344595:R241W;ENSP00000307252:R241W;ENSP00000278795:R241W;ENSP00000368773:R241W;ENSP00000407269:R98W\tENSP00000278795:R241W\tR\t+\t1\t2\tSMOX\t4110847\t1\t0.71417\t1\t0.80357\t0.761\t0.43186\t2.858\t0.48356\t0.551\t0.29008\t-0.32\t0.08662\tCGG\t.\t\t0.657\tSMOX-005\tKNOWN\tbasic|appris_principal|CCDS\tprotein_coding\tprotein_coding\tOTTHUMT00000077806.1\tNM_175842\t"]
+   },
+   {
+    "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz",
+    "data": [
+     "20\t4162827\t4162828\t283",
+     "20\t4162828\t4162829\t284",
+     "20\t4162829\t4162830\t285",
+     "20\t4162830\t4162831\t283",
+     "20\t4162831\t4162832\t284",
+     "20\t4162832\t4162835\t285",
+     "20\t4162835\t4162837\t287",
+     "20\t4162837\t4162838\t292",
+     "20\t4162838\t4162839\t293",
+     "20\t4162839\t4162840\t295",
+     "20\t4162840\t4162842\t294",
+     "20\t4162842\t4162843\t295",
+     "20\t4162843\t4162844\t296",
+     "20\t4162844\t4162845\t297",
+     "20\t4162845\t4162846\t296",
+     "20\t4162846\t4162847\t299",
+     "20\t4162847\t4162848\t295",
+     "20\t4162848\t4162849\t298",
+     "20\t4162849\t4162851\t303",
+     "20\t4162851\t4162853\t304",
+     "20\t4162853\t4162854\t307",
+     "20\t4162854\t4162856\t306",
+     "20\t4162856\t4162858\t308",
+     "20\t4162858\t4162860\t303",
+     "20\t4162860\t4162861\t304",
+     "20\t4162861\t4162862\t300",
+     "20\t4162862\t4162863\t298",
+     "20\t4162863\t4162864\t300",
+     "20\t4162864\t4162865\t298",
+     "20\t4162865\t4162866\t299",
+     "20\t4162866\t4162867\t298"
+    ]
+   },
+   {
+    "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz",
+    "data": ["20\t4162735\t4163495\tENSG00000088826_SMOX\t0\t+"]
+   }
+  ],
+  "input": "20:4,162,827-4,162,867",
+  "start": 4162827,
+  "chr": "20"
+ }]
+}

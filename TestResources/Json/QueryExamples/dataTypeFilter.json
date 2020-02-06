@@ -1,0 +1,35 @@
+{
+ "indexQueryStats": {
+  "skippedUserQueries": 0,
+  "searchedUserQueries": 1,
+  "totalIndexHits": 4,
+  "queriesWithIndexHits": 1,
+  "millSecForIndexSearch": 0
+ },
+ "indexFileFilteringStats": {
+  "filesPreFiltering": 4,
+  "filesPostFiltering": 3
+ },
+ "querySettings": {
+  "fetchData": false,
+  "forceFetchData": false,
+  "regExAll": [".*/B37/.*"],
+  "regExOne": [
+   ".*maf\\.txt\\.gz.*",
+   ".*bed\\.gz.*"
+  ],
+  "includeHeaders": false,
+  "matchVcf": false
+ },
+ "queryResults": [{
+  "stop": 4162867,
+  "hits": [
+   {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+   {"source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"},
+   {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"}
+  ],
+  "input": "20:4,162,827-4,162,867",
+  "start": 4162827,
+  "chr": "20"
+ }]
+}

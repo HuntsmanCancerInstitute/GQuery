@@ -1,0 +1,379 @@
+{
+ "querySettings": {
+  "inputFile": "b37Test.bed",
+  "fetchData": true,
+  "matchVcf": false,
+  "forceFetchData": false,
+  "includeHeaders": true
+ },
+ "dataRetrievalStats": {
+  "recordsRetrieved": 76,
+  "millSecToLoadRecords": 4,
+  "recordsReturnedToUser": 76,
+  "queriesWithTabixRecords": 11
+ },
+ "queryResults": [
+  {
+   "hits": [
+    {
+     "data": [
+      "20\t3893104\t3893281\tENSG00000125779_PANK2\t0\t+",
+      "20\t3897573\t3897697\tENSG00000125779_PANK2\t0\t+",
+      "20\t3898140\t3898218\tENSG00000199024_MIR103A2\t0\t+"
+     ],
+     "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+    },
+    {
+     "data": [
+      "20\t3898067\t3898145\t1",
+      "20\t3898168\t3898293\t1"
+     ],
+     "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"
+    },
+    {
+     "data": ["20\t3897559\t.\tT\tTTCCCCC\t.\tPASS\tECNT=1;HCNT=10;MAX_ED=.;MIN_ED=.;NLOD=23.80;TLOD=215.91\tGT:AD:AF:ALT_F1R2:ALT_F2R1:FOXOG:QSS:REF_F1R2:REF_F2R1\t0/1:98,66:0.442:30:36:.:3656,2426:46:52\t0/0:104,0:0.00:0:0:.:3902,0:50:54"],
+     "source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"
+    },
+    {
+     "data": [
+      "20\t3894237\t.\tT\t<DUP>\t.\t.\tEG=RICTOR;EE=39_of_39;ST=known;END=3894437;LR=1.56;ACN=9.0;CON=false;SVTYPE=DUP;IMPRECISE",
+      "20\t3895363\t.\tG\tA\t.\t.\tEG=RICTOR;FE=missense;ST=unknown;PE=R907C;DP=833;AF=0.48"
+     ],
+     "source": "Data/B37/VCFData/chr20-21TRF037738.vcf.gz"
+    }
+   ],
+   "input": "20\t3893036\t3898261\tjustName",
+   "numberHits": 4,
+   "stop": 3898261,
+   "start": 3893036,
+   "chr": "20"
+  },
+  {
+   "hits": [
+    {
+     "data": ["20\t4162735\t4163495\tENSG00000088826_SMOX\t0\t+"],
+     "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+    },
+    {
+     "data": ["SMOX\t54498\thgsc.bcm.edu\t37\t20\t4162847\t4162847\t+\tMissense_Mutation\tSNP\tC\tC\tT\t\t\tTCGA-OR-A5J1-01A-11D-A29I-10\tTCGA-OR-A5J1-10A-01D-A29L-10\tC\tC\t-\t-\t-\t-\tUnknown\tUntested\tSomatic\tPhase_I\tWXS\tnone\t.\t\tIllumina GAIIx\t352062e7-9b06-41cd-880c-38fe268c9bf3\t1d288ab9-ab2d-4483-af84-f5d0f5837cda\tg.chr20:4162847C>T\tENST00000305958.4\t+\t5\t946\tc.721C>T\tc.(721-723)Cgg>Tgg\tp.R241W\tSMOX_ENST00000379460.2_Missense_Mutation_p.R241W|SMOX_ENST00000346595.2_Intron|SMOX_ENST00000339123.6_Missense_Mutation_p.R241W|SMOX_ENST00000278795.3_Missense_Mutation_p.R241W\tNM_175839.2\tNP_787033.1\tQ9NWM0\tSMOX_HUMAN\tspermine oxidase\t241\t\t\t\t\tcellular nitrogen compound metabolic process (GO:0034641)|oxidation-reduction process (GO:0055114)|polyamine biosynthetic process (GO:0006596)|polyamine catabolic process (GO:0006598)|polyamine metabolic process (GO:0006595)|small molecule metabolic process (GO:0044281)|spermine catabolic process (GO:0046208)|xenobiotic metabolic process (GO:0006805)\tcytoplasm (GO:0005737)|cytosol (GO:0005829)|nucleus (GO:0005634)\tN1-acetylspermine:oxygen oxidoreductase (N1-acetylspermidine-forming) activity (GO:0052895)|norspermine:oxygen oxidoreductase activity (GO:0052894)|polyamine oxidase activity (GO:0046592)|spermine:oxygen oxidoreductase (spermidine-forming) activity (GO:0052901)\t\t\tbreast(1)|cervix(1)|endometrium(8)|kidney(1)|large_intestine(7)|lung(5)|skin(2)|urinary_tract(1)\t26\t\t\t\t\tSpermine(DB00127)\tGGGCTTCATGCGGGTTGTGGA\t0.657\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tp.R241W\t\t.\t\t\t\t\t\t\t\t\t\t\t.\tSMOX-153\t0\t\t\tc.C721T\t\t\t\t\t\t.\t\t\t\t\t\t35\t36\t36\t\t\t\t\t20\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4162847\t\t2203\t4300\t6503\tSO:0001583\tmissense\t54498\texon5\t\t\tTTCATGCGGGTTG\tAK000753\tCCDS13075.1, CCDS13076.1, CCDS13077.1, CCDS13078.1, CCDS74702.1\t20p13\t10/15/03\t10/15/03\t10/15/03\tENSG00000088826\tENSG00000088826\t\t\t15862\tprotein-coding gene\tgene with protein product\t\t615854\t\"chromosome 20 open reading frame 16\"\tC20orf16\t\t11454677, 12398765\tStandard\tNM_175839\t\tApproved\tFLJ20746, dJ779E11.1, PAO, PAOh1, MGC1010, SMO\tuc002wkp.3\tQ9NWM0\tOTTHUMG00000031777\tENST00000305958.4:c.721C>T\t20.37:g.4162847C>T\tENSP00000307252:p.Arg241Trp\t63\t0\t\t65\t4\tNM_175839\t0\t0\t0\t0\t0\tA2A2P5|A2A2P6|A8BE87|D3DVZ4|Q5TE26|Q5TE27|Q6UY28|Q8IX00|Q96LC3|Q96LC4|Q96QT3|Q9BW38|Q9H6H1|Q9NP51|Q9NPY1|Q9NPY2\tMissense_Mutation\tSNP\tENST00000305958.4\t37\tCCDS13075.1\t.\t.\t.\t.\t.\t.\t.\t.\t.\t.\tC\t15.55\t2.86777\t0.51588\t.\t.\tENSG00000088826\tENST00000339123;ENST00000305958;ENST00000278795;ENST00000379460;ENST00000457205\tD;D;D;D;T\t0.92595\t-3.07;-3.07;-3.07;-3.07;2.9\t5.17\t3.19\t0.36642\tAmine oxidase (1);\t0.175907\t0.47093\tD\t0.000259\tD\t0.92782\t0.7705\tL\t0.56199\t1.76\t0.36966\tD\t0.8936\tD;D;D;D;D\t0.71674\t0.99;0.998;0.996;0.991;0.997\tP;P;P;B;P\t0.56474\t0.567;0.799;0.659;0.409;0.711\tD\t0.93426\t0.6781\t10\t0.66056\tD\t0.02\t-13.4298\t12.2078\t0.54363\t0.3104:0.6896:0.0:0.0\t.\t218;241;241;241;241\tB4DE63;Q9NWM0-6;Q9NWM0;Q9NWM0-2;Q9NWM0-4\t.;.;SMOX_HUMAN;.;.\tW\t241;241;241;241;98\tENSP00000344595:R241W;ENSP00000307252:R241W;ENSP00000278795:R241W;ENSP00000368773:R241W;ENSP00000407269:R98W\tENSP00000278795:R241W\tR\t+\t1\t2\tSMOX\t4110847\t1\t0.71417\t1\t0.80357\t0.761\t0.43186\t2.858\t0.48356\t0.551\t0.29008\t-0.32\t0.08662\tCGG\t.\t\t0.657\tSMOX-005\tKNOWN\tbasic|appris_principal|CCDS\tprotein_coding\tprotein_coding\tOTTHUMT00000077806.1\tNM_175842\t"],
+     "source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"
+    },
+    {
+     "data": ["SMOX\t54498\thgsc.bcm.edu\t37\t20\t4162847\t4162847\t+\tMissense_Mutation\tSNP\tC\tC\tT\t\t\tTCGA-OR-A5J1-01A-11D-A29I-10\tTCGA-OR-A5J1-10A-01D-A29L-10\tC\tC\t-\t-\t-\t-\tUnknown\tUntested\tSomatic\tPhase_I\tWXS\tnone\t.\t\tIllumina GAIIx\t352062e7-9b06-41cd-880c-38fe268c9bf3\t1d288ab9-ab2d-4483-af84-f5d0f5837cda\tg.chr20:4162847C>T\tENST00000305958.4\t+\t5\t946\tc.721C>T\tc.(721-723)Cgg>Tgg\tp.R241W\tSMOX_ENST00000379460.2_Missense_Mutation_p.R241W|SMOX_ENST00000346595.2_Intron|SMOX_ENST00000339123.6_Missense_Mutation_p.R241W|SMOX_ENST00000278795.3_Missense_Mutation_p.R241W\tNM_175839.2\tNP_787033.1\tQ9NWM0\tSMOX_HUMAN\tspermine oxidase\t241\t\t\t\t\tcellular nitrogen compound metabolic process (GO:0034641)|oxidation-reduction process (GO:0055114)|polyamine biosynthetic process (GO:0006596)|polyamine catabolic process (GO:0006598)|polyamine metabolic process (GO:0006595)|small molecule metabolic process (GO:0044281)|spermine catabolic process (GO:0046208)|xenobiotic metabolic process (GO:0006805)\tcytoplasm (GO:0005737)|cytosol (GO:0005829)|nucleus (GO:0005634)\tN1-acetylspermine:oxygen oxidoreductase (N1-acetylspermidine-forming) activity (GO:0052895)|norspermine:oxygen oxidoreductase activity (GO:0052894)|polyamine oxidase activity (GO:0046592)|spermine:oxygen oxidoreductase (spermidine-forming) activity (GO:0052901)\t\t\tbreast(1)|cervix(1)|endometrium(8)|kidney(1)|large_intestine(7)|lung(5)|skin(2)|urinary_tract(1)\t26\t\t\t\t\tSpermine(DB00127)\tGGGCTTCATGCGGGTTGTGGA\t0.657\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tp.R241W\t\t.\t\t\t\t\t\t\t\t\t\t\t.\tSMOX-153\t0\t\t\tc.C721T\t\t\t\t\t\t.\t\t\t\t\t\t35\t36\t36\t\t\t\t\t20\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t4162847\t\t2203\t4300\t6503\tSO:0001583\tmissense\t54498\texon5\t\t\tTTCATGCGGGTTG\tAK000753\tCCDS13075.1, CCDS13076.1, CCDS13077.1, CCDS13078.1, CCDS74702.1\t20p13\t10/15/03\t10/15/03\t10/15/03\tENSG00000088826\tENSG00000088826\t\t\t15862\tprotein-coding gene\tgene with protein product\t\t615854\t\"chromosome 20 open reading frame 16\"\tC20orf16\t\t11454677, 12398765\tStandard\tNM_175839\t\tApproved\tFLJ20746, dJ779E11.1, PAO, PAOh1, MGC1010, SMO\tuc002wkp.3\tQ9NWM0\tOTTHUMG00000031777\tENST00000305958.4:c.721C>T\t20.37:g.4162847C>T\tENSP00000307252:p.Arg241Trp\t63\t0\t\t65\t4\tNM_175839\t0\t0\t0\t0\t0\tA2A2P5|A2A2P6|A8BE87|D3DVZ4|Q5TE26|Q5TE27|Q6UY28|Q8IX00|Q96LC3|Q96LC4|Q96QT3|Q9BW38|Q9H6H1|Q9NP51|Q9NPY1|Q9NPY2\tMissense_Mutation\tSNP\tENST00000305958.4\t37\tCCDS13075.1\t.\t.\t.\t.\t.\t.\t.\t.\t.\t.\tC\t15.55\t2.86777\t0.51588\t.\t.\tENSG00000088826\tENST00000339123;ENST00000305958;ENST00000278795;ENST00000379460;ENST00000457205\tD;D;D;D;T\t0.92595\t-3.07;-3.07;-3.07;-3.07;2.9\t5.17\t3.19\t0.36642\tAmine oxidase (1);\t0.175907\t0.47093\tD\t0.000259\tD\t0.92782\t0.7705\tL\t0.56199\t1.76\t0.36966\tD\t0.8936\tD;D;D;D;D\t0.71674\t0.99;0.998;0.996;0.991;0.997\tP;P;P;B;P\t0.56474\t0.567;0.799;0.659;0.409;0.711\tD\t0.93426\t0.6781\t10\t0.66056\tD\t0.02\t-13.4298\t12.2078\t0.54363\t0.3104:0.6896:0.0:0.0\t.\t218;241;241;241;241\tB4DE63;Q9NWM0-6;Q9NWM0;Q9NWM0-2;Q9NWM0-4\t.;.;SMOX_HUMAN;.;.\tW\t241;241;241;241;98\tENSP00000344595:R241W;ENSP00000307252:R241W;ENSP00000278795:R241W;ENSP00000368773:R241W;ENSP00000407269:R98W\tENSP00000278795:R241W\tR\t+\t1\t2\tSMOX\t4110847\t1\t0.71417\t1\t0.80357\t0.761\t0.43186\t2.858\t0.48356\t0.551\t0.29008\t-0.32\t0.08662\tCGG\t.\t\t0.657\tSMOX-005\tKNOWN\tbasic|appris_principal|CCDS\tprotein_coding\tprotein_coding\tOTTHUMT00000077806.1\tNM_175842\t"],
+     "source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"
+    },
+    {
+     "data": [
+      "20\t4162827\t4162828\t283",
+      "20\t4162828\t4162829\t284",
+      "20\t4162829\t4162830\t285",
+      "20\t4162830\t4162831\t283",
+      "20\t4162831\t4162832\t284",
+      "20\t4162832\t4162835\t285",
+      "20\t4162835\t4162837\t287",
+      "20\t4162837\t4162838\t292",
+      "20\t4162838\t4162839\t293",
+      "20\t4162839\t4162840\t295",
+      "20\t4162840\t4162842\t294",
+      "20\t4162842\t4162843\t295",
+      "20\t4162843\t4162844\t296",
+      "20\t4162844\t4162845\t297",
+      "20\t4162845\t4162846\t296",
+      "20\t4162846\t4162847\t299",
+      "20\t4162847\t4162848\t295",
+      "20\t4162848\t4162849\t298",
+      "20\t4162849\t4162851\t303",
+      "20\t4162851\t4162853\t304",
+      "20\t4162853\t4162854\t307",
+      "20\t4162854\t4162856\t306",
+      "20\t4162856\t4162858\t308",
+      "20\t4162858\t4162860\t303",
+      "20\t4162860\t4162861\t304",
+      "20\t4162861\t4162862\t300",
+      "20\t4162862\t4162863\t298",
+      "20\t4162863\t4162864\t300",
+      "20\t4162864\t4162865\t298",
+      "20\t4162865\t4162866\t299",
+      "20\t4162866\t4162867\t298"
+     ],
+     "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"
+    }
+   ],
+   "input": "20\t4162827\t4162867",
+   "numberHits": 4,
+   "stop": 4162867,
+   "start": 4162827,
+   "chr": "20"
+  },
+  {
+   "hits": [
+    {
+     "data": ["21\t11058160\t11058323\tENSG00000187172_BAGE2\t0\t-"],
+     "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+    },
+    {
+     "data": [
+      "21\t11058196\t11058200\t184",
+      "21\t11058200\t11058202\t182",
+      "21\t11058202\t11058203\t183",
+      "21\t11058203\t11058204\t185",
+      "21\t11058204\t11058206\t181",
+      "21\t11058206\t11058208\t185",
+      "21\t11058208\t11058209\t186",
+      "21\t11058209\t11058210\t185",
+      "21\t11058210\t11058211\t189",
+      "21\t11058211\t11058212\t188",
+      "21\t11058212\t11058213\t189",
+      "21\t11058213\t11058214\t188",
+      "21\t11058214\t11058216\t190",
+      "21\t11058216\t11058218\t192",
+      "21\t11058218\t11058219\t193",
+      "21\t11058219\t11058220\t191",
+      "21\t11058220\t11058221\t194",
+      "21\t11058221\t11058222\t193",
+      "21\t11058222\t11058224\t191",
+      "21\t11058224\t11058225\t192",
+      "21\t11058225\t11058226\t193",
+      "21\t11058226\t11058227\t192",
+      "21\t11058227\t11058228\t193",
+      "21\t11058228\t11058229\t194",
+      "21\t11058229\t11058230\t198",
+      "21\t11058230\t11058231\t207",
+      "21\t11058231\t11058232\t221",
+      "21\t11058232\t11058233\t223",
+      "21\t11058233\t11058234\t227",
+      "21\t11058234\t11058235\t232",
+      "21\t11058235\t11058236\t234",
+      "21\t11058236\t11058237\t238"
+     ],
+     "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"
+    },
+    {
+     "data": ["21\t11058217\t.\tTCC\tT\t.\tclustered_events;homologous_mapping_event\tECNT=3;HCNT=4;MAX_ED=123;MIN_ED=105;NLOD=64.15;TLOD=8.31\tGT:AD:AF:ALT_F1R2:ALT_F2R1:FOXOG:QSS:REF_F1R2:REF_F2R1\t0/1:193,2:0.027:2:0:.:7176,72:111:82\t0/0:287,0:0.00:0:0:.:10604,0:142:145"],
+     "source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"
+    }
+   ],
+   "input": "21\t11058198\t11058237\ttestX\t4.3\t-",
+   "numberHits": 3,
+   "stop": 11058237,
+   "start": 11058198,
+   "chr": "21"
+  }
+ ],
+ "fileHeaders": [
+  {
+   "header": [],
+   "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+  },
+  {
+   "header": [],
+   "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"
+  },
+  {
+   "header": [
+    "#version 2.4",
+    "##",
+    "## Oncotator v1.8.0.0 | Flat File Reference hg19 | GENCODE v19 EFFECT | UniProt_AAxform 2014_12 | ClinVar 12.03.20 | ESP 6500SI-V2 | ORegAnno UCSC Track | dbSNP build 142 | CCLE_By_GP 09292010 | COSMIC v62_291112 | 1000gp3 20130502 | UniProt_AA 2014_12 | dbNSFP v2.4 | ESP 6500SI-V2 | COSMIC_FusionGenes v62_291112 | gencode_xref_refseq metadata_v19 | CCLE_By_Gene 09292010 | ACHILLES_Lineage_Results 110303 | CGC full_2012-03-15 | UniProt 2014_12 | HumanDNARepairGenes 20110905 | HGNC Sept172014 | COSMIC_Tissue 291112 | Familial_Cancer_Genes 20110905 | TUMORScape 20100104 | Ensembl ICGC MUCOPA | TCGAScape 110405 | MutSig Published Results 20110905",
+    "Hugo_Symbol\tEntrez_Gene_Id\tCenter\tNCBI_Build\tChromosome\tStart_position\tEnd_position\tStrand\tVariant_Classification\tVariant_Type\tReference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tdbSNP_RS\tdbSNP_Val_Status\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tMatch_Norm_Seq_Allele1\tMatch_Norm_Seq_Allele2\tTumor_Validation_Allele1\tTumor_Validation_Allele2\tMatch_Norm_Validation_Allele1\tMatch_Norm_Validation_Allele2\tVerification_Status\tValidation_Status\tMutation_Status\tSequencing_Phase\tSequence_Source\tValidation_Method\tScore\tBAM_file\tSequencer\tTumor_Sample_UUID\tMatched_Norm_Sample_UUID\tGenome_Change\tAnnotation_Transcript\tTranscript_Strand\tTranscript_Exon\tTranscript_Position\tcDNA_Change\tCodon_Change\tProtein_Change\tOther_Transcripts\tRefseq_mRNA_Id\tRefseq_prot_Id\tSwissProt_acc_Id\tSwissProt_entry_Id\tDescription\tUniProt_AApos\tUniProt_Region\tUniProt_Site\tUniProt_Natural_Variations\tUniProt_Experimental_Info\tGO_Biological_Process\tGO_Cellular_Component\tGO_Molecular_Function\tCOSMIC_overlapping_mutations\tCOSMIC_fusion_genes\tCOSMIC_tissue_types_affected\tCOSMIC_total_alterations_in_gene\tTumorscape_Amplification_Peaks\tTumorscape_Deletion_Peaks\tTCGAscape_Amplification_Peaks\tTCGAscape_Deletion_Peaks\tDrugBank\tref_context\tgc_content\tCCLE_ONCOMAP_overlapping_mutations\tCCLE_ONCOMAP_total_mutations_in_gene\tCGC_Mutation_Type\tCGC_Translocation_Partner\tCGC_Tumor_Types_Somatic\tCGC_Tumor_Types_Germline\tCGC_Other_Diseases\tDNARepairGenes_Role\tFamilialCancerDatabase_Syndromes\tMUTSIG_Published_Results\tOREGANNO_ID\tOREGANNO_Values\ti_1000gp3_AA\ti_1000gp3_AC\ti_1000gp3_AF\ti_1000gp3_AFR_AF\ti_1000gp3_AMR_AF\ti_1000gp3_AN\ti_1000gp3_CIEND\ti_1000gp3_CIPOS\ti_1000gp3_CS\ti_1000gp3_DP\ti_1000gp3_EAS_AF\ti_1000gp3_END\ti_1000gp3_EUR_AF\ti_1000gp3_IMPRECISE\ti_1000gp3_MC\ti_1000gp3_MEINFO\ti_1000gp3_MEND\ti_1000gp3_MLEN\ti_1000gp3_MSTART\ti_1000gp3_NS\ti_1000gp3_SAS_AF\ti_1000gp3_SVLEN\ti_1000gp3_SVTYPE\ti_1000gp3_TSD\ti_AAChange\ti_ACHILLES_Lineage_Results_Top_Genes\ti_BAM_File\ti_CGC_Cancer Germline Mut\ti_CGC_Cancer Molecular Genetics\ti_CGC_Cancer Somatic Mut\ti_CGC_Cancer Syndrome\ti_CGC_Chr\ti_CGC_Chr Band\ti_CGC_GeneID\ti_CGC_Name\ti_CGC_Other Germline Mut\ti_CGC_Tissue Type\ti_COSMIC_Codon\ti_COSMIC_Gene\ti_COSMIC_n_overlapping_mutations\ti_COSMIC_overlapping_mutation_descriptions\ti_COSMIC_overlapping_primary_sites\ti_ChromChange\ti_ClinVar_ASSEMBLY\ti_ClinVar_HGMD_ID\ti_ClinVar_SYM\ti_ClinVar_TYPE\ti_ClinVar_rs\ti_Drug_Target\ti_ESP_AA\ti_ESP_AAC\ti_ESP_AA_AC\ti_ESP_AA_AGE\ti_ESP_AA_GTC\ti_ESP_AvgAAsampleReadDepth\ti_ESP_AvgEAsampleReadDepth\ti_ESP_AvgSampleReadDepth\ti_ESP_CA\ti_ESP_CDP\ti_ESP_CG\ti_ESP_CP\ti_ESP_Chromosome\ti_ESP_DBSNP\ti_ESP_DP\ti_ESP_EA_AC\ti_ESP_EA_AGE\ti_ESP_EA_GTC\ti_ESP_EXOME_CHIP\ti_ESP_FG\ti_ESP_GL\ti_ESP_GM\ti_ESP_GS\ti_ESP_GTC\ti_ESP_GTS\ti_ESP_GWAS_PUBMED\ti_ESP_MAF\ti_ESP_PH\ti_ESP_PP\ti_ESP_Position\ti_ESP_TAC\ti_ESP_TotalAAsamplesCovered\ti_ESP_TotalEAsamplesCovered\ti_ESP_TotalSamplesCovered\ti_Ensembl_so_accession\ti_Ensembl_so_term\ti_Entrez_Gene_Id\ti_Exon\ti_Familial_Cancer_Genes_Reference\ti_Familial_Cancer_Genes_Synonym\ti_Genome_Plus_Minus_10_Bp\ti_HGNC_Accession Numbers\ti_HGNC_CCDS IDs\ti_HGNC_Chromosome\ti_HGNC_Date Modified\ti_HGNC_Date Name Changed\ti_HGNC_Date Symbol Changed\ti_HGNC_Ensembl Gene ID\ti_HGNC_Ensembl ID(supplied by Ensembl)\ti_HGNC_Enzyme IDs\ti_HGNC_Gene family description\ti_HGNC_HGNC ID\ti_HGNC_Locus Group\ti_HGNC_Locus Type\ti_HGNC_Name Synonyms\ti_HGNC_OMIM ID(supplied by NCBI)\ti_HGNC_Previous Names\ti_HGNC_Previous Symbols\ti_HGNC_Primary IDs\ti_HGNC_Pubmed IDs\ti_HGNC_Record Type\ti_HGNC_RefSeq(supplied by NCBI)\ti_HGNC_Secondary IDs\ti_HGNC_Status\ti_HGNC_Synonyms\ti_HGNC_UCSC ID(supplied by UCSC)\ti_HGNC_UniProt ID(supplied by UniProt)\ti_HGNC_VEGA IDs\ti_HGVS_coding_DNA_change\ti_HGVS_genomic_change\ti_HGVS_protein_change\ti_NTotCov\ti_NVarCov\ti_ORegAnno_bin\ti_TTotCov\ti_TVarCov\ti_Transcript_Id\ti_Trna_alt1\ti_Trna_alt2\ti_Trna_ref\ti_Trna_tot\ti_Trna_var\ti_UniProt_alt_uniprot_accessions\ti_Variant_Classification\ti_Variant_Type\ti_annotation_transcript\ti_build\ti_ccds_id\ti_dbNSFP_1000Gp1_AC\ti_dbNSFP_1000Gp1_AF\ti_dbNSFP_1000Gp1_AFR_AC\ti_dbNSFP_1000Gp1_AFR_AF\ti_dbNSFP_1000Gp1_AMR_AC\ti_dbNSFP_1000Gp1_AMR_AF\ti_dbNSFP_1000Gp1_ASN_AC\ti_dbNSFP_1000Gp1_ASN_AF\ti_dbNSFP_1000Gp1_EUR_AC\ti_dbNSFP_1000Gp1_EUR_AF\ti_dbNSFP_Ancestral_allele\ti_dbNSFP_CADD_phred\ti_dbNSFP_CADD_raw\ti_dbNSFP_CADD_raw_rankscore\ti_dbNSFP_ESP6500_AA_AF\ti_dbNSFP_ESP6500_EA_AF\ti_dbNSFP_Ensembl_geneid\ti_dbNSFP_Ensembl_transcriptid\ti_dbNSFP_FATHMM_pred\ti_dbNSFP_FATHMM_rankscore\ti_dbNSFP_FATHMM_score\ti_dbNSFP_GERP++_NR\ti_dbNSFP_GERP++_RS\ti_dbNSFP_GERP++_RS_rankscore\ti_dbNSFP_Interpro_domain\ti_dbNSFP_LRT_Omega\ti_dbNSFP_LRT_converted_rankscore\ti_dbNSFP_LRT_pred\ti_dbNSFP_LRT_score\ti_dbNSFP_LR_pred\ti_dbNSFP_LR_rankscore\ti_dbNSFP_LR_score\ti_dbNSFP_MutationAssessor_pred\ti_dbNSFP_MutationAssessor_rankscore\ti_dbNSFP_MutationAssessor_score\ti_dbNSFP_MutationTaster_converted_rankscore\ti_dbNSFP_MutationTaster_pred\ti_dbNSFP_MutationTaster_score\ti_dbNSFP_Polyphen2_HDIV_pred\ti_dbNSFP_Polyphen2_HDIV_rankscore\ti_dbNSFP_Polyphen2_HDIV_score\ti_dbNSFP_Polyphen2_HVAR_pred\ti_dbNSFP_Polyphen2_HVAR_rankscore\ti_dbNSFP_Polyphen2_HVAR_score\ti_dbNSFP_RadialSVM_pred\ti_dbNSFP_RadialSVM_rankscore\ti_dbNSFP_RadialSVM_score\ti_dbNSFP_Reliability_index\ti_dbNSFP_SIFT_converted_rankscore\ti_dbNSFP_SIFT_pred\ti_dbNSFP_SIFT_score\ti_dbNSFP_SLR_test_statistic\ti_dbNSFP_SiPhy_29way_logOdds\ti_dbNSFP_SiPhy_29way_logOdds_rankscore\ti_dbNSFP_SiPhy_29way_pi\ti_dbNSFP_UniSNP_ids\ti_dbNSFP_Uniprot_aapos\ti_dbNSFP_Uniprot_acc\ti_dbNSFP_Uniprot_id\ti_dbNSFP_aaalt\ti_dbNSFP_aapos\ti_dbNSFP_aapos_FATHMM\ti_dbNSFP_aapos_SIFT\ti_dbNSFP_aaref\ti_dbNSFP_cds_strand\ti_dbNSFP_codonpos\ti_dbNSFP_fold-degenerate\ti_dbNSFP_genename\ti_dbNSFP_hg18_pos(1-coor)\ti_dbNSFP_phastCons100way_vertebrate\ti_dbNSFP_phastCons100way_vertebrate_rankscore\ti_dbNSFP_phastCons46way_placental\ti_dbNSFP_phastCons46way_placental_rankscore\ti_dbNSFP_phastCons46way_primate\ti_dbNSFP_phastCons46way_primate_rankscore\ti_dbNSFP_phyloP100way_vertebrate\ti_dbNSFP_phyloP100way_vertebrate_rankscore\ti_dbNSFP_phyloP46way_placental\ti_dbNSFP_phyloP46way_placental_rankscore\ti_dbNSFP_phyloP46way_primate\ti_dbNSFP_phyloP46way_primate_rankscore\ti_dbNSFP_refcodon\ti_dbSNPPopFreq\ti_entrez_gene_id\ti_gc_content_full\ti_gencode_transcript_name\ti_gencode_transcript_status\ti_gencode_transcript_tags\ti_gencode_transcript_type\ti_gene_type\ti_havana_transcript\ti_refseq_mrna_id\ti_secondary_variant_classification"
+   ],
+   "source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"
+  },
+  {
+   "header": [
+    "#version 2.4",
+    "##",
+    "## Oncotator v1.8.0.0 | Flat File Reference hg19 | GENCODE v19 EFFECT | UniProt_AAxform 2014_12 | ClinVar 12.03.20 | ESP 6500SI-V2 | ORegAnno UCSC Track | dbSNP build 142 | CCLE_By_GP 09292010 | COSMIC v62_291112 | 1000gp3 20130502 | UniProt_AA 2014_12 | dbNSFP v2.4 | ESP 6500SI-V2 | COSMIC_FusionGenes v62_291112 | gencode_xref_refseq metadata_v19 | CCLE_By_Gene 09292010 | ACHILLES_Lineage_Results 110303 | CGC full_2012-03-15 | UniProt 2014_12 | HumanDNARepairGenes 20110905 | HGNC Sept172014 | COSMIC_Tissue 291112 | Familial_Cancer_Genes 20110905 | TUMORScape 20100104 | Ensembl ICGC MUCOPA | TCGAScape 110405 | MutSig Published Results 20110905",
+    "Hugo_Symbol\tEntrez_Gene_Id\tCenter\tNCBI_Build\tChromosome\tStart_position\tEnd_position\tStrand\tVariant_Classification\tVariant_Type\tReference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tdbSNP_RS\tdbSNP_Val_Status\tTumor_Sample_Barcode\tMatched_Norm_Sample_Barcode\tMatch_Norm_Seq_Allele1\tMatch_Norm_Seq_Allele2\tTumor_Validation_Allele1\tTumor_Validation_Allele2\tMatch_Norm_Validation_Allele1\tMatch_Norm_Validation_Allele2\tVerification_Status\tValidation_Status\tMutation_Status\tSequencing_Phase\tSequence_Source\tValidation_Method\tScore\tBAM_file\tSequencer\tTumor_Sample_UUID\tMatched_Norm_Sample_UUID\tGenome_Change\tAnnotation_Transcript\tTranscript_Strand\tTranscript_Exon\tTranscript_Position\tcDNA_Change\tCodon_Change\tProtein_Change\tOther_Transcripts\tRefseq_mRNA_Id\tRefseq_prot_Id\tSwissProt_acc_Id\tSwissProt_entry_Id\tDescription\tUniProt_AApos\tUniProt_Region\tUniProt_Site\tUniProt_Natural_Variations\tUniProt_Experimental_Info\tGO_Biological_Process\tGO_Cellular_Component\tGO_Molecular_Function\tCOSMIC_overlapping_mutations\tCOSMIC_fusion_genes\tCOSMIC_tissue_types_affected\tCOSMIC_total_alterations_in_gene\tTumorscape_Amplification_Peaks\tTumorscape_Deletion_Peaks\tTCGAscape_Amplification_Peaks\tTCGAscape_Deletion_Peaks\tDrugBank\tref_context\tgc_content\tCCLE_ONCOMAP_overlapping_mutations\tCCLE_ONCOMAP_total_mutations_in_gene\tCGC_Mutation_Type\tCGC_Translocation_Partner\tCGC_Tumor_Types_Somatic\tCGC_Tumor_Types_Germline\tCGC_Other_Diseases\tDNARepairGenes_Role\tFamilialCancerDatabase_Syndromes\tMUTSIG_Published_Results\tOREGANNO_ID\tOREGANNO_Values\ti_1000gp3_AA\ti_1000gp3_AC\ti_1000gp3_AF\ti_1000gp3_AFR_AF\ti_1000gp3_AMR_AF\ti_1000gp3_AN\ti_1000gp3_CIEND\ti_1000gp3_CIPOS\ti_1000gp3_CS\ti_1000gp3_DP\ti_1000gp3_EAS_AF\ti_1000gp3_END\ti_1000gp3_EUR_AF\ti_1000gp3_IMPRECISE\ti_1000gp3_MC\ti_1000gp3_MEINFO\ti_1000gp3_MEND\ti_1000gp3_MLEN\ti_1000gp3_MSTART\ti_1000gp3_NS\ti_1000gp3_SAS_AF\ti_1000gp3_SVLEN\ti_1000gp3_SVTYPE\ti_1000gp3_TSD\ti_AAChange\ti_ACHILLES_Lineage_Results_Top_Genes\ti_BAM_File\ti_CGC_Cancer Germline Mut\ti_CGC_Cancer Molecular Genetics\ti_CGC_Cancer Somatic Mut\ti_CGC_Cancer Syndrome\ti_CGC_Chr\ti_CGC_Chr Band\ti_CGC_GeneID\ti_CGC_Name\ti_CGC_Other Germline Mut\ti_CGC_Tissue Type\ti_COSMIC_Codon\ti_COSMIC_Gene\ti_COSMIC_n_overlapping_mutations\ti_COSMIC_overlapping_mutation_descriptions\ti_COSMIC_overlapping_primary_sites\ti_ChromChange\ti_ClinVar_ASSEMBLY\ti_ClinVar_HGMD_ID\ti_ClinVar_SYM\ti_ClinVar_TYPE\ti_ClinVar_rs\ti_Drug_Target\ti_ESP_AA\ti_ESP_AAC\ti_ESP_AA_AC\ti_ESP_AA_AGE\ti_ESP_AA_GTC\ti_ESP_AvgAAsampleReadDepth\ti_ESP_AvgEAsampleReadDepth\ti_ESP_AvgSampleReadDepth\ti_ESP_CA\ti_ESP_CDP\ti_ESP_CG\ti_ESP_CP\ti_ESP_Chromosome\ti_ESP_DBSNP\ti_ESP_DP\ti_ESP_EA_AC\ti_ESP_EA_AGE\ti_ESP_EA_GTC\ti_ESP_EXOME_CHIP\ti_ESP_FG\ti_ESP_GL\ti_ESP_GM\ti_ESP_GS\ti_ESP_GTC\ti_ESP_GTS\ti_ESP_GWAS_PUBMED\ti_ESP_MAF\ti_ESP_PH\ti_ESP_PP\ti_ESP_Position\ti_ESP_TAC\ti_ESP_TotalAAsamplesCovered\ti_ESP_TotalEAsamplesCovered\ti_ESP_TotalSamplesCovered\ti_Ensembl_so_accession\ti_Ensembl_so_term\ti_Entrez_Gene_Id\ti_Exon\ti_Familial_Cancer_Genes_Reference\ti_Familial_Cancer_Genes_Synonym\ti_Genome_Plus_Minus_10_Bp\ti_HGNC_Accession Numbers\ti_HGNC_CCDS IDs\ti_HGNC_Chromosome\ti_HGNC_Date Modified\ti_HGNC_Date Name Changed\ti_HGNC_Date Symbol Changed\ti_HGNC_Ensembl Gene ID\ti_HGNC_Ensembl ID(supplied by Ensembl)\ti_HGNC_Enzyme IDs\ti_HGNC_Gene family description\ti_HGNC_HGNC ID\ti_HGNC_Locus Group\ti_HGNC_Locus Type\ti_HGNC_Name Synonyms\ti_HGNC_OMIM ID(supplied by NCBI)\ti_HGNC_Previous Names\ti_HGNC_Previous Symbols\ti_HGNC_Primary IDs\ti_HGNC_Pubmed IDs\ti_HGNC_Record Type\ti_HGNC_RefSeq(supplied by NCBI)\ti_HGNC_Secondary IDs\ti_HGNC_Status\ti_HGNC_Synonyms\ti_HGNC_UCSC ID(supplied by UCSC)\ti_HGNC_UniProt ID(supplied by UniProt)\ti_HGNC_VEGA IDs\ti_HGVS_coding_DNA_change\ti_HGVS_genomic_change\ti_HGVS_protein_change\ti_NTotCov\ti_NVarCov\ti_ORegAnno_bin\ti_TTotCov\ti_TVarCov\ti_Transcript_Id\ti_Trna_alt1\ti_Trna_alt2\ti_Trna_ref\ti_Trna_tot\ti_Trna_var\ti_UniProt_alt_uniprot_accessions\ti_Variant_Classification\ti_Variant_Type\ti_annotation_transcript\ti_build\ti_ccds_id\ti_dbNSFP_1000Gp1_AC\ti_dbNSFP_1000Gp1_AF\ti_dbNSFP_1000Gp1_AFR_AC\ti_dbNSFP_1000Gp1_AFR_AF\ti_dbNSFP_1000Gp1_AMR_AC\ti_dbNSFP_1000Gp1_AMR_AF\ti_dbNSFP_1000Gp1_ASN_AC\ti_dbNSFP_1000Gp1_ASN_AF\ti_dbNSFP_1000Gp1_EUR_AC\ti_dbNSFP_1000Gp1_EUR_AF\ti_dbNSFP_Ancestral_allele\ti_dbNSFP_CADD_phred\ti_dbNSFP_CADD_raw\ti_dbNSFP_CADD_raw_rankscore\ti_dbNSFP_ESP6500_AA_AF\ti_dbNSFP_ESP6500_EA_AF\ti_dbNSFP_Ensembl_geneid\ti_dbNSFP_Ensembl_transcriptid\ti_dbNSFP_FATHMM_pred\ti_dbNSFP_FATHMM_rankscore\ti_dbNSFP_FATHMM_score\ti_dbNSFP_GERP++_NR\ti_dbNSFP_GERP++_RS\ti_dbNSFP_GERP++_RS_rankscore\ti_dbNSFP_Interpro_domain\ti_dbNSFP_LRT_Omega\ti_dbNSFP_LRT_converted_rankscore\ti_dbNSFP_LRT_pred\ti_dbNSFP_LRT_score\ti_dbNSFP_LR_pred\ti_dbNSFP_LR_rankscore\ti_dbNSFP_LR_score\ti_dbNSFP_MutationAssessor_pred\ti_dbNSFP_MutationAssessor_rankscore\ti_dbNSFP_MutationAssessor_score\ti_dbNSFP_MutationTaster_converted_rankscore\ti_dbNSFP_MutationTaster_pred\ti_dbNSFP_MutationTaster_score\ti_dbNSFP_Polyphen2_HDIV_pred\ti_dbNSFP_Polyphen2_HDIV_rankscore\ti_dbNSFP_Polyphen2_HDIV_score\ti_dbNSFP_Polyphen2_HVAR_pred\ti_dbNSFP_Polyphen2_HVAR_rankscore\ti_dbNSFP_Polyphen2_HVAR_score\ti_dbNSFP_RadialSVM_pred\ti_dbNSFP_RadialSVM_rankscore\ti_dbNSFP_RadialSVM_score\ti_dbNSFP_Reliability_index\ti_dbNSFP_SIFT_converted_rankscore\ti_dbNSFP_SIFT_pred\ti_dbNSFP_SIFT_score\ti_dbNSFP_SLR_test_statistic\ti_dbNSFP_SiPhy_29way_logOdds\ti_dbNSFP_SiPhy_29way_logOdds_rankscore\ti_dbNSFP_SiPhy_29way_pi\ti_dbNSFP_UniSNP_ids\ti_dbNSFP_Uniprot_aapos\ti_dbNSFP_Uniprot_acc\ti_dbNSFP_Uniprot_id\ti_dbNSFP_aaalt\ti_dbNSFP_aapos\ti_dbNSFP_aapos_FATHMM\ti_dbNSFP_aapos_SIFT\ti_dbNSFP_aaref\ti_dbNSFP_cds_strand\ti_dbNSFP_codonpos\ti_dbNSFP_fold-degenerate\ti_dbNSFP_genename\ti_dbNSFP_hg18_pos(1-coor)\ti_dbNSFP_phastCons100way_vertebrate\ti_dbNSFP_phastCons100way_vertebrate_rankscore\ti_dbNSFP_phastCons46way_placental\ti_dbNSFP_phastCons46way_placental_rankscore\ti_dbNSFP_phastCons46way_primate\ti_dbNSFP_phastCons46way_primate_rankscore\ti_dbNSFP_phyloP100way_vertebrate\ti_dbNSFP_phyloP100way_vertebrate_rankscore\ti_dbNSFP_phyloP46way_placental\ti_dbNSFP_phyloP46way_placental_rankscore\ti_dbNSFP_phyloP46way_primate\ti_dbNSFP_phyloP46way_primate_rankscore\ti_dbNSFP_refcodon\ti_dbSNPPopFreq\ti_entrez_gene_id\ti_gc_content_full\ti_gencode_transcript_name\ti_gencode_transcript_status\ti_gencode_transcript_tags\ti_gencode_transcript_type\ti_gene_type\ti_havana_transcript\ti_refseq_mrna_id\ti_secondary_variant_classification"
+   ],
+   "source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"
+  },
+  {
+   "header": [
+    "##fileformat=VCFv4.2",
+    "##FILTER=<ID=alt_allele_in_normal,Description=\"Evidence seen in the normal sample\">",
+    "##FILTER=<ID=clustered_events,Description=\"Clustered events observed in the tumor\">",
+    "##FILTER=<ID=germline_risk,Description=\"Evidence indicates this site is germline, not somatic\">",
+    "##FILTER=<ID=homologous_mapping_event,Description=\"More than three events were observed in the tumor\">",
+    "##FILTER=<ID=multi_event_alt_allele_in_normal,Description=\"Multiple events observed in tumor and normal\">",
+    "##FILTER=<ID=panel_of_normals,Description=\"Seen in at least 2 samples in the panel of normals\">",
+    "##FILTER=<ID=str_contraction,Description=\"Site filtered due to contraction of short tandem repeat region\">",
+    "##FILTER=<ID=t_lod_fstar,Description=\"Tumor does not meet likelihood threshold\">",
+    "##FILTER=<ID=triallelic_site,Description=\"Site filtered because more than two alt alleles pass tumor LOD\">",
+    "##FORMAT=<ID=AD,Number=R,Type=Integer,Description=\"Allelic depths for the ref and alt alleles in the order listed\">",
+    "##FORMAT=<ID=AF,Number=1,Type=Float,Description=\"Allele fraction of the event in the tumor\">",
+    "##FORMAT=<ID=ALT_F1R2,Number=1,Type=Integer,Description=\"Count of reads in F1R2 pair orientation supporting the alternate allele\">",
+    "##FORMAT=<ID=ALT_F2R1,Number=1,Type=Integer,Description=\"Count of reads in F2R1 pair orientation supporting the alternate allele\">",
+    "##FORMAT=<ID=DP,Number=1,Type=Integer,Description=\"Approximate read depth (reads with MQ=255 or with bad mates are filtered)\">",
+    "##FORMAT=<ID=FOXOG,Number=1,Type=Float,Description=\"Fraction of alt reads indicating OxoG error\">",
+    "##FORMAT=<ID=GQ,Number=1,Type=Integer,Description=\"Genotype Quality\">",
+    "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">",
+    "##FORMAT=<ID=PGT,Number=1,Type=String,Description=\"Physical phasing haplotype information, describing how the alternate alleles are phased in relation to one another\">",
+    "##FORMAT=<ID=PID,Number=1,Type=String,Description=\"Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group\">",
+    "##FORMAT=<ID=PL,Number=G,Type=Integer,Description=\"Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification\">",
+    "##FORMAT=<ID=QSS,Number=A,Type=Integer,Description=\"Sum of base quality scores for each allele\">",
+    "##FORMAT=<ID=REF_F1R2,Number=1,Type=Integer,Description=\"Count of reads in F1R2 pair orientation supporting the reference allele\">",
+    "##FORMAT=<ID=REF_F2R1,Number=1,Type=Integer,Description=\"Count of reads in F2R1 pair orientation supporting the reference allele\">",
+    "##GATKCommandLine.MuTect2=<ID=MuTect2,Version=3.6-0-g89b7209,Date=\"Mon Aug 22 15:26:58 MDT 2016\",Epoch=1471901218042,CommandLineOptions=\"analysis_type=MuTect2 input_file=[13611X1_160810_D00550_0369_BC9JH4ANXX_filtered.bam, 13611X3_160810_D00550_0369_BC9JH4ANXX_filtered.bam] showFullBamList=false read_buffer_size=null read_filter=[] disable_read_filter=[] intervals=[1_3CON/24_temp.bed] excludeIntervals=null interval_set_rule=UNION interval_merging=ALL interval_padding=0 reference_sequence=/uufs/chpc.utah.edu/common/home/u0028003/HCIAtlatl/data/Human/B37/human_g1k_v37_decoy_phiXAdaptr.fasta nonDeterministicRandomSeed=false disableDithering=false maxRuntime=-1 maxRuntimeUnits=MINUTES downsampling_type=BY_SAMPLE downsample_to_fraction=null downsample_to_coverage=1000 baq=OFF baqGapOpenPenalty=40.0 refactor_NDN_cigar_string=false fix_misencoded_quality_scores=false allow_potentially_misencoded_quality_scores=false useOriginalQualities=false defaultBaseQualities=-1 performanceLog=null BQSR=null quantize_quals=0 static_quantized_quals=null round_down_quantized=false disable_indel_quals=false emit_original_quals=false preserve_qscores_less_than=6 globalQScorePrior=-1.0 validation_strictness=SILENT remove_program_records=false keep_program_records=false sample_rename_mapping_file=null unsafe=null disable_auto_index_creation_and_locking_when_reading_rods=false no_cmdline_in_header=false sites_only=false never_trim_vcf_format_field=false bcf=false bam_compression=null simplifyBAM=false disable_bam_indexing=false generate_md5=false num_threads=1 num_cpu_threads_per_data_thread=1 num_io_threads=0 monitorThreadEfficiency=false num_bam_file_handles=null read_group_black_list=null pedigree=[] pedigreeString=[] pedigreeValidationType=STRICT allow_intervals_with_unindexed_bam=false generateShadowBCF=false variant_index_type=DYNAMIC_SEEK variant_index_parameter=-1 reference_window_stop=0 phone_home= gatk_key=null tag=NA logging_level=INFO log_to_file=null help=false version=false m2debug=false artifact_detection_mode=false initial_tumor_lod=4.0 initial_normal_lod=0.5 tumor_lod=6.3 normal_lod=2.2 dbsnp_normal_lod=5.5 max_alt_alleles_in_normal_count=1 max_alt_alleles_in_normal_qscore_sum=20 max_alt_allele_in_normal_fraction=0.03 debug=false useFilteredReadsForAnnotations=false emitRefConfidence=NONE bamOutput=null bamWriterType=CALLED_HAPLOTYPES emitDroppedReads=false disableOptimizations=false annotateNDA=false heterozygosity=0.001 indel_heterozygosity=1.25E-4 standard_min_confidence_threshold_for_calling=30.0 standard_min_confidence_threshold_for_emitting=30.0 max_alternate_alleles=6 max_num_PL_values=100 input_prior=[] sample_ploidy=2 genotyping_mode=DISCOVERY alleles=(RodBinding name= source=UNBOUND) contamination_fraction_to_filter=0.0 contamination_fraction_per_sample_file=null p_nonref_model=null exactcallslog=null output_mode=EMIT_VARIANTS_ONLY allSitePLs=false kmerSize=[10, 25] dontIncreaseKmerSizesForCycles=false allowNonUniqueKmersInRef=false numPruningSamples=1 recoverDanglingHeads=false doNotRecoverDanglingBranches=false minDanglingBranchLength=4 consensus=false maxNumHaplotypesInPopulation=128 errorCorrectKmers=false minPruning=2 debugGraphTransformations=false allowCyclesInKmerGraphToGeneratePaths=false graphOutput=null kmerLengthForReadErrorCorrection=25 minObservationsForKmerToBeSolid=20 gcpHMM=10 pair_hmm_implementation=VECTOR_LOGLESS_CACHING pair_hmm_sub_implementation=ENABLE_ALL always_load_vector_logless_PairHMM_lib=false phredScaledGlobalReadMismappingRate=45 noFpga=false debug_read_name=null MQ_filtering_level=20 cosmic=[(RodBinding name=cosmic source=/uufs/chpc.utah.edu/common/home/u0028003/HCIAtlatl/data/Human/B37/MuTect/b37_cosmic_v54_120711.vcf)] normal_panel=[] dbsnp=(RodBinding name=dbsnp source=/uufs/chpc.utah.edu/common/home/u0028003/HCIAtlatl/data/Human/B37/MuTect/dbsnp_132_b37.leftAligned.vcf) comp=[] annotation=[DepthPerAlleleBySample, BaseQualitySumPerAlleleBySample, TandemRepeatAnnotator, OxoGReadCounts] excludeAnnotation=[SpanningDeletions] out=/scratch/general/lustre/u0028003/KeithTNExomes/TNCalling/1_3Con/1_3CON/24_temp.vcf dontTrimActiveRegions=false maxDiscARExtension=25 maxGGAARExtension=300 paddingAroundIndels=150 paddingAroundSNPs=20 keepRG=null min_base_quality_score=10 errorCorrectReads=false captureAssemblyFailureBAM=false dontUseSoftClippedBases=false justDetermineActiveRegions=false doNotRunPhysicalPhasing=false activityProfileOut=null activeRegionOut=null activeRegionIn=null activeRegionExtension=null forceActive=false activeRegionMaxSize=null bandPassSigma=null maxProbPropagationDistance=50 activeProbabilityThreshold=0.002 filter_reads_with_N_cigar=false filter_mismatching_base_and_quals=false filter_bases_not_stored=false\">",
+    "##INFO=<ID=DB,Number=0,Type=Flag,Description=\"dbSNP Membership\">",
+    "##INFO=<ID=ECNT,Number=1,Type=String,Description=\"Number of events in this haplotype\">",
+    "##INFO=<ID=HCNT,Number=1,Type=String,Description=\"Number of haplotypes that support this variant\">",
+    "##INFO=<ID=MAX_ED,Number=1,Type=Integer,Description=\"Maximum distance between events in this active region\">",
+    "##INFO=<ID=MIN_ED,Number=1,Type=Integer,Description=\"Minimum distance between events in this active region\">",
+    "##INFO=<ID=NLOD,Number=1,Type=String,Description=\"Normal LOD score\">",
+    "##INFO=<ID=PON,Number=1,Type=String,Description=\"Count from Panel of Normals\">",
+    "##INFO=<ID=RPA,Number=.,Type=Integer,Description=\"Number of times tandem repeat unit is repeated, for each allele (including reference)\">",
+    "##INFO=<ID=RU,Number=1,Type=String,Description=\"Tandem repeat unit (bases)\">",
+    "##INFO=<ID=STR,Number=0,Type=Flag,Description=\"Variant is a short tandem repeat\">",
+    "##INFO=<ID=TLOD,Number=1,Type=String,Description=\"Tumor LOD score\">",
+    "##SAMPLE=<ID=NORMAL,SampleName=13611X3_160810_D00550_0369_BC9JH4ANXX,File=/scratch/general/lustre/u0028003/KeithTNExomes/TNCalling/1_3Con/13611X3_160810_D00550_0369_BC9JH4ANXX_filtered.bam>",
+    "##SAMPLE=<ID=TUMOR,SampleName=13611X1_160810_D00550_0369_BC9JH4ANXX,File=/scratch/general/lustre/u0028003/KeithTNExomes/TNCalling/1_3Con/13611X1_160810_D00550_0369_BC9JH4ANXX_filtered.bam>",
+    "##contig=<ID=1,length=249250621,assembly=b37>",
+    "##contig=<ID=2,length=243199373,assembly=b37>",
+    "##contig=<ID=3,length=198022430,assembly=b37>",
+    "##contig=<ID=4,length=191154276,assembly=b37>",
+    "##contig=<ID=5,length=180915260,assembly=b37>",
+    "##contig=<ID=6,length=171115067,assembly=b37>",
+    "##contig=<ID=7,length=159138663,assembly=b37>",
+    "##contig=<ID=8,length=146364022,assembly=b37>",
+    "##contig=<ID=9,length=141213431,assembly=b37>",
+    "##contig=<ID=10,length=135534747,assembly=b37>",
+    "##contig=<ID=11,length=135006516,assembly=b37>",
+    "##contig=<ID=12,length=133851895,assembly=b37>",
+    "##contig=<ID=13,length=115169878,assembly=b37>",
+    "##contig=<ID=14,length=107349540,assembly=b37>",
+    "##contig=<ID=15,length=102531392,assembly=b37>",
+    "##contig=<ID=16,length=90354753,assembly=b37>",
+    "##contig=<ID=17,length=81195210,assembly=b37>",
+    "##contig=<ID=18,length=78077248,assembly=b37>",
+    "##contig=<ID=19,length=59128983,assembly=b37>",
+    "##contig=<ID=20,length=63025520,assembly=b37>",
+    "##contig=<ID=21,length=48129895,assembly=b37>",
+    "##contig=<ID=22,length=51304566,assembly=b37>",
+    "##contig=<ID=X,length=155270560,assembly=b37>",
+    "##contig=<ID=Y,length=59373566,assembly=b37>",
+    "##contig=<ID=MT,length=16569,assembly=b37>",
+    "##contig=<ID=GL000207.1,length=4262,assembly=b37>",
+    "##contig=<ID=GL000226.1,length=15008,assembly=b37>",
+    "##contig=<ID=GL000229.1,length=19913,assembly=b37>",
+    "##contig=<ID=GL000231.1,length=27386,assembly=b37>",
+    "##contig=<ID=GL000210.1,length=27682,assembly=b37>",
+    "##contig=<ID=GL000239.1,length=33824,assembly=b37>",
+    "##contig=<ID=GL000235.1,length=34474,assembly=b37>",
+    "##contig=<ID=GL000201.1,length=36148,assembly=b37>",
+    "##contig=<ID=GL000247.1,length=36422,assembly=b37>",
+    "##contig=<ID=GL000245.1,length=36651,assembly=b37>",
+    "##contig=<ID=GL000197.1,length=37175,assembly=b37>",
+    "##contig=<ID=GL000203.1,length=37498,assembly=b37>",
+    "##contig=<ID=GL000246.1,length=38154,assembly=b37>",
+    "##contig=<ID=GL000249.1,length=38502,assembly=b37>",
+    "##contig=<ID=GL000196.1,length=38914,assembly=b37>",
+    "##contig=<ID=GL000248.1,length=39786,assembly=b37>",
+    "##contig=<ID=GL000244.1,length=39929,assembly=b37>",
+    "##contig=<ID=GL000238.1,length=39939,assembly=b37>",
+    "##contig=<ID=GL000202.1,length=40103,assembly=b37>",
+    "##contig=<ID=GL000234.1,length=40531,assembly=b37>",
+    "##contig=<ID=GL000232.1,length=40652,assembly=b37>",
+    "##contig=<ID=GL000206.1,length=41001,assembly=b37>",
+    "##contig=<ID=GL000240.1,length=41933,assembly=b37>",
+    "##contig=<ID=GL000236.1,length=41934,assembly=b37>",
+    "##contig=<ID=GL000241.1,length=42152,assembly=b37>",
+    "##contig=<ID=GL000243.1,length=43341,assembly=b37>",
+    "##contig=<ID=GL000242.1,length=43523,assembly=b37>",
+    "##contig=<ID=GL000230.1,length=43691,assembly=b37>",
+    "##contig=<ID=GL000237.1,length=45867,assembly=b37>",
+    "##contig=<ID=GL000233.1,length=45941,assembly=b37>",
+    "##contig=<ID=GL000204.1,length=81310,assembly=b37>",
+    "##contig=<ID=GL000198.1,length=90085,assembly=b37>",
+    "##contig=<ID=GL000208.1,length=92689,assembly=b37>",
+    "##contig=<ID=GL000191.1,length=106433,assembly=b37>",
+    "##contig=<ID=GL000227.1,length=128374,assembly=b37>",
+    "##contig=<ID=GL000228.1,length=129120,assembly=b37>",
+    "##contig=<ID=GL000214.1,length=137718,assembly=b37>",
+    "##contig=<ID=GL000221.1,length=155397,assembly=b37>",
+    "##contig=<ID=GL000209.1,length=159169,assembly=b37>",
+    "##contig=<ID=GL000218.1,length=161147,assembly=b37>",
+    "##contig=<ID=GL000220.1,length=161802,assembly=b37>",
+    "##contig=<ID=GL000213.1,length=164239,assembly=b37>",
+    "##contig=<ID=GL000211.1,length=166566,assembly=b37>",
+    "##contig=<ID=GL000199.1,length=169874,assembly=b37>",
+    "##contig=<ID=GL000217.1,length=172149,assembly=b37>",
+    "##contig=<ID=GL000216.1,length=172294,assembly=b37>",
+    "##contig=<ID=GL000215.1,length=172545,assembly=b37>",
+    "##contig=<ID=GL000205.1,length=174588,assembly=b37>",
+    "##contig=<ID=GL000219.1,length=179198,assembly=b37>",
+    "##contig=<ID=GL000224.1,length=179693,assembly=b37>",
+    "##contig=<ID=GL000223.1,length=180455,assembly=b37>",
+    "##contig=<ID=GL000195.1,length=182896,assembly=b37>",
+    "##contig=<ID=GL000212.1,length=186858,assembly=b37>",
+    "##contig=<ID=GL000222.1,length=186861,assembly=b37>",
+    "##contig=<ID=GL000200.1,length=187035,assembly=b37>",
+    "##contig=<ID=GL000193.1,length=189789,assembly=b37>",
+    "##contig=<ID=GL000194.1,length=191469,assembly=b37>",
+    "##contig=<ID=GL000225.1,length=211173,assembly=b37>",
+    "##contig=<ID=GL000192.1,length=547496,assembly=b37>",
+    "##contig=<ID=NC_007605,length=171823,assembly=b37>",
+    "##contig=<ID=hs37d5,length=35477943,assembly=b37>",
+    "##contig=<ID=chrAdapter,length=9234,assembly=b37>",
+    "##contig=<ID=chrPhiX_Illumina,length=5386,assembly=b37>",
+    "##reference=file:///uufs/chpc.utah.edu/common/home/u0028003/HCIAtlatl/data/Human/B37/human_g1k_v37_decoy_phiXAdaptr.fasta",
+    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tTUMOR\tNORMAL"
+   ],
+   "source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"
+  },
+  {
+   "header": [
+    "##fileformat=VCFv4.2",
+    "##source=\" Args: -x /Volumes/FoundationMed$/Results -s /Users/u0028003/HCI/ClinicalGenomics/Foundation/Test/ -f /Users/u0028003/Desktop/human_g1k_v37.fasta\"",
+    "##file-path=/Volumes/FoundationMed$/Results/TRF037738.xml",
+    "##parse-date=8June2016",
+    "##Gender=Female",
+    "##OrderingMD=\"Werner, Theresa\"",
+    "##SpecSite=Colon",
+    "##age-at-collection=41",
+    "##disease=CERVIX",
+    "##disease-ontology=\"Cervix adenocarcinoma\"",
+    "##flowcell-analysis=5121",
+    "##gender=female",
+    "##pathology-diagnosis=\"Adenosquamous carcinoma\"",
+    "##percent-tumor-nuclei=30",
+    "##pipeline-version=v2.0.2",
+    "##purity-assessment=23",
+    "##specimen=TRF037738.01",
+    "##study=CLINICAL",
+    "##test-request=TRF037738",
+    "##test-type=FoundationOne",
+    "##tissue-of-origin=Colon",
+    "##bait-set=T5a",
+    "##mean-exon-depth=717.83",
+    "##name=HCNL-308992_MP-312617",
+    "##nucleic-acid-type=DNA",
+    "##ALT=<ID=DEL,Description=\"Deletion/ decrease in copies relative to control\">",
+    "##ALT=<ID=DUP,Description=\"Duplication/ increase in copies relative to control\">",
+    "##INFO=<ID=ACN,Number=1,Type=Integer,Description=\"Absolute copy number after correcting for % normal in tumor\">",
+    "##INFO=<ID=AF,Number=A,Type=Float,Description=\"Allele Frequency\">",
+    "##INFO=<ID=CON,Number=1,Type=String,Description=\"High confidence in call, true or false\">",
+    "##INFO=<ID=DP,Number=1,Type=Integer,Description=\"Total Depth\">",
+    "##INFO=<ID=EE,Number=1,Type=String,Description=\"Number of exons effected\">",
+    "##INFO=<ID=EG,Number=1,Type=String,Description=\"Effected gene\">",
+    "##INFO=<ID=END,Number=1,Type=Integer,Description=\"End position of the variant\">",
+    "##INFO=<ID=FE,Number=1,Type=String,Description=\"Functional effect on gene\">",
+    "##INFO=<ID=IMPRECISE,Number=0,Type=Flag,Description=\"Imprecise structural variation\">",
+    "##INFO=<ID=LR,Number=1,Type=Float,Description=\"Log2 ratio of CNV relative to control\">",
+    "##INFO=<ID=PE,Number=1,Type=String,Description=\"Protein effect on gene\">",
+    "##INFO=<ID=ST,Number=1,Type=String,Description=\"Status of effect\">",
+    "##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant, DUP, DEL, or BND\">",
+    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"
+   ],
+   "source": "Data/B37/VCFData/chr20-21TRF037738.vcf.gz"
+  }
+ ],
+ "indexQueryStats": {
+  "totalIndexHits": 11,
+  "skippedUserQueries": 0,
+  "queriesWithIndexHits": 3,
+  "millSecForIndexSearch": 6,
+  "searchedUserQueries": 3
+ },
+ "responseCode": 200,
+ "regionsFile": "/Users/u0028003/Code/GQuery/TestResources/b37Test.bed"
+}

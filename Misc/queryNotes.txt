@@ -1,0 +1,109 @@
+# Built using example from http://crunchify.com/how-to-build-restful-service-with-java-using-jax-rs-and-jersey/
+# Installing tomcat from https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum
+# Setting up digest authentication https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/
+
+# To build in eclipse, 
+	1) Check that the WebContent/WEB-INFO/web.xml is pointing to the deployment or testing param set you want
+	2) Ditto src/main.resources/log4j2.properties
+	2) Right click pom.xml, Run As, Maven Build, "clean, install"
+
+# Launch server in Eclipse with the Server View
+	Need to start tomcat twice after cleaning, first time errors out, second attempt works, check console for errors, did you correctly modify the log4j and web.xml docs?
+
+# Testing the GQuery in eclipse:
+	1) Set the WEB-INFO/web.xml <param-name>authorizationEnabled</param-name> to false to disable authentication
+	2) Edit edu.utah.hci.query.test.SearchRequestTests setting the url String to match your running instance
+	3) Right click SearchRequestTests, Run As -> JUnit Test 
+
+# Testing authorization in eclipse:
+	1) Check the WebContent/WEB-INFO/userGroup.txt is set correctly for testing
+	2) Set authorizationEnabled to true in the web.xml.
+	3) Configure the tomcat server to use MemoryRealm, see https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/
+	4) Restart Tomcat, check the log4j logs.
+	5) Right click  edu.utah.hci.query.test.AuthenticationRequestTests, Run As -> JUnit test
+	
+# Building an appropriate chrNameLenBed bed file
+	1) For all the species you are going to be serving, trim off any 'chr' txt and take the maximum length, for example, an entry for chromosome 19 to cover B38(19:0-58617616), hg19(chr19:0-59128983), MM10 (19:0-61431566) would be 19:0-61431566 
+	If present, chr is trimmed off all chromosome names, this a search for chr1:123-124 is converted to 1:123-124, likewise for the chrom index used to instantiate the lookup index, this is done to enable both B37 and hg19 nomenclature
+
+# Making digested passwords:
+User names must be unique!
+/Applications/Tomcat/apache-tomcat-7.0.99/bin/digest.sh -a md5 Admin:GQuery:goRunAddie
+Admin:GQuery:goRunAddie:0d63b298576d229208d15c48cf9aa488
+/Applications/Tomcat/apache-tomcat-7.0.99/bin/digest.sh -a md5 Obama:GQuery:thankYou	
+Obama:GQuery:thankYou:15e22d1122b938d84b2920e246a2e095
+
+# Modify the apache-tomcat-7.xxx/conf/tomcat-users.xml file
+<tomcat-users>
+  <role rolename="queryUser"/>
+  <user username="Admin" password="0d63b298576d229208d15c48cf9aa488" roles="queryUser"/>
+  <user username="Obama" password="15e22d1122b938d84b2920e246a2e095" roles="queryUser"/>
+</tomcat-users>
+
+
+# Pulling the header from a digest authentication request:  
+curl --user Dave:goSkiDave --digest http://localhost:8080/Query/fetchKey -D header.txt
+curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D header.txt
+
+################## Misc troubleshooting tips ###################
+# If the server fails to start up in eclipse and throw missing class errors say for log4j fix it with:
+##I'm working with Eclipse and I had same problem every time I made changes in my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
+##Solution: right click on project, select Properties, choose Deployment Assembly and verify in column "Source" a row called "Maven Dependencies". 
+##If it isn't there, click on Add..., Java Build Path Entries and click on Maven Dependencies. Finally Apply and close.
+
+# Problems with log4j? Add -Dlog4j.debug to the Tomcat args launch configuration in eclipse, double click the server in the Server view.
+
+################## Example deployment of a new WAR ################
+# See /Applications/BioApps/BioMinerQueryAPIDev/queryAPIDeployClinGen1Notes.txt
+
+# On laptop
+scp /Users/u0028003/Code/Query/target/Query-0.5.war u0028003@hci-clingen1:~/
+
+# On hci-clingen1
+sudo su root
+cd /Repository/AnalysisData/QueryAPI/Wars
+mkdir OldWars
+mv *.war OldWars
+mv /home/u0028003/Query-0.5.war .
+
+# If needed, modify the WEB-INF/web.xml, WEB-INF/classes/log4j2.properties, and cp over the userGroup.txt file
+# Better to do this in eclipse and then build it
+unzip Query.war
+# WEB-INF/web.xml
+path2DataDir /Repository/AnalysisData/QueryAPI/Data
+path2IndexDir /Repository/AnalysisData/QueryAPI/Index
+tempDir /Repository/AnalysisData/NixTransfers/QueryAPI/Temp
+userGroup /usr/share/apache-tomcat-7.0.79/webapps/Query/WEB-INF/userGroup.txt
+# WEB-INF/classes/log4j.properties
+log4j /Repository/AnalysisData/QueryAPI/Logs/log4j.log
+# userGroup.txt
+cp ../../PreTabixLookup/WEB-INF/ WEB-INF/userGroup.txt 
+# cleanup
+rm -f  WEB-INF/web.xml~ WEB-INF/classes/log4j.properties~ license.html queryPostExample.html
+# update the war
+zip -ru Query.war META-INF WEB-INF
+rm -rf META-INF WEB-INF
+
+# Starting up a new WAR, do as root, tomcat will auto detect the new xxx.war file and attempt a deployment
+chmod 755 Query-0.5.war
+echo Reset > /Repository/AnalysisData/QueryAPI/Logs/log4j.log
+echo Reset > /usr/share/apache-tomcat-7.0.79/logs/catalina.out
+rm -rf /usr/share/apache-tomcat-7.0.79/webapps/Query*
+sleep 5s
+cp Query-0.5.war /usr/share/apache-tomcat-7.0.79/webapps/Query.war
+
+# Check startup logs
+tail -F /Repository/AnalysisData/QueryAPI/Logs/log4j.log
+tail -F /usr/share/apache-tomcat-7.0.79/logs/catalina.out
+
+# Check in a browser
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?fetchOptions=true
+http://localhost:8080/GQuery/search?fetchOptions=true
+
+# Will likely need authentication!
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?bed=chr13:32,887,617-32,975,809&regexAll=/Germline/Avatar/1217859&fetchData=true&regExAllData=BaseQRankSum=-0.529
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?matchVcf=true&vcf=13%0932914437%099325%09GT%09G%09.%09PASS%09.
+
+# Note first few queries on a new instance are slow but subsequent are faster.  Odd!
+
+

@@ -1,0 +1,21 @@
+# Define GROUPs and their associated regular expression(s) used to match file paths acceptable for returning to a given user.  Tab delimited. If more than one regEx is provided, no spaces, only one must match, not all.
+GroupName	RegEx's, comma delimited, no spaces
+## Uncomment for deployment
+#Public	NoGuestAccess
+#QueryAdmin	.+/Data/.+
+## Uncomment for Testing
+Public	.+/Data/B37/BedData/.+,.+/Data/B37/TCGA/.+,.+/Data/B37/VCFData/.+
+QueryAdmin	.+/Data/.+
+Thor	.+/Data/B37/Thor/.+
+
+# Define USERs and the group(s) they belong to. Tab delimited, no spaces.
+# Required, define a user called 'Guest' and the groups they are allowed to access without an authentication key
+UserName	Groups, comma delimited, no spaces, membership gains access to the file path RegEx's
+## For Deployment
+#Guest	Public
+#QueryAll	QueryAdmin
+## For Testing
+Guest	Public
+Admin	QueryAdmin
+Obama	Public,Thor
+

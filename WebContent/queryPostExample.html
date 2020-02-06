@@ -1,0 +1,69 @@
+<html>
+<head>
+	<title>Query Form Example</title>
+
+<style type="text/css">
+	#rt{text-align:right; color: #000000; font-weight: bold}
+	#grBk {background-color: #CC9966;}
+	TD {font-family: Verdana, Arial, Helvetica, sans-serif; font-size:12;}
+	H1 {color: #996633; font:arial; font-size:16;}
+	H2 {color: #996633; font:arial; font-size:12;}
+	BODY {color:black; background-color:white; font-family: Verdana, Arial, Helvetica, sans-serif; font-size:12;}
+	
+	A:link    {text-decoration: none; color: #000000; font-weight: bold}  
+	A:visited {text-decoration: none; color: #000000; font-weight: bold}   
+	A:hover   {text-decoration: none; color: #FFCC66; font-weight: bold} 
+	A:active  {text-decoration: none; color: #000000; font-weight: bold}   
+</style>
+</head>
+<body>
+
+<center><H1>Example Query API Form</H1></center>
+
+<form action="http://localhost:8080/Query/search" method="post" enctype="multipart/form-data">
+
+Interrogating: <a href="http://localhost:8080/Query/search">http://localhost:8080/Query/search</a><br>
+<br>
+For detailed info: <a href="https://github.com/HuntsmanCancerInstitute/Query">https://github.com/HuntsmanCancerInstitute/Query</a><br>
+<br>
+Query form params:<br>
+	<br>
+	Retrieve the currently supported options and filters.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FetchOptions:  <input type="radio" name="fetchOptions" value="true" > true or 
+ 	<input type="radio" name="fetchOptions" value="false" checked> false<br><br>
+ 	
+ 	Instruct the server to not only perform the index query (fast) but also pull any of the associated records from disk.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FetchData:  <input type="radio" name="fetchData" value="true" > true  or 
+ 	<input type="radio" name="fetchData" value="false" checked> false or <input type="radio" name="fetchData" value="force">force<br><br>
+ 	
+ 	If a vcf file is used in the query, any vcf records found to intersect will be filtered for those matching chr, pos, 
+ 	ref, and at least one alt. Other intersecting records (e.g. bed or maf) will be returned without additional checks, only vcf.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MatchVcf:  <input type="radio" name="matchVcf" value="true" > true  or 
+ 	<input type="radio" name="matchVcf" value="false" checked> false<br><br> 	
+ 	
+ 	Return the file headers for records found to intersect your query.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IncludeHeaders:  <input type="radio" name="includeHeaders" value="true" > true  or 
+ 	<input type="radio" name="includeHeaders" value="false" checked> false<br><br> 
+ 	
+ 	Provide one or more java regular expressions, no spaces, delimited with a semi-colon. Returning data paths must match ONE of these.<br>
+ 	Use to limit returning data to a particular set of projects, file types, analysis types, etc, e.g. \.vcf\.gz;\.maf\.txt\.gz<br>
+ 	Note, a .* is appended to the front and back of each regEx.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reg Ex One: 
+ 	<input type="text" name="regExOne" size="75"><br><br>
+ 	
+ 	Provide one or more java regular expressions, no spaces, delimited with a semi-colon. Returning data paths must match ALL of these.<br>
+ 	Use to require returning data match a particular genome build, be from a specific file type, or from a particular file, e.g. /B37/<br>
+ 	Note, a .* is appended to the front and back of each regEx.<br>
+ 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reg Ex ALL: 
+ 	<input type="text" name="regExAll" size="75"><br><br>
+ 	
+	Choose a normalized vcf or bed file to upload and intersect with the Query search engine, gz/zip OK. For vcf, be sure to vt normalize 
+	and decompose_blocksub, see <a href="https://github.com/atks/vt">https://github.com/atks/vt</a>.<br>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="file" id="filename" type="file" /><br>
+	<br>
+	<br>
+	<button name="submit" type="submit"><b>Submit Query!</b></button>
+	<button type="reset" value="Reset">Reset</button>
+</form>
+</body>
+</html>
