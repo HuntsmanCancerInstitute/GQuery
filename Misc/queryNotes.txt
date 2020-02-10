@@ -47,7 +47,7 @@ curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D hea
 
 ################## Misc troubleshooting tips ###################
 # If the server fails to start up in eclipse and throw missing class errors say for log4j fix it with:
-##I'm working with Eclipse and I had same problem every time I made changes in my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
+##I'm working with Eclipse and I had same problem every time I made changes to my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
 ##Solution: right click on project, select Properties, choose Deployment Assembly and verify in column "Source" a row called "Maven Dependencies". 
 ##If it isn't there, click on Add..., Java Build Path Entries and click on Maven Dependencies. Finally Apply and close.
 

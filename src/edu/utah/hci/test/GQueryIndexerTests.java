@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 public class GQueryIndexerTests {
 	
 	/**Modify this url to match your running instance*/
-	private String url = new String("http://localhost:8080/Query/search");
+	private String url = new String("http://localhost:8080/GQuery/search");
 	
 	//This resource dir should work provided you haven't moved the directories around
 	private File testResourceDir = new File (System.getProperty("user.dir")+"/TestResources");
