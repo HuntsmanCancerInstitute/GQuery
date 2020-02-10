@@ -2,7 +2,7 @@
 # Installing tomcat from https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum
 # Setting up digest authentication https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/
 
-# To build in eclipse, 
+# To build in Eclipse, 
 	1) Check that the WebContent/WEB-INFO/web.xml is pointing to the deployment or testing param set you want
 	2) Ditto src/main.resources/log4j2.properties
 	2) Right click pom.xml, Run As, Maven Build, "clean, install"
