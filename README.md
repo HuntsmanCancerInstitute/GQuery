@@ -13,9 +13,9 @@ This web app is built using the Java Jersy JAX RESTful API framework. It is JUni
 ### Fetch Options
 This API call returns the available options and data sources 
 
-<pre>http://localhost:8080/Query/search?fetchOptions=true</pre>
+<pre>http://localhost:8080/GQuery/search?fetchOptions=true</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/queryOptionsAndFilters.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/queryOptionsAndFilters.json
 
 These include:
 
@@ -29,34 +29,34 @@ regExAllData | Pathogenic;Frameshift | Require records to match all of the regex
 regExOneData | Pathogenic;LOF;HIGH | Require records to match at least one of the regexs. Case insensitive.
 includeHeaders | true, false | Return the file headers associated with the intersecting datasets.
 matchVcf | true, false | For vcf queries, require that intersecting vcf records in the data dir match chr, pos, ref, and at least one alt. Will set fetchData=true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.
-fetchData | true, false, force | Pull the intersecting records from disk (slow). Setting to 'force' and providing at least one regEx filter, enables access to the forceFetchDataSources. Use with a very restrictive regEx filter set, ideally on specific named file paths. Force turns the Query web app into a tabix data retrieval utility.
-key | token | Encrypted userName:timeStamp from the Query/fetchKey service. Required for accessing restricted resources when query authentication is enabled.  Skip for guest access. 
+fetchData | true, false, force | Pull the intersecting records from disk (slow). Setting to 'force' and providing at least one regEx filter, enables access to the forceFetchDataSources. Use with a very restrictive regEx filter set, ideally on specific named file paths. Force turns the GQuery web app into a tabix data retrieval utility.
+key | token | Encrypted userName:timeStamp from the GQuery/fetchKey service. Required for accessing restricted resources when query authentication is enabled.  Skip for guest access. 
 
 ### Region search against all datasets
 
-<pre>http://localhost:8080/Query/search?bed=20:4162827-4162867</pre>
+<pre>http://localhost:8080/GQuery/search?bed=20:4162827-4162867</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/QueryExamples/simpleBed.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/simpleBed.json
 
 Note, 20:4162827-4162867, 20:4,162,827-4,162,867, chr20:4162827-4162867 are all permitted.
 
 ### Region search and fetch data
 
-<pre>http://localhost:8080/Query/search?bed=20:4,162,827-4,162,867&ampfetchData=true</pre>
+<pre>http://localhost:8080/GQuery/search?bed=20:4,162,827-4,162,867&ampfetchData=true</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/QueryExamples/fetchData.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/fetchData.json
 
 ### Region search of only the TCGA datasets
 
-<pre>http://localhost:8080/Query/search?bed=20:4,162,827-4,162,867&ampregExAll=/TCGA/</pre>
+<pre>http://localhost:8080/GQuery/search?bed=20:4,162,827-4,162,867&ampregExAll=/TCGA/</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/QueryExamples/selectProjects.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/selectProjects.json
 
 ### Region search of maf and bed files from the B37 genome build
 
-<pre>http://localhost:8080/Query/search?bed=20:4,162,827-4,162,867&ampregExAll=/B37/&ampregExOne=maf\.txt\.gz;bed\.gz</pre>
+<pre>http://localhost:8080/GQuery/search?bed=20:4,162,827-4,162,867&ampregExAll=/B37/&ampregExOne=maf\.txt\.gz;bed\.gz</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/QueryExamples/dataTypeFilter.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/dataTypeFilter.json
 
 ### Search for vcf records that match chr,pos,ref, and one alt, include file headers
 
@@ -64,41 +64,43 @@ Note, you will likely need to encode the tabs by replacing them with %09 if past
 
 <pre>20\t4163144\t.\tC\tA\t.\t.\t. -> 20%094163144%09.%09C%09A%09.%09.%09.</pre>
 
-<pre>http://localhost:8080/Query/search?vcf=20%094163144%09.%09C%09A%09.%09.%09.&ampmatchVcf=true&ampregExAll=vcf\.gz&ampincludeHeaders=true</pre>
+<pre>http://localhost:8080/GQuery/search?vcf=20%094163144%09.%09C%09A%09.%09.%09.&ampmatchVcf=true&ampregExAll=vcf\.gz&ampincludeHeaders=true</pre>
 
-https://github.com/HuntsmanCancerInstitute/Query/blob/master/TestResources/Json/QueryExamples/vcfMatch.json
+https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/vcfMatch.json
 
 ---
 # Building the file system genome index
 
-The first step in getting Query up and going with your data is to build the requisit interval tree and data file objects using the USeq QueryIndexer app, see https://github.com/HuntsmanCancerInstitute/USeq
+The first step in getting GQuery up and going with your data is to build the requisit interval tree and data file objects using the USeq QueryIndexer app, see https://github.com/HuntsmanCancerInstitute/USeq
 
 <pre>
-> java -jar ~/USeq_9.1.8/Apps/QueryIndexer
+> java -jar ~/YourPathTo/GQueryIndexer_0.1.jar
 
 **************************************************************************************
-**                                Query Indexer: May 2018                           **
+**                               GQuery Indexer: Jan 2019                           **
 **************************************************************************************
-Builds index files for Query by recursing through a data directory looking for bgzip
+Builds index files for GQuery by recursing through a data directory looking for bgzip
 compressed and tabix indexed genomic data files (e.g. vcf, bed, maf, and custom).
-Interval trees are built containing regions that overlap with one or more data sources.
-These are used by the Query REST service to rapidly identify which data files contain
+Interval trees are built containing regions that overlap the data sources.
+These are used by the GQuery REST service to rapidly identify which data files contain
 records that overlap user's ROI. This app is threaded for simultanious file loading
 and requires >30G RAM to run on large data collections so use a big analysis server.
 Note, relative file paths are saved. So long as the structure of the Data Directory is
-preserved, the QueryIndexer and Query REST service don't need to run on the same file
-system.
+preserved, the GQueryIndexer and GQuery REST service don't need to run on the same
+file system. Lastly, the indexer will only re index an existing index if the data
+files have changed. Thus, run nightly to keep up to date.
 
 Required Params:
 -c A bed file of chromosomes and their lengths (e.g. chr21 0 48129895) to use to 
      building the intersection index. Exclude those you don't want to index. For
      multiple builds and species, add all, duplicates will be collapsed taking the
      maximum length. Any 'chr' prefixes are ignored when indexing and searching.
--d A data directory containing bgzipped and tabix indexed data files. Known file types
-     include xxx.vcf.gz, xxx.bed.gz, xxx.bedGraph.gz, and xxx.maf.txt.gz. Others will
-     be parsed using info from the xxx.gz.tbi index. Be sure to normalize and
-     decompose_blocksub all VCF records, see http://genome.sph.umich.edu/wiki/Vt.
-     Files may be hard linked but not soft.
+-d A data directory containing bgzipped and tabix indexed data files. Known file
+     types include xxx.vcf.gz, xxx.bed.gz, xxx.bedGraph.gz, and xxx.maf.txt.gz. Others
+     will be parsed using info from the xxx.gz.tbi index. See
+     https://github.com/samtools/htslib . For bed files don't use the -p option,
+     use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,
+     see http://genome.sph.umich.edu/wiki/Vt. Files may be hard linked but not soft.
 -t Full path directory containing the compiled bgzip and tabix executables. See
      https://github.com/samtools/htslib
 -i A directory in which to save the index files
@@ -108,60 +110,65 @@ Optional Params:
      interval trees but make available for data source record retrieval. Useful for
      whole genome gVCFs and read coverage files that cover large genomic regions.
 -q Quiet output, no per record warnings.
+-b BP block to process, defaults to 250000000. Reduce if out of memory issues occur.
+-n Number cores to use, defaults to all
 
-Example for generating the test index using the GitHub Query/TestResources files see
-https://github.com/HuntsmanCancerInstitute/Query
+Example for generating the test index using the GitHub GQuery/TestResources files
+see https://github.com/HuntsmanCancerInstitute/GQuery
 
-d=/pathToYourLocalGitHubInstalled/Query/TestResources
-java -Xmx10G -jar pathToUSeq/Apps/QueryIndexer -c $d/b37Chr20-21ChromLen.bed -d $d/Data
--i $d/Index -t ~/BioApps/HTSlib/1.3/bin/ -s $d/Data/Public/B37/GVCFs 
+d=/pathToYourLocalGitHubInstalled/GQuery/TestResources
+java -jar -Xmx115G GQueryIndexer_0.1.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data
+-i $d/Index -t ~/BioApps/HTSlib/1.10.2/bin/ -s $d/Data/Public/B37/GVCFs 
 
-**************************************************************************************
-</pre>
+**************************************************************************************</pre>
 
-Give some thought to how to best structure the data directory.  If you are supporting multiple species/ genome builds then create a sub directory named with the build for easy regular expression matching (e.g. MyDataDir/B37/ , MyDataDir/MM10 , etc.). Likewise for big projects, multi institute programs, and different data source releases, (e.g. /TCGA/, /CvDC/, /GATA4_KO/RNASeq/, /GATA4_KO/ChIPSeq/, etc.).  The two regEx filters used by the Query API (all patterns must match and/ or only one must match) are both simple and very effective at selecting just the data sources the user requests, provided the directory structure is well organized. 
+Give some thought to how to best structure the data directory.  If you are supporting multiple species/ genome builds then create a sub directory named with the build for easy regular expression matching (e.g. MyDataDir/B37/ , MyDataDir/MM10 , etc.). Likewise for big projects, multi institute programs, and different data source releases, (e.g. /TCGA/, /CvDC/, /GATA4_KO/RNASeq/, /GATA4_KO/ChIPSeq/, etc.).  The two regEx filters used by the GQuery API (all patterns must match and/ or only one must match) are both simple and very effective at selecting just the data sources the user requests, provided the directory structure is well organized. 
 
 Note the TestResource example in the cmd line menu:
 
 <pre>
-Nix-Laptop:Data u0028003$ java -jar -Xmx4G ~/Code/USeq/Releases/USeq_9.0.5/Apps/QueryIndexer -c ~/Code/Query/TestResources/b37Chr20-21ChromLen.bed -d ~/Code/Query/TestResources/Data -i ~/Code/Query/TestResources/Index -t /Applications/BioApps/Tabix/tabix-0.2.6 -s ~/Code/Query/TestResources/Data/B37/GVCFs
+java  -jar -Xmx8G ~/Code/GQuery/target/GQueryIndexer_0.1.jar -c ~/Code/GQuery/TestResources/b37Chr20-21ChromLen.bed -d ~/Code/GQuery/TestResources/Data -i ~/Code/GQuery/TestResources/NewIndex -t ~/Code/GQuery/TestResources/Htslib_1.10.2/bin/ -s ~/Code/GQuery/TestResources/Data/B37/GVCFs
 
-[8 Dec 2016 9:30] USeq_9.0.5 Arguments: -c /Users/u0028003/Code/Query/TestResources/b37Chr20-21ChromLen.bed -d /Users/u0028003/Code/Query/TestResources/Data -i /Users/u0028003/Code/Query/TestResources/Index -t /Applications/BioApps/Tabix/tabix-0.2.6 -s /Users/u0028003/Code/Query/TestResources/Data/B37/GVCFs
+GQuery Indexer Arguments: -c /Users/u0028003/Code/GQuery/TestResources/b37Chr20-21ChromLen.bed -d /Users/u0028003/Code/GQuery/TestResources/Data -i /Users/u0028003/Code/GQuery/TestResources/NewIndex -t /Users/u0028003/Code/GQuery/TestResources/Htslib_1.10.2/bin/ -s /Users/u0028003/Code/GQuery/TestResources/Data/B37/GVCFs
+
+8 available processors, using 7
 
 Searching for tabix indexes and bgzipped data sources...
-	10 Data sources with known formats (vcf.gz, bed.gz, bedgraph.gz, maf.txt.gz)
-8 available processors, using 7 threaded loaders
-Creating file id hash...
-Checking tbi files for chr content...
-Indexing records by chr...
-	chr	#pass	#fail	memUsed
-	20	16554	0	242MB
-	21	8910	0	184MB
-	22	1140	0	196MB
-Compressing master index...
-Saving file headers...
-Building and saving interval trees...
-	20 21 22 : 197MB
+	11 Data sources with known formats (vcf.gz, bed.gz, bedgraph.gz, maf.txt.gz)
 
-0.1 Min to parse 26604 records and build the query index trees
+Creating file id hash...
+
+Checking tbi files for chr content...
+
+Indexing records by chr...
+	ChrBlock	#Parsed
+	20:0-63025522	16555
+	21:0-48129897	8911
+	22:0-51304568	1145
+
+Compressing master index...
+
+Saving file objects...
+
+0 Min to parse ~26611 records and build the query index
 </pre>
 
-Java version 1.7 and 1.8 work. It takes ~ 1hr to index 10K files with 100M records on a 23 core machine.
+Java version 1.8 works. It takes ~ 1hr to index 10K files with 100M records on a 23 core machine.
 
 ---
-# Installing the Query Web App
+# Installing the GQuery Web App
 
 ### Install Tomcat 7 on a large linux server (>12 cores, > 30G RAM)
 e.g. https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum
 
 Be sure to increase the Xmx and MaxPermSize params to > 30G RAM to avoid out of memory errors. Tomcat 8 likely works but hasn't been tested.
 
-### Modify the latest Query-XX.war  
+### Modify the latest GQuery-XX.war  
 
 Download, unzip, and modify the following config files to match your environment<br>
-https://github.com/HuntsmanCancerInstitute/Query/releases
+https://github.com/HuntsmanCancerInstitute/GQuery/releases
 
-<pre>unzip -q Query-XX.war </pre>
+<pre>unzip -q GQuery-XX.war </pre>
 
 WEB-INF/web.xml, set the correct paths and help url
 ```xml
@@ -171,34 +178,34 @@ WEB-INF/web.xml, set the correct paths and help url
 <param-name>helpUrl</param-name>
 ```
 
-WEB-INF/classes/log4j.properties, tell Query where to write internal messages, good to watch for errors and issues
-<pre>log4j.appender.file.File</pre>
+WEB-INF/classes/log4j2.properties, tell GQuery where to write internal messages, good to watch for errors and issues
+<pre>log4j2.appender.file.File</pre>
 
 Update the war
-<pre>zip -ru Query-XX.war META-INF WEB-INF</pre>
+<pre>zip -ru GQuery-XX.war META-INF WEB-INF</pre>
 
 ### Deploy
-Move all the index files generated by the USeq QueryIndexer app into the path2IndexDir.<br>
+Move all the index files generated by the GQueryIndexer app into the path2IndexDir.<br>
 Move the updated war file into the tomcat/webapps/ dir. If needed, restart tomcat.<br>
 Examine the log4j log file for startup and test issues. Loading of the interval trees can take several minutes.<br>
-Test the server: *http://IPAddressOfMyBigServer:8080/Query-XX/search?fetchOptions=true* <br>
+Test the server: *http://IPAddressOfMyBigServer:8080/GQuery-XX/search?fetchOptions=true* <br>
 
 ---
-# Configuring Query for token based digest authentication
+# Configuring GQuery for token based digest authentication
 
 ### Enable digest authentication in tomcat, see the WEB-INF/web.xml doc for an example, details:
 https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/
 
 Generate passwords:
-apache-tomcat-7.xxx/bin/digest.sh -a md5 Obama:QueryAPI:thankYou	
-Obama:QueryAPI:thankYou:0bafcb708dd667a39316f7333c0c0b2e
+apache-tomcat-7.xxx/bin/digest.sh -a md5 Obama:GQuery:thankYou	
+Obama:GQuery:thankYou:15e22d1122b938d84b2920e246a2e095
 
 Modify the apache-tomcat-7.xxx/conf/tomcat-users.xml file:
 ```xml
 <tomcat-users>
   <role rolename="queryUser"/>
   <user username="Admin" password="cd982408c54028850cae3fa4df580929" roles="queryUser"/>
-  <user username="Obama" password="0bafcb708dd667a39316f7333c0c0b2e" roles="queryUser"/>
+  <user username="Obama" password="15e22d1122b938d84b2920e246a2e095" roles="queryUser"/>
 </tomcat-users>
 ```
 
@@ -218,7 +225,7 @@ Admin	QueryAdmin
 Obama	Public,Thor
 </pre>
 
-### Enable Query authentication by modifying the WEB-INF/web.xml doc:
+### Enable GQuery authentication by modifying the WEB-INF/web.xml doc:
 ```xml
   <context-param>
     <description>Boolean indicating whether authorization is enabled.  If true, complete the userGroup param.</description>
@@ -228,7 +235,7 @@ Obama	Public,Thor
   <context-param>
     <description>If using authorization, provide a full path to the userGroup file. This parent dir will also be used to store the encryption key so keep it secure.</description>
     <param-name>userGroup</param-name>
-    <param-value>/Users/u0028003/Code/Query/WebContent/WEB-INF/userGroup.txt</param-value>
+    <param-value>/Users/u0028003/Code/GQuery/WebContent/WEB-INF/userGroup.txt</param-value>
   </context-param>
     <context-param>
     <description>If using authorization, place QueryAuthorization token in Response 'body' or Authorization 'header' (more secure)</description>
@@ -242,31 +249,31 @@ Obama	Public,Thor
   </context-param>
 ```
 
-### Start-up tomcat and look in the log4j output for any error messages
+### Start-up tomcat and look in the log4j2 output for any error messages
 Note, if authorizationEnable is set to true, several checks are performed.  If any fail, the entire QueryService is disabled.
 
 ### Request a key token from the digest protected service, these expire after the WEB-INF/web.xml defined time:
-http://localhost:8080/Query/fetchKey
+http://localhost:8080/GQuery/fetchKey
 
 Provide the userName and pw.  The key is returned in the body, or if so configured, in the WEB-INFO/web.xml doc under the protected Authorization header. 
 
 Test with curl:
 <pre>
-curl --user Obama:thankYou --digest http://localhost:8080/Query/fetchKey -D header.txt
+curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D header.txt
 </pre>
 
 ### Perform a search with the key token
 If pasting in a browser, be sure to encode the token:
 
-<pre>http://localhost:8080/Query/search?bed=chr22:39281892-39515517&key=tqGT3e4EG%2B1Jnnw%2FRPA9kg%3D%3D%3A62VfVs2UbvrOVCk%2BRL2Dr%2B09NND9DXlP1SDQPUh%2B6bs%3D</pre>
+<pre>http://localhost:8080/GQuery/search?bed=chr22:39281892-39515517&key=tqGT3e4EG%2B1Jnnw%2FRPA9kg%3D%3D%3A62VfVs2UbvrOVCk%2BRL2Dr%2B09NND9DXlP1SDQPUh%2B6bs%3D</pre>
 
-https://raw.githubusercontent.com/HuntsmanCancerInstitute/Query/master/TestResources/Json/b37ObamaSearch.json
+https://raw.githubusercontent.com/HuntsmanCancerInstitute/GQuery/master/TestResources/Json/b37ObamaSearch.json
 
 For guest access skip the key value argments:
 
-<pre>http://localhost:8080/Query/search?bed=chr22:39281892-39515517</pre>
+<pre>http://localhost:8080/GQuery/search?bed=chr22:39281892-39515517</pre>
 
-https://raw.githubusercontent.com/HuntsmanCancerInstitute/Query/master/TestResources/Json/b37GuestSearch.json
+https://raw.githubusercontent.com/HuntsmanCancerInstitute/GQuery/master/TestResources/Json/b37GuestSearch.json
 
 
 

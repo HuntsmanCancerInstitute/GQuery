@@ -553,7 +553,7 @@ public class Util {
 		return hm;
 	}
 	
-	/**Returns a gz zip or straight file reader on the file based on it's extension.
+	/**Returns a gz zip or straight file reader on the file based on it's extension. Be sure to close it!
 	 * @author davidnix*/
 	public static BufferedReader fetchBufferedReader( File txtFile) throws IOException{
 		BufferedReader in;
