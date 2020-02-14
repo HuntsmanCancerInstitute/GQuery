@@ -45,64 +45,83 @@ Obama:GQuery:thankYou:15e22d1122b938d84b2920e246a2e095
 curl --user Dave:goSkiDave --digest http://localhost:8080/Query/fetchKey -D header.txt
 curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D header.txt
 
-################## Misc troubleshooting tips ###################
+
+################## Misc Eclipse troubleshooting tips ###################
 # If the server fails to start up in eclipse and throw missing class errors say for log4j fix it with:
-##I'm working with Eclipse and I had same problem every time I made changes to my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
-##Solution: right click on project, select Properties, choose Deployment Assembly and verify in column "Source" a row called "Maven Dependencies". 
-##If it isn't there, click on Add..., Java Build Path Entries and click on Maven Dependencies. Finally Apply and close.
+  ##I'm working with Eclipse and I had same problem every time I made changes to my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
+  ##Solution: right click on project, select Properties, choose Deployment Assembly and verify in column "Source" a row called "Maven Dependencies". 
+  ##If it isn't there, click on Add..., Java Build Path Entries and click on Maven Dependencies. Finally Apply and close.
+
+# More server problems  Try 1) Project->Clean 2) RightClick GQuery Project->Maven->Update Project... 3) RightClick pom.xml->RunAs->Maven build-> clean and install
+
+# Can't see git views or perspectives? Reset them.  Window->Perspective->Close All Perspectives
 
 # Problems with log4j? Add -Dlog4j.debug to the Tomcat args launch configuration in eclipse, double click the server in the Server view.
+
 
 ################## Example deployment of a new WAR ################
 # See /Applications/BioApps/BioMinerQueryAPIDev/queryAPIDeployClinGen1Notes.txt
 
 # On laptop
-scp /Users/u0028003/Code/Query/target/Query-0.5.war u0028003@hci-clingen1:~/
+scp ~/Code/GQuery/target/GQuery_0.1.war u0028003@hci-clingen1:~/
 
 # On hci-clingen1
 sudo su root
-cd /Repository/AnalysisData/QueryAPI/Wars
-mkdir OldWars
-mv *.war OldWars
-mv /home/u0028003/Query-0.5.war .
+cd /Data01/Repository/GQuery/Wars/New
+rm -rf /Data01/Repository/GQuery/Wars/New/*
+mv /home/u0028003/GQuery_0.1.war .
 
 # If needed, modify the WEB-INF/web.xml, WEB-INF/classes/log4j2.properties, and cp over the userGroup.txt file
 # Better to do this in eclipse and then build it
-unzip Query.war
+mv GQuery_0.1.war GQuery.war; unzip GQuery.war
+
 # WEB-INF/web.xml
 path2DataDir /Repository/AnalysisData/QueryAPI/Data
 path2IndexDir /Repository/AnalysisData/QueryAPI/Index
 tempDir /Repository/AnalysisData/NixTransfers/QueryAPI/Temp
-userGroup /usr/share/apache-tomcat-7.0.79/webapps/Query/WEB-INF/userGroup.txt
-# WEB-INF/classes/log4j.properties
+userGroup /usr/share/apache-tomcat-7.0.79/webapps/GQuery/WEB-INF/userGroup.txt
+
+# WEB-INF/classes/log4j2.properties, currently just writing to stdout
 log4j /Repository/AnalysisData/QueryAPI/Logs/log4j.log
-# userGroup.txt
-cp ../../PreTabixLookup/WEB-INF/ WEB-INF/userGroup.txt 
-# cleanup
-rm -f  WEB-INF/web.xml~ WEB-INF/classes/log4j.properties~ license.html queryPostExample.html
+
+# userGroup.txt, uncomment deploy, comment testing params
+
 # update the war
-zip -ru Query.war META-INF WEB-INF
-rm -rf META-INF WEB-INF
+zip -ru GQuery.war META-INF WEB-INF
 
+# cleanup
+rm -rf  license.html queryPostExample.html META-INF WEB-INF
+ 
 # Starting up a new WAR, do as root, tomcat will auto detect the new xxx.war file and attempt a deployment
-chmod 755 Query-0.5.war
-echo Reset > /Repository/AnalysisData/QueryAPI/Logs/log4j.log
+cd /Repository/GQuery/Wars/New/
+chmod 755 GQuery.war
+chown tomcat GQuery.war
+cd /Repository/GQuery/Wars/New/
 echo Reset > /usr/share/apache-tomcat-7.0.79/logs/catalina.out
-rm -rf /usr/share/apache-tomcat-7.0.79/webapps/Query*
+echo Reset > /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
+rm -rf /usr/share/apache-tomcat-7.0.79/webapps/GQuery*
 sleep 5s
-cp Query-0.5.war /usr/share/apache-tomcat-7.0.79/webapps/Query.war
-
-# Check startup logs
-tail -F /Repository/AnalysisData/QueryAPI/Logs/log4j.log
-tail -F /usr/share/apache-tomcat-7.0.79/logs/catalina.out
+cp GQuery.war /usr/share/apache-tomcat-7.0.79/webapps/ 
+sleep 5s
+tail /usr/share/apache-tomcat-7.0.79/logs/catalina.out
+echo xxxxxxxGQueryxxxxxxx
+tail -F /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 
 # Check in a browser
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?fetchOptions=true
-http://localhost:8080/GQuery/search?fetchOptions=true
 
-# Will likely need authentication!
-http://hci-clingen1.hci.utah.edu:8080/GQuery/search?bed=chr13:32,887,617-32,975,809&regexAll=/Germline/Avatar/1217859&fetchData=true&regExAllData=BaseQRankSum=-0.529
-http://hci-clingen1.hci.utah.edu:8080/GQuery/search?matchVcf=true&vcf=13%0932914437%099325%09GT%09G%09.%09PASS%09.
+# Will need authentication
+http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it at https://meyerweb.com/eric/tools/dencoder/
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
+bed=chr13:32,887,617-32,975,809&
+regexAll=/Germline/Avatar/&
+fetchData=true&
+key=NdlyOxbpUMkptpubn6iVPg%3D%3D%3AZNjy8xGkoP%2ByGl%2FwjSdlCLpNJ0re98KDwApqvxlC%2Feo%3D
+
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
+matchVcf=true&
+vcf=13%0932914437%099325%09GT%09G%09.%09PASS%09.&
+key=NdlyOxbpUMkptpubn6iVPg%3D%3D%3AZNjy8xGkoP%2ByGl%2FwjSdlCLpNJ0re98KDwApqvxlC%2Feo%3D
 
 # Note first few queries on a new instance are slow but subsequent are faster.  Odd!
 

@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -96,7 +98,8 @@ public class GQueryIndexer {
 		saveFileIds();
 
 		String diffTime = Util.formatNumberOneFraction(((double)(System.currentTimeMillis() -startTime))/1000/60);
-		Util.pl("\n"+ diffTime+" Min to parse ~"+ totalRecordsProcessed+" records and build the query index");
+		String numParsed = NumberFormat.getNumberInstance(Locale.US).format(totalRecordsProcessed);
+		Util.pl("\n"+ diffTime+" Min to parse "+ numParsed +" records and build the query index");
 	}
 
 	private void createFileIdArray() {
