@@ -32,6 +32,7 @@ User names must be unique!
 Admin:GQuery:goRunAddie:0d63b298576d229208d15c48cf9aa488
 /Applications/Tomcat/apache-tomcat-7.0.99/bin/digest.sh -a md5 Obama:GQuery:thankYou	
 Obama:GQuery:thankYou:15e22d1122b938d84b2920e246a2e095
+/Applications/Tomcat/apache-tomcat-7.0.99/bin/digest.sh -a md5 QueryAll:GQuery: see https://ri-confluence.hci.utah.edu/x/WIBLAw for pw 
 
 # Modify the apache-tomcat-7.xxx/conf/tomcat-users.xml file
 <tomcat-users>
@@ -47,6 +48,7 @@ curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D hea
 
 
 ################## Misc Eclipse troubleshooting tips ###################
+
 # If the server fails to start up in eclipse and throw missing class errors say for log4j fix it with:
   ##I'm working with Eclipse and I had same problem every time I made changes to my pom.xml. I don't know why but Eclipse delete the Maven Dependencies.
   ##Solution: right click on project, select Properties, choose Deployment Assembly and verify in column "Source" a row called "Maven Dependencies". 
@@ -60,7 +62,6 @@ curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D hea
 
 
 ################## Example deployment of a new WAR ################
-# See /Applications/BioApps/BioMinerQueryAPIDev/queryAPIDeployClinGen1Notes.txt
 
 # On laptop
 scp ~/Code/GQuery/target/GQuery_0.1.war u0028003@hci-clingen1:~/
@@ -107,11 +108,16 @@ tail /usr/share/apache-tomcat-7.0.79/logs/catalina.out
 echo xxxxxxxGQueryxxxxxxx
 tail -F /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 
+
+################## Checking new WAR ################
+
+# See https://ri-confluence.hci.utah.edu/x/WIBLAw
+
 # Check in a browser
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?fetchOptions=true
 
 # Will need authentication
-http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it at https://meyerweb.com/eric/tools/dencoder/
+http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it 
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
 bed=chr13:32,887,617-32,975,809&
 regexAll=/Germline/Avatar/&
