@@ -1,9 +1,9 @@
 # GQuery API
 A RESTful webapp API service for rapidly querying large numbers (>10K) of tabix indexed genomic data files, e.g. vcf, gvcf, maf, bed, bedGraph, etc. from multiple species with different genome builds.
 
-A GET or POST request triggers a two step search.  User's regions of interest (ROI) are intersected against an in-memory, interval tree data structure to identify genomic data files that contain intersecting records. Intersection times are typically < 1 second for 100's of ROI against 1Ks of data files.  Two regular expression filters are provided to limit what file paths are returned.  Often this is all that is needed for basic genomic queries.  Upon request, a high performance, threaded tabix fetch request can be executed to return the actual intersecting records along with the file headers for downstream processing. These records can be filtered using regular expressions.
+A GET or POST request triggers a two step search.  User's regions of interest (ROI) are intersected against an in-memory interval tree data structure (or for large datasets or low memory servers, a tabix search of the flat file chromosome index may be used) to identify genomic data files that contain intersecting records. Intersection times are typically < 1 second for 100's of ROI against 1Ks of data files.  Two regular expression filters are provided to limit what file paths are returned.  Often this is all that is needed for basic genomic queries.  Upon request, a high performance, threaded tabix fetch request can be executed to return the actual intersecting records along with the file headers for downstream processing. These records can also be filtered using regular expressions.
 
-This approach of an in memory interval tree region file look up combine with tabix retrieval solves the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed/ tabix indexed file format eliminates the need to duplicate the data source content.
+This approach of an in memory interval tree region file look up combine with tabix retrieval is a good approach to address the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed/ tabix indexed file format eliminates the need to duplicate the data source content and create/ maintain custom data file parsers.  If you can tabix index it, you can search it. See https://www.htslib.org/doc/tabix.html
 
 This web app is built using the Java Jersy JAX RESTful API framework. It is JUnit tested and deployed on Apache Tomcat for optimized performance. Results are returned in JSON.
 
@@ -71,7 +71,7 @@ https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json
 ---
 # Building the file system genome index
 
-The first step in getting GQuery up and going with your data is to build the requisit interval tree and data file objects using the USeq QueryIndexer app, see https://github.com/HuntsmanCancerInstitute/USeq
+The first step in getting GQuery up and going with your data is to build the requisit interval tree and data file objects using the GQueryIndexer app:
 
 <pre>
 > java -jar ~/YourPathTo/GQueryIndexer_0.1.jar
@@ -98,7 +98,7 @@ Required Params:
 -d A data directory containing bgzipped and tabix indexed data files. Known file
      types include xxx.vcf.gz, xxx.bed.gz, xxx.bedGraph.gz, and xxx.maf.txt.gz. Others
      will be parsed using info from the xxx.gz.tbi index. See
-     https://github.com/samtools/htslib . For bed files don't use the -p option,
+     https://github.com/samtools/htslib . For bed files DO NOT use the -p option,
      use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,
      see http://genome.sph.umich.edu/wiki/Vt. Files may be hard linked but not soft.
 -t Full path directory containing the compiled bgzip and tabix executables. See
@@ -157,6 +157,7 @@ Java version 1.8 works. It takes ~ 1hr to index 10K files with 100M records on a
 
 ---
 # Installing the GQuery Web App
+### See also https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/Misc/queryNotes.txt
 
 ### Install Tomcat 7 on a large linux server (>12 cores, > 30G RAM)
 e.g. https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum
@@ -178,8 +179,7 @@ WEB-INF/web.xml, set the correct paths and help url
 <param-name>helpUrl</param-name>
 ```
 
-WEB-INF/classes/log4j2.properties, tell GQuery where to write internal messages, good to watch for errors and issues
-<pre>log4j2.appender.file.File</pre>
+WEB-INF/classes/log4j2.properties, tell GQuery where to write internal messages, good to watch for errors and issues.
 
 Update the war
 <pre>zip -ru GQuery-XX.war META-INF WEB-INF</pre>
@@ -209,7 +209,7 @@ Modify the apache-tomcat-7.xxx/conf/tomcat-users.xml file:
 </tomcat-users>
 ```
 
-### Create a tab delimited userGroup.txt file and place it someplace secure and readable by tomcat, e.g. the WEB-INFO folder:
+### Create a tab delimited userGroup.txt file and place it someplace secure and readable by tomcat, e.g. WEB-INF/userGroup.txt:
 <pre>
 # Define groups and their associated regular expression(s) used to match file paths acceptable for returning to a given user.  If more than one regEx is provided, only one must match, not all.
 GroupName	RegEx's, comma delimited, no spaces
@@ -249,7 +249,7 @@ Obama	Public,Thor
   </context-param>
 ```
 
-### Start-up tomcat and look in the log4j2 output for any error messages
+### Start-up tomcat and look in the log4j output for any error messages
 Note, if authorizationEnable is set to true, several checks are performed.  If any fail, the entire QueryService is disabled.
 
 ### Request a key token from the digest protected service, these expire after the WEB-INF/web.xml defined time:
