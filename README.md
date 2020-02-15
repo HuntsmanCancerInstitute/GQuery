@@ -1,5 +1,5 @@
 # GQuery API
-A RESTful web app API service for rapidly querying a large number (>100K) of tabix indexed genomic data files (e.g. vcf, maf.txt, bed, custom) from multiple species with different genome builds.
+A RESTful webapp API service for rapidly querying large numbers (>10K) of tabix indexed genomic data files, e.g. vcf, gvcf, maf, bed, bedGraph, etc. from multiple species with different genome builds.
 
 A GET or POST request triggers a two step search.  User's regions of interest (ROI) are intersected against an in-memory, interval tree data structure to identify genomic data files that contain intersecting records. Intersection times are typically < 1 second for 100's of ROI against 1Ks of data files.  Two regular expression filters are provided to limit what file paths are returned.  Often this is all that is needed for basic genomic queries.  Upon request, a high performance, threaded tabix fetch request can be executed to return the actual intersecting records along with the file headers for downstream processing. These records can be filtered using regular expressions.
 
