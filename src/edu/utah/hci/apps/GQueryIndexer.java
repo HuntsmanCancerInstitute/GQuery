@@ -1,5 +1,6 @@
-package edu.utah.hci.index;
+package edu.utah.hci.apps;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,8 +18,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import edu.utah.hci.indexer.IndexRegion;
+import edu.utah.hci.indexer.QueryIndexFileLoader;
 import edu.utah.hci.it.SimpleBed;
-import edu.utah.hci.query.Util;
+import edu.utah.hci.misc.Gzipper;
+import edu.utah.hci.misc.Util;
 import htsjdk.tribble.index.tabix.TabixFormat;
 import htsjdk.tribble.index.tabix.TabixIndex;
 
@@ -27,33 +32,33 @@ public class GQueryIndexer {
 	//user params
 	private File dataDir;
 	private File chrNameLength;
-	private File indexDir;
 	private boolean verbose = true;
 	private File bgzip = null;
 	private File tabix = null;
 	private int numberThreads = 0;
-	private String[] skipDirs = null;
 
 	//internal fields
 	private String email = "bioinformaticscore@utah.edu";
-	private File[] dataFilesToParse;
 	private String[] fileExtToIndex = {"vcf.gz", "bed.gz", "bedgraph.gz", "maf.txt.gz"};
-	private HashSet<File> skippedDataSources = new HashSet<File>();
 	private static HashMap<String, int[]> extensionsStartStopSub = new HashMap<String, int[]>();
-	private TreeMap<String, Integer> chrLengths;
-	private HashMap<String, ArrayList<File>> chrFiles = new HashMap<String, ArrayList<File>>();
-	private HashMap<File, Integer> fileId = new HashMap<File, Integer>();
-	private Integer[] ids = null;
+	public static final String INDEX_DIR_NAME = ".GQueryIndex";
+	private TreeMap<String, Integer> chrLengths = null;
 	private long totalRecordsProcessed = 0;
+	private int totalFilesIndexed = 0;
+	private ArrayList<File> dirsWithTbis = null;
+	private int bpBlock = 250000000; //max size hg19 chr1 is 249,250,621
 	
-	//prior index
+	//working obj per index dir
+	private File[] workingDataFilesToParse= null;
+	private HashMap<String, ArrayList<File>> workingChrFiles = new HashMap<String, ArrayList<File>>();
+	private HashMap<File, Integer> workingFileId = new HashMap<File, Integer>();
+	private Integer[] workingIds = null;
 	private int toTruncatePoint = -1;
-	private HashMap<String, Integer> priorTruncFileNameId = null;
-	private HashMap<String, Long> priorTruncFileNameSize = null;
+	private File workingIndexDir = null;
+	private HashMap<String, FileInfo> workingPriorFileInfo = null;
 
 	//per chr fields
 	private ArrayList<IndexRegion>[] workingIndex = null; 
-	private int bpBlock = 250000000; //max size hg19 chr1 is 249,250,621
 	private ArrayList<File> workingFilesToParse = new ArrayList<File>();
 	private ArrayList<File> workingBedFilesToMerge = new ArrayList<File>();
 	private int workingFilesToParseIndex = 0;
@@ -68,152 +73,179 @@ public class GQueryIndexer {
 		long startTime = System.currentTimeMillis();
 
 		processArgs(args);
-		
-		loadPrior();
-		parseSkipDirs(skipDirs);
+		parseDataSourceDirs();
 		setKnownFileTypeSSS();
 		parseChromLengthFile();
 		
-		parseDataSources();
-		
-		if (priorTruncFileNameId!= null) contrastPriorWithCurrent();
-		else createFileIdHash();
-		
-		createChrFiles();
-		
-		createFileIdArray();
+		//for each dir containing gz.tbi files
+		for (File dir: dirsWithTbis) {
+			Util.pl("\tIndexing "+dir);
+			
+			//load the workingDataFilesToParse
+			parseDataSources(dir);
+			
+			//look for and if present load the prior index HashMaps
+			loadPrior(dir);
+			boolean buildIndex = true;
+			
+			if (workingPriorFileInfo != null) buildIndex = contrastPriorWithCurrent();
+			else createFileIdHash();
+			
+			if (buildIndex) {
+				//clear old and create new index dir
+				Util.deleteDirectory(workingIndexDir);
+				workingIndexDir.mkdir();
+				
+				createChrFiles();
 
-		//for each chromosome
-		Util.pl("\nIndexing records by chr...\n\tChrBlock\t#Parsed");
-		for (String chr: chrLengths.keySet()) {
-			workingChr = chr;
-			parseChr();
+				createFileIdArray();
+				
+				//for each chromosome
+				for (String chr: chrLengths.keySet()) {
+					workingChr = chr;
+					parseChr();
+				}
+
+				bgzipAndTabixIndex();
+				saveFileIds();
+			}
+			else Util.pl("\t\t\tUp to date");
 		}
- 
-		//bgzip and tabix
-		Util.pl("\nCompressing master index...");
-		bgzipAndTabixIndex();
 
-		Util.pl("\nSaving file objects...");
-		saveFileIds();
 
 		String diffTime = Util.formatNumberOneFraction(((double)(System.currentTimeMillis() -startTime))/1000/60);
 		String numParsed = NumberFormat.getNumberInstance(Locale.US).format(totalRecordsProcessed);
-		Util.pl("\n"+ diffTime+" Min to parse "+ numParsed +" records and build the query index");
+		String numFiles = NumberFormat.getNumberInstance(Locale.US).format(totalFilesIndexed);
+		Util.pl("\n"+ diffTime+" Min to index "+numFiles+" files containing "+ numParsed +" records");
 	}
 
 	private void createFileIdArray() {
 		int maxValue = 0;
-		for (int i: fileId.values()) if (i>maxValue) maxValue = i;
-		ids = new Integer[maxValue+1];
-		for (Integer i: fileId.values()) ids[i] = i;
+		for (int i: workingFileId.values()) if (i>maxValue) maxValue = i;
+		workingIds = new Integer[maxValue+1];
+		for (Integer i: workingFileId.values()) workingIds[i] = i;
 	}
 
 	private void createFileIdHash() {
-		Util.pl("\nCreating file id hash...");
-		for (int i=0; i< dataFilesToParse.length; i++) {
+		workingFileId.clear();
+		for (int i=0; i< workingDataFilesToParse.length; i++) {
 			Integer id = new Integer(i);
-			fileId.put(dataFilesToParse[i], id);
+			workingFileId.put(workingDataFilesToParse[i], id);
 		}
 	}
 	
-	private void contrastPriorWithCurrent() {
-		Util.pl("\nComparing prior index with current data sources...");
-		
+	private boolean contrastPriorWithCurrent() {
+		workingFileId.clear();
 		int numOldDataSources = 0;
 		int numNewDataSources = 0;
 		int numNewDataSourcesDiffSize = 0;
 		int numOldDataSourcesMissingInNew = 0;
 
-		//walk current files to index
+		//walk working files to index
 		HashSet<String> currentTrimmedDataSourceNames = new HashSet<String>();
-		for (int i=0; i< dataFilesToParse.length; i++) {
+		for (int i=0; i< workingDataFilesToParse.length; i++) {
 			
 			//add to fileId hash
 			Integer id = new Integer(i);
-			fileId.put(dataFilesToParse[i], id);
+			workingFileId.put(workingDataFilesToParse[i], id);
 			
 			//was it already parsed?
-			String trimmedName = dataFilesToParse[i].toString().substring(toTruncatePoint);
+			String trimmedName = workingDataFilesToParse[i].toString().substring(toTruncatePoint);
 			currentTrimmedDataSourceNames.add(trimmedName);
-			Integer idTest = priorTruncFileNameId.get(trimmedName);
+			FileInfo fi =  workingPriorFileInfo.get(trimmedName);
+			
 
-			if (idTest == null) numNewDataSources++;
+			if (fi == null) numNewDataSources++;
 			else {
-				//same size?
-				Long size = priorTruncFileNameSize.get(trimmedName);
-				if (dataFilesToParse[i].length() == size) numOldDataSources++;
+				//same size and mod date?
+				if (workingDataFilesToParse[i].length() == fi.size && workingDataFilesToParse[i].lastModified() == fi.lastModified) numOldDataSources++;
 				else numNewDataSourcesDiffSize++;
 			}
 		}
 		
 		//walk old Index and see which are missing in new and should be deleted
-		for (String oldTN: priorTruncFileNameId.keySet()) {
+		for (String oldTN: workingPriorFileInfo.keySet()) {
 			if (currentTrimmedDataSourceNames.contains(oldTN) == false) numOldDataSourcesMissingInNew++;
 		}
 		
-		
+		/*
 		if (verbose) {
-			//old datasets already parsed and in index - skip
-			Util.pl("\t"+numOldDataSources +" Datasets present in index");
+			//old datasets already parsed and in index
+			Util.pl("\t\t\t"+numOldDataSources +" Datasets present in index");
 			//entirely new datasets - to parse
-			Util.pl("\t"+numNewDataSources +" New datasets to add to index");
-			//new datasets with preexisting same named file but diff size, - delete old from index then parse
-			Util.pl("\t"+numNewDataSourcesDiffSize +" New datasets to replace an existing data source");
+			Util.pl("\t\t\t"+numNewDataSources +" New datasets to add to index");
+			//new datasets with preexisting same named file but diff size or mod date
+			Util.pl("\t\t\t"+numNewDataSourcesDiffSize +" New datasets to replace an existing data source");
 			//old datasets to delete, either getting replace or were deleted from current datasource list
-			Util.pl("\t"+numOldDataSourcesMissingInNew+" Datasets missing from index ");
-		}
+			Util.pl("\t\t\t"+numOldDataSourcesMissingInNew+" Datasets missing from index ");
+		}*/
 		
 		//check if any work to do
-		if (numNewDataSources==0 && numNewDataSourcesDiffSize==0 && numOldDataSourcesMissingInNew==0)  Util.printExit("\nIndex is up to date. Exiting.");	
-		else Util.pl("\t\tRebuilding Index");
+		if (numNewDataSources==0 && numNewDataSourcesDiffSize==0 && numOldDataSourcesMissingInNew==0) return false;	
+		return true;
 	}
 
-	private void loadPrior() {
+	@SuppressWarnings("unchecked")
+	private void loadPrior(File dir) {
 		try {
+			workingPriorFileInfo = null;
+			workingIndexDir = new File(dir, INDEX_DIR_NAME);
+			if (workingIndexDir.exists() == false) return;
 			
-			//look for the fileIds.obj, fileSizes.obj
-			File ids = new File(indexDir, "fileIds.obj");
-			File sizes = new File(indexDir, "fileSizes.obj");
+			//look for the fileInfo.txt 
+			File info = new File(workingIndexDir, "fileInfo.txt.gz");
+			if (info.exists() == false) return;
+			loadFileInfo(info);
 			
-			if (ids.exists() == false || sizes.exists() == false) return;
-			
-			Util.pl("\nLoading prior file objects...");
-			
-			priorTruncFileNameId = (HashMap<String, Integer>)Util.fetchObject(ids);
-			priorTruncFileNameSize = (HashMap<String, Long>)Util.fetchObject(sizes);
-			File[] priorChromIndexFiles = Util.extractFiles(indexDir, ".bed.gz");
-			
-			if (priorChromIndexFiles == null || priorChromIndexFiles.length == 0) throw new IOException("\nFailed to find your chrXXX.bed.gz index files in your index directory?");
-			if (verbose) {
-				Util.pl("\t"+priorTruncFileNameId.size()+"\tIndexed data sources ");
-				Util.pl("\t"+priorChromIndexFiles.length+"\tChromosome indexes");
-			}
+			File[] priorChromIndexFiles = Util.extractFiles(workingIndexDir, ".bed.gz");
+			if (priorChromIndexFiles == null || priorChromIndexFiles.length == 0) throw new IOException("\nFailed to find your chrXXX.bed.gz index files in this index directory "+workingIndexDir+" Delete index dir and restart.");
 
 		} catch (Exception e){
 			e.printStackTrace();
-			Util.printErrAndExit("\nERROR: opening prior index objects, aborting\n");
+			Util.printErrAndExit("\nERROR: opening prior index objects from "+dir);
 		}
 		
+	}
+
+	private void loadFileInfo(File info) throws IOException {
+		workingPriorFileInfo = new HashMap<String, FileInfo>();
+		BufferedReader in = Util.fetchBufferedReader(info);
+		//skip first header line
+		in.readLine();
+		String line;
+		String[] fields;
+		while ((line = in.readLine()) != null) {
+			//Id0 Size1 LastMod2 Name3
+			fields = Util.TAB.split(line);
+			workingPriorFileInfo.put(fields[3], new FileInfo(fields));
+		}
+		in.close();
+	}
+	
+	private class FileInfo{
+		int id;
+		long size;
+		long lastModified;
+		
+		private FileInfo (String[] fields) {
+			//Id0 Size1 LastMod2 Name3
+			id = Integer.parseInt(fields[0]);
+			size = Long.parseLong(fields[1]);
+			lastModified = Long.parseLong(fields[2]);
+		}
 	}
 
 	public void parseChr(){
 		try {
 			workingFilesToParse.clear();
-			workingFilesToParse.addAll(chrFiles.get(workingChr));
+			workingFilesToParse.addAll(workingChrFiles.get(workingChr));
 			workingBedFilesToMerge.clear();
-
-			//remove any that belong to a skip dir
-			removeSkipDirs(workingFilesToParse);
 			
 			//any work to do?
-			if (workingFilesToParse.size() == 0 ) {
-				Util.pl("\t"+workingChr+"\tNo Records");
-				return;
-			}
+			if (workingFilesToParse.size() == 0 ) return;
 			
 			//start io
-			File queryIndexFile = new File(indexDir, workingChr+".qi.bed");
+			File queryIndexFile = new File(workingIndexDir, workingChr+".qi.bed");
 			out = new PrintWriter(new FileWriter((queryIndexFile)));
 			
 			//for each block
@@ -222,7 +254,7 @@ public class GQueryIndexer {
 				workingStartBp = i;
 				workingStopBp = workingStartBp+bpBlock;
 				if (workingStopBp > chromLength) workingStopBp = chromLength;
-				Util.p("\t"+workingChr+":"+workingStartBp+"-"+workingStopBp);
+				Util.p("\t\t\t"+workingChr+":"+workingStartBp+"-"+workingStopBp);
 				
 				//prep for new chr seg
 				workingIndex = new ArrayList[workingStopBp-workingStartBp+1];
@@ -272,32 +304,8 @@ public class GQueryIndexer {
 		Util.pl("\t"+workingParsed);
 		totalRecordsProcessed+= workingParsed;
 	}
-
-	/*Removes any files that are found in a skip dir*/
-	private void removeSkipDirs(ArrayList<File> al) {
-		try {
-			if (skipDirs != null){
-				ArrayList<File> bad = new ArrayList<File>();
-				//for each file
-				for (File f: al){
-					String conPath = f.getCanonicalPath();
-					//for each skip dir
-					for (String sd: skipDirs){
-						if (conPath.startsWith(sd)) {
-							bad.add(f);
-							break;
-						}
-					}
-				}
-				al.removeAll(bad);
-				skippedDataSources.addAll(bad);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-	}
 	
-	synchronized void addRegions (ArrayList<IndexRegion> regions) {
+	public synchronized void addRegions (ArrayList<IndexRegion> regions) {
 		for (IndexRegion region: regions){
 			//add start
 			int sIndex = region.start;
@@ -314,26 +322,25 @@ public class GQueryIndexer {
 	}
 
 	/**Gets a file to parse containing records that match a particular chr. Thread safe.*/
-	synchronized File getFileToParse(){
+	public synchronized File getFileToParse(){
 		if (workingFilesToParseIndex < workingFilesToParse.size()) return workingFilesToParse.get(workingFilesToParseIndex++);
 		return null;
 	}
 
 	private void createChrFiles() {
-		Util.pl("\nChecking tbi files for chr content...");
-		
 		//load hash to hold files with a particular chr
-		for (String chr: chrLengths.keySet()) chrFiles.put(chr, new ArrayList<File>());
+		workingChrFiles.clear();
+		for (String chr: chrLengths.keySet()) workingChrFiles.put(chr, new ArrayList<File>());
 
 		try {
 			//for each file
-			for (File f: dataFilesToParse){
+			for (File f: workingDataFilesToParse){
 				//make an index
 				File i = new File (f+".tbi");
 				TabixIndex ti = new TabixIndex(i);
 				//for each chromosome
 				for (String chr: chrLengths.keySet()){
-					if (ti.containsChromosome(chr) || ti.containsChromosome("chr"+chr)) chrFiles.get(chr).add(f);
+					if (ti.containsChromosome(chr) || ti.containsChromosome("chr"+chr)) workingChrFiles.get(chr).add(f);
 				}
 			}
 		} catch (IOException e) {
@@ -428,12 +435,12 @@ public class GQueryIndexer {
 		if (al.size() == 1) return new Integer (al.iterator().next().fileId).toString();
 		
 		//hash ids and sort, might have dups
-		TreeSet<Integer> ids = new TreeSet<Integer>();
+		TreeSet<Integer> idsTS = new TreeSet<Integer>();
 		Iterator<IndexRegion> it = al.iterator();
-		while (it.hasNext())ids.add(it.next().fileId);
+		while (it.hasNext())idsTS.add(it.next().fileId);
 	
 		//create string
-		Iterator<Integer>iit = ids.iterator();
+		Iterator<Integer>iit = idsTS.iterator();
 		StringBuilder sb = new StringBuilder(iit.next().toString());
 		while (iit.hasNext()){
 			sb.append(",");
@@ -444,7 +451,7 @@ public class GQueryIndexer {
 	}
 
 	public void bgzipAndTabixIndex() {
-		File[] beds = Util.extractFiles(indexDir, ".qi.bed");
+		File[] beds = Util.extractFiles(workingIndexDir, ".qi.bed");
 		for (File bed: beds){
 			//compress with bgzip, this will replace any existing compressed file and delete the uncompressed
 			String[] cmd = { bgzip.toString(), "-f", "--threads", numberThreads+"", bed.toString()};
@@ -478,7 +485,6 @@ public class GQueryIndexer {
 	public void processArgs(String[] args){
 		Pattern pat = Pattern.compile("-[a-z]");
 		File tabixBinDirectory = null;
-		skipDirs = null;
 		Util.pl("\nGQuery Indexer Arguments: "+ Util.stringArrayToString(args, " ") +"\n");
 		for (int i = 0; i<args.length; i++){
 			String lcArg = args[i].toLowerCase();
@@ -489,8 +495,6 @@ public class GQueryIndexer {
 					switch (test){
 					case 'c': chrNameLength = new File(args[++i]); break;
 					case 'd': dataDir = new File(args[++i]).getCanonicalFile(); break;
-					case 'i': indexDir = new File(args[++i]); break;
-					case 's': skipDirs = Util.COMMA.split(args[++i]); break;
 					case 'q': verbose = false; break;
 					case 't': tabixBinDirectory = new File(args[++i]); break;
 					case 'n': numberThreads = Integer.parseInt(args[++i]); break;
@@ -509,11 +513,8 @@ public class GQueryIndexer {
 		tabix = new File (tabixBinDirectory, "tabix");
 		if (bgzip.canExecute() == false || tabix.canExecute() == false) Util.printExit("\nCannot find or execute bgzip or tabix executables from "+bgzip+" "+tabix);
 
-		if (chrNameLength == null) Util.printErrAndExit("\nError: please provide a bed file of chromosome and their max lengths to index. e.g. X 0 155270560\n" );
+		if (chrNameLength == null || chrNameLength.exists() == false) Util.printErrAndExit("\nError: please provide a bed file of chromosome and their max lengths to index. e.g. X 0 155270560\n" );
 		if (dataDir == null || dataDir.isDirectory() == false) Util.printErrAndExit("\nERROR: please provide a directory containing gzipped and tabix indexed bed, vcf, maf.txt, and bedGraph files to index." );
-		if (indexDir == null ) Util.printErrAndExit("\nERROR: please provide a directory in which to write the master query index." );
-		
-		if (indexDir.exists() == false) indexDir.mkdirs();
 
 		//threads to use
 		int numAvail = Runtime.getRuntime().availableProcessors();
@@ -522,24 +523,6 @@ public class GQueryIndexer {
 		
 		toTruncatePoint = dataDir.getParentFile().toString().length()+1;
 	}	
-
-	private void parseSkipDirs(String[] skipDirs) {
-		try {
-			if (skipDirs != null){
-				String indexDirCP = dataDir.getCanonicalPath();
-				for (int i=0; i< skipDirs.length; i++){
-					File f = new File(skipDirs[i]);
-					if (f.exists() == false) Util.printErrAndExit("\nError: failed to find one of your skip directories? "+skipDirs[i]);
-					if (f.isDirectory() == false) Util.printErrAndExit("\nError: is this skip directory not a directory? "+skipDirs[i]);
-					String conPath = f.getCanonicalPath();
-					if (conPath.startsWith(indexDirCP) == false) Util.printErrAndExit("\nError: this skip directory doesn't appear to be within the data directory? "+skipDirs[i]);
-					skipDirs[i] = conPath;
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	private void parseChromLengthFile() {
 		SimpleBed[] sb = SimpleBed.parseFile(chrNameLength);
@@ -570,7 +553,7 @@ public class GQueryIndexer {
 		extensionsStartStopSub.put("maf.txt.gz", new int[]{5,6,1});
 	}
 	
-	synchronized int[] getSSS(File f) {
+	public synchronized int[] getSSS(File f) {
 		int[] startStopSubtract = null;
 		try {
 			//pull known
@@ -582,7 +565,7 @@ public class GQueryIndexer {
 			//pull from tbi
 			//I'm suspicious of the flags field so the subtract may be wrong.  Best to manually set for each file type.
 			else {
-				File index = new File (f.getCanonicalPath()+".tbi");
+				File index = new File (f.getPath()+".tbi");
 				TabixIndex ti = new TabixIndex(index);
 				TabixFormat tf = ti.getFormatSpec();
 				int startIndex = tf.startPositionColumn- 1;
@@ -604,43 +587,32 @@ public class GQueryIndexer {
 	private void saveFileIds(){
 		try {
 
-			//find all the parsed files
-			HashSet<File> parsedFiles = new HashSet<File>();
-			for (ArrayList<File> al: chrFiles.values()) parsedFiles.addAll(al);
-
-			//save ids with truncated paths
-			int toSkip = dataDir.getParentFile().toString().length()+1;
-
-			HashMap<String, Integer> fileStringId = new HashMap<String, Integer>();
-			HashMap<String, Long> fileStringSize = new HashMap<String, Long>();
-			TreeSet<String> skippedFileNames = new TreeSet<String>();
-
-			for (File f: parsedFiles){
-				//Hmm, this only works with actual files, not soft links!
-				String trimmedName = f.toString().substring(toSkip);
-
-				//save trmmed name : id  and size
-				Integer id = fileId.get(f);
-				if (id == null) throw new Exception("\nFailed to find an id for "+f);
-				fileStringId.put(trimmedName, id);
-				fileStringSize.put(trimmedName, f.length());
-				
-				//a skipped file?
-				if (skippedDataSources.contains(f)) skippedFileNames.add(trimmedName);
+			//find all the parsed files and their id
+			TreeMap<Integer, File> parsedFiles = new TreeMap<Integer, File>();
+			for (ArrayList<File> al: workingChrFiles.values()) {
+				//for each file
+				for (File f: al) {
+					Integer id = workingFileId.get(f);
+					if (id == null) throw new Exception("\nFailed to find an id for "+f);
+					if (parsedFiles.containsKey(id) == false) parsedFiles.put(id, f);
+				}
 			}
+
+			//save with truncated paths
+			int toSkip = dataDir.getParentFile().toString().length()+1;
+			Gzipper out = new Gzipper(new File (workingIndexDir, "fileInfo.txt.gz"));
+			out.println("#Id\tSize\tLastMod\tRelPath");
 			
-			//save the trunk file name : id
-			File ids = new File(indexDir, "fileIds.obj");
-			Util.saveObject(ids, fileStringId);
-			
-			//save the trunk file name : size
-			File sizes = new File(indexDir, "fileSizes.obj");
-			Util.saveObject(sizes, fileStringSize);
-			
-			//save the skipped files, might be empty
-			File skippedFiles = new File(indexDir, "skippedSources.obj");
-			Util.saveObject(skippedFiles, skippedFileNames);
-			
+			for (Integer id: parsedFiles.keySet()){
+				File f = parsedFiles.get(id);
+				
+				//trim the name
+				String trimmedName = f.getPath().substring(toSkip);
+				
+				//save id size lastModified and trimmed name
+				out.println(id+"\t"+f.length()+"\t"+f.lastModified()+"\t"+trimmedName);
+			}
+			out.close();
 
 		} catch (Exception e){
 			e.printStackTrace();
@@ -648,51 +620,44 @@ public class GQueryIndexer {
 		}
 	}
 	
-	
-	/*  Don't save these, it'll explode, just pull from live file
-		private String[] stringHeaderPatternStarts = {"^[#/<@].+", "^browser.+", "^track.+", "^color.+", "^url.+", "^Hugo_Symbol.+"};
-	Pattern[] headerStarts = new Pattern[stringHeaderPatternStarts.length];
-	for (int i =0; i< stringHeaderPatternStarts.length; i++) headerStarts[i] = Pattern.compile(stringHeaderPatternStarts[i]); 
-	private ArrayList<String> parseHeader(File f, Pattern[] headerLineStarts) throws IOException {
-		ArrayList<String> header = new ArrayList<String>();
-		BufferedReader in = Util.fetchBufferedReader(f);
-		String line;
-		while ((line = in.readLine()) != null){
-			//skip blanks
-			line = line.trim();
-			if (line.length()==0) continue;
-			//scan patterns
-			boolean found = false;
-			for (Pattern p: headerLineStarts) {
-				Matcher m = p.matcher(line);
-				if (m.matches()) {
-					header.add(line);
-					found = true;
+	private void parseDataSourceDirs(){
+		Util.pl("\nSearching for directories containing tabixed data sources...");
+		dirsWithTbis = new ArrayList<File>();
+		
+		ArrayList<File> dirs = Util.fetchDirectoriesRecursively(dataDir);
+		dirs.add(dataDir);
+
+		//for each look inside for tbi indexes
+		for (File dir: dirs) {
+			//skip index dirs
+			if (dir.getName().equals(INDEX_DIR_NAME)) continue;
+			
+			File[] list = dir.listFiles();
+			for (int i=0; i< list.length; i++){
+				if (list[i].getName().endsWith(".gz.tbi")) {
+					dirsWithTbis.add(dir);
 					break;
 				}
 			}
-			if (found == false) break;
 		}
-		in.close();
-		return header;
-	}*/
+		if (dirsWithTbis.size() == 0) Util.printErrAndExit("\nERROR: No directories were found with xxx.gz.tbi files inside "+dataDir+" Aborting!");
+	}
 	
-	private void parseDataSources(){
-		Util.pl("\nSearching for tabix indexes and bgzipped data sources...");
-		try {
+	private void parseDataSources(File dir){
 			ArrayList<File> goodDataSources = new ArrayList<File>();
 			ArrayList<File> tbiMissingDataSources = new ArrayList<File>();
 			ArrayList<File> unrecognizedDataSource = new ArrayList<File>();
 
 			//find .tbi files and check
-			File[] tbis = Util.fetchFilesRecursively(dataDir, ".gz.tbi");
-			for (File tbi: tbis){
-				String path = tbi.getCanonicalPath();
+			File[] list = dir.listFiles();
+			for (File f: list){
+				if (f.getName().endsWith(".gz.tbi") == false) continue;
+				String path = f.getPath();
 
 				//look for data file
 				File df = new File(path.substring(0, path.length()-4));
 				if (df.exists() == false){
-					tbiMissingDataSources.add(tbi);
+					tbiMissingDataSources.add(f);
 					continue;
 				}
 				
@@ -711,28 +676,24 @@ public class GQueryIndexer {
 			int numFiles = goodDataSources.size() + unrecognizedDataSource.size();
 
 			//print messages
-			if (numFiles == 0) Util.printErrAndExit("\nERROR: failed to find any data sources with xxx.tbi indexes in your dataDir?!\n");
-			Util.pl("\t"+goodDataSources.size()+" Data sources with known formats ("+ Util.stringArrayToString(fileExtToIndex, ", ")+")");
+			if (numFiles == 0) Util.printErrAndExit("\nERROR: failed to find any data sources for tabix indexed files in "+dir+" Aborting.");
+			Util.pl("\t\t"+goodDataSources.size()+" Data sources with known formats ("+ Util.stringArrayToString(fileExtToIndex, ", ")+")");
 			if (tbiMissingDataSources.size() !=0){
-				Util.pl("\t"+tbiMissingDataSources.size()+" WARNING: The data source file(s) for the following tbi index(s) could not be found, skipping:");
-				for (File f: tbiMissingDataSources) Util.pl("\t\t"+f.getCanonicalPath());
+				Util.pl("\t\t"+tbiMissingDataSources.size()+" WARNING: The data source file(s) for the following tbi index(s) could not be found, skipping:");
+				for (File f: tbiMissingDataSources) Util.pl("\t\t\t"+f.getPath());
 			}
 			if (unrecognizedDataSource.size() !=0){
-				Util.pl("\t"+unrecognizedDataSource.size()+" WARNING: Data sources with unknown format(s). The format of the "
+				Util.pl("\t\t"+unrecognizedDataSource.size()+" WARNING: Data sources with unknown format(s). The format of the "
 						+ "following files will be set using info from the tabix index and may be incorrect. Contact "+email+" to add.");
-				for (File f: unrecognizedDataSource) Util.pl("\t\t"+f.getCanonicalPath());
+				for (File f: unrecognizedDataSource) Util.pl("\t\t\t"+f.getPath());
 			}
 			
 			//make final set
 			goodDataSources.addAll(unrecognizedDataSource);
-			dataFilesToParse = new File[goodDataSources.size()];
-			goodDataSources.toArray(dataFilesToParse);
-			Arrays.sort(dataFilesToParse);
-			
-		} catch (IOException e){
-			e.printStackTrace();
-			Util.printErrAndExit("\nError examining data source files. \n");
-		}
+			workingDataFilesToParse = new File[goodDataSources.size()];
+			goodDataSources.toArray(workingDataFilesToParse);
+			Arrays.sort(workingDataFilesToParse);
+			totalFilesIndexed+= workingDataFilesToParse.length;
 	}
 
 	public static File[] returnFilesWithTabix(File[] tabixFiles) {
@@ -752,18 +713,16 @@ public class GQueryIndexer {
 	public static void printDocs(){
 		Util.pl("\n" +
 				"**************************************************************************************\n" +
-				"**                               GQuery Indexer: Jan 2019                           **\n" +
+				"**                               GQuery Indexer: Feb 2020                           **\n" +
 				"**************************************************************************************\n" +
-				"Builds index files for GQuery by recursing through a data directory looking for bgzip\n"+
-				"compressed and tabix indexed genomic data files (e.g. vcf, bed, maf, and custom).\n"+
-				"Interval trees are built containing regions that overlap the data sources.\n"+
-				"These are used by the GQuery REST service to rapidly identify which data files contain\n"+
-				"records that overlap user's ROI. This app is threaded for simultanious file loading\n"+
-				"and requires >30G RAM to run on large data collections so use a big analysis server.\n"+
-				"Note, relative file paths are saved. So long as the structure of the Data Directory is\n"+
-				"preserved, the GQueryIndexer and GQuery REST service don't need to run on the same\n"+
-				"file system. Lastly, the indexer will only re index an existing index if the data\n"+
-				"files have changed. Thus, run nightly to keep up to date.\n"+
+				"GQI builds index files for GQuery by recursing through a root data directory looking for\n"+
+				"directories containing bgzip compressed and tabix indexed genomic data files, e.g. \n"+
+				"xxx.gz and xxx.gz.tbi . A GQuery index is created for each directory, thus place or\n"+
+				"link 100 or more related files in the same directory, e.g. Data/Hg38/Somatic/Vcfs/\n"+
+				"and Data/Hg38/Somatic/Cnvs/ . This app is threaded for simultanious file loading\n"+
+				"and requires >30G RAM to run on large data collections. Lastly, the indexer will only\n"+
+				"re index an existing index if the data files have changed. Thus, run it nightly to\n"+
+				"keep the indexes up to date.\n"+
 
 				"\nRequired Params:\n"+
 				"-c A bed file of chromosomes and their lengths (e.g. chr21 0 48129895) to use to \n"+
@@ -775,15 +734,11 @@ public class GQueryIndexer {
 				"     will be parsed using info from the xxx.gz.tbi index. See\n"+
 				"     https://github.com/samtools/htslib . For bed files don't use the -p option,\n"+
 				"     use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,\n"+
-				"     see http://genome.sph.umich.edu/wiki/Vt. Files may be hard linked but not soft.\n"+
+				"     see http://genome.sph.umich.edu/wiki/Vt.\n"+
 				"-t Full path directory containing the compiled bgzip and tabix executables. See\n" +
 				"     https://github.com/samtools/htslib\n"+
-				"-i A directory in which to save the index files\n"+
 
 				"\nOptional Params:\n"+
-				"-s One or more directory paths, comma delimited no spaces, to skip when building\n"+
-				"     interval trees but make available for data source record retrieval. Useful for\n"+
-				"     whole genome gVCFs and read coverage files that cover large genomic regions.\n"+
 				"-q Quiet output, no per record warnings.\n"+
 				"-b BP block to process, defaults to 250000000. Reduce if out of memory issues occur.\n"+
 				"-n Number cores to use, defaults to all\n"+
@@ -793,7 +748,7 @@ public class GQueryIndexer {
 				
 				"d=/pathToYourLocalGitHubInstalled/GQuery/TestResources\n"+
 				"java -jar -Xmx115G GQueryIndexer_0.1.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data\n"+
-				"-i $d/Index -t ~/BioApps/HTSlib/1.10.2/bin/ -s $d/Data/Public/B37/GVCFs \n\n" +
+				"-t $d/Htslib_1.10.2/bin/ \n\n" +
 
 				"**************************************************************************************\n");
 	}
@@ -807,15 +762,11 @@ public class GQueryIndexer {
 	}
 
 	public HashMap<File, Integer> getFileId() {
-		return fileId;
+		return workingFileId;
 	}
 
 	public Integer[] getIds() {
-		return ids;
-	}
-
-	public File[] getDataFilesToParse() {
-		return dataFilesToParse;
+		return workingIds;
 	}
 
 	public long getTotalRecordsProcessed() {

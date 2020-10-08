@@ -3,52 +3,72 @@ package edu.utah.hci.query;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.json.JSONObject;
+
+import edu.utah.hci.misc.Util;
 
 /**	 
  * Helper class to build a query and store the results.
  * The default boolean is false. 
- * @param fetchoptions - true or false
- * @param matchvcf - true or false
- * @param includeheaders - true or false
- * @param fetchdata - true or false
- * @param regexall - partial file path(s) where ALL must match for intersecting dataset to be returned, e.g. vcf.gz and Hg38/Avatar/Somatic and Lung
- * @param regexone - partial file path(s) where one of the provided must match for intersecting dataset to be returned, e.g. vcf.gz or Hg38/Avatar/Somatic
- * @param regexalldata - case-insensitive regex expressions that must ALL match a record line to be returned, e.g. Pathogenic and BRCA1 and splice
- * @param regexonedata - case-insensitive regex expressions where one must match a record line to be returned, e.g. pathogenic or likely-pathogenic or TP53
+ * @param fetchOptions - true or false
+ * @param matchVcf - true or false
+ * @param includeHeaders - true or false
+ * @param fetchData - true or false
+ * @param regExDirPath - for matching truncated dir paths, just from the user specified Data/xxx/xxx dir on down, remember each is surrounded with .*XXXXXX.*
+ * @param regExFileName - for matching file names
+ * @param regExDataLine - for matching record data lines
+ * @param regExDataLineExclude - for excluding record data lines
+ * @param matchAllDirPathRegEx - boolean indicating whether all regExDirPaths must match 
+ * @param matchAllFileNameRegEx - boolean indicating whether all regExFileNames must match
+ * @param matchAllDataRegEx - boolean indicating whether all regExDataLine lines must match
  * @param vcf - vcf records to intersect - this or bed required
  * @param bed - bed records to intersect - this or vcf required*/
 public class UserQuery {
 
 	private ArrayList<String> fetchOptions = null;
+	private boolean fetchOptionsFlag = false;
 	private ArrayList<String> matchVcf = null;
 	private ArrayList<String> includeHeaders = null;
 	private ArrayList<String> fetchData = null;
-	private ArrayList<String> regexAll = null;
-	private ArrayList<String> regexOne = null;
-	private ArrayList<String> regexAllData = null;
-	private ArrayList<String> regexOneData = null;
+	
+	private ArrayList<String> regExDirPath = null;
+	private ArrayList<String> regExFileName = null;
+	private ArrayList<String> regExDataLine = null;
+	private ArrayList<String> regExDataLineExclude = null;
+	
+	private ArrayList<String> matchAllDirPathRegEx = null;
+	private ArrayList<String> matchAllFileNameRegEx = null;
+	private ArrayList<String> matchAllDataLineRegEx = null;
+	
 	private ArrayList<String> bedRegions = null;
 	private ArrayList<String> vcfRecords= null;
+	private ArrayList<String> bpPadding= null;
 	private String error = null;
 	private JSONObject results = null;
 
 	public HashMap<String,String> fetchQueryOptions(){
+		
 		HashMap<String, List<String>> hm = new HashMap<String, List<String>>();
-		if (fetchOptions != null) hm.put("fetchoptions", fetchOptions);
-		if (matchVcf != null) hm.put("matchvcf", matchVcf);
-		if (includeHeaders != null) hm.put("includeheaders", includeHeaders);
-		if (fetchData != null) hm.put("fetchdata", fetchData);
-		if (regexAll != null) hm.put("regexall", regexAll);
-		if (regexOne != null) hm.put("regexone", regexOne);
-		if (regexAllData != null) hm.put("regexalldata", regexAllData);
-		if (regexOneData != null) hm.put("regexonedata", regexOneData);
+		if (fetchOptions != null) hm.put("fetchOptions", fetchOptions);
+		if (matchVcf != null) hm.put("matchVcf", matchVcf);
+		if (includeHeaders != null) hm.put("includeHeaders", includeHeaders);
+		if (fetchData != null) hm.put("fetchData", fetchData);
+		if (bpPadding != null) hm.put("bpPadding", bpPadding);
+		
+		if (regExDirPath != null) hm.put("regExDirPath", regExDirPath);
+		if (regExFileName != null) hm.put("regExFileName", regExFileName);
+		if (regExDataLine != null) hm.put("regExDataLine", regExDataLine);
+		if (regExDataLineExclude != null) hm.put("regExDataLineExclude", regExDataLineExclude);
+		
+		if (matchAllDirPathRegEx != null) hm.put("matchAllDirPathRegEx", matchAllDirPathRegEx);
+		if (matchAllFileNameRegEx != null) hm.put("matchAllFileNameRegEx", matchAllFileNameRegEx);
+		if (matchAllDataLineRegEx != null) hm.put("matchAllDataLineRegEx", matchAllDataLineRegEx);
+
 		if (bedRegions != null) hm.put("bed", bedRegions);
 		if (vcfRecords != null) hm.put("vcf", vcfRecords);
 
 		//format the options
-		return Util.loadGetQueryServiceOptions(hm);
+		return Util.loadGetMultiQueryServiceOptions(hm);
 	}
 	
 	public void clearResultsRegionsRecords(){
@@ -61,6 +81,7 @@ public class UserQuery {
 	public UserQuery fetchOptions(){
 		fetchOptions = new ArrayList<String>();
 		fetchOptions.add("true");
+		fetchOptionsFlag = true;
 		return this;
 	}
 	public UserQuery fetchData(){
@@ -78,26 +99,44 @@ public class UserQuery {
 		includeHeaders.add("true");
 		return this;
 	}
-	public UserQuery addRegexAll(String regex){
-		if (regexAll == null) regexAll = new ArrayList<String>();
-		regexAll.add(regex);
+	
+	public UserQuery matchAllDirPathRegEx(){
+		matchAllDirPathRegEx = new ArrayList<String>();
+		matchAllDirPathRegEx.add("true");
 		return this;
 	}
-	public UserQuery addRegexOne(String regex){
-		if (regexOne == null) regexOne = new ArrayList<String>();
-		regexOne.add(regex);
+	public UserQuery matchAllFileNameRegEx(){
+		matchAllFileNameRegEx = new ArrayList<String>();
+		matchAllFileNameRegEx.add("true");	
 		return this;
 	}
-	public UserQuery addRegexAllData(String regex){
-		if (regexAllData == null) regexAllData = new ArrayList<String>();
-		regexAllData.add(regex);
+	public UserQuery matchAllDataLineRegEx(){
+		matchAllDataLineRegEx = new ArrayList<String>();
+		matchAllDataLineRegEx.add("true");
 		return this;
 	}
-	public UserQuery addRegexOneData(String regex){
-		if (regexOneData == null) regexOneData = new ArrayList<String>();
-		regexOneData.add(regex);
+	
+	public UserQuery addRegExDirPath(String regEx){
+		if (regExDirPath == null) regExDirPath = new ArrayList<String>();
+		regExDirPath.add(regEx);
 		return this;
 	}
+	public UserQuery addRegExFileName(String regEx){
+		if (regExFileName == null) regExFileName = new ArrayList<String>();
+		regExFileName.add(regEx);
+		return this;
+	}
+	public UserQuery addRegExDataLine(String regEx){
+		if (regExDataLine == null) regExDataLine = new ArrayList<String>();
+		regExDataLine.add(regEx);
+		return this;
+	}
+	public UserQuery addRegExDataLineExclude(String regEx){
+		if (regExDataLineExclude == null) regExDataLineExclude = new ArrayList<String>();
+		regExDataLineExclude.add(regEx);
+		return this;
+	}
+	
 	public UserQuery addVcfRecord(String vcf){
 		if (vcfRecords == null) vcfRecords = new ArrayList<String>();
 		vcfRecords.add(vcf);
@@ -106,6 +145,11 @@ public class UserQuery {
 	public UserQuery addBedRegion(String bed){
 		if (bedRegions == null) bedRegions = new ArrayList<String>();
 		bedRegions.add(bed);
+		return this;
+	}
+	public UserQuery addBpPadding(String bps){
+		if (bpPadding == null) bpPadding = new ArrayList<String>();
+		bpPadding.add(bps);
 		return this;
 	}
 	public String getError() {
@@ -120,6 +164,9 @@ public class UserQuery {
 	public void setResults(JSONObject results) {
 		this.results = results;
 	}
-	
+
+	public boolean isFetchOptionsFlag() {
+		return fetchOptionsFlag;
+	}
 	
 }

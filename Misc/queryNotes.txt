@@ -108,6 +108,9 @@ tail /usr/share/apache-tomcat-7.0.79/logs/catalina.out
 echo xxxxxxxGQueryxxxxxxx
 tail -F /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 
+add in shutdown and startup .sh scripts  as root
+check log4j output, nothing is there.
+
 
 ################## Checking new WAR ################
 

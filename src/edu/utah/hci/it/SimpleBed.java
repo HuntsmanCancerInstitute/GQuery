@@ -4,7 +4,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import edu.utah.hci.query.Util;
+
+import edu.utah.hci.misc.Util;
 
 public class SimpleBed implements Comparable<SimpleBed> {
 	

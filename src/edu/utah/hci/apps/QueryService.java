@@ -1,4 +1,4 @@
-package edu.utah.hci.query;
+package edu.utah.hci.apps;
 
 import java.io.File;
 import java.io.InputStream;
@@ -26,6 +26,10 @@ import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.jersey.spi.resource.Singleton;
+
+import edu.utah.hci.misc.Util;
+import edu.utah.hci.query.QueryRequest;
+import edu.utah.hci.query.User;
 
 import java.security.Key;
 

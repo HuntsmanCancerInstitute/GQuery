@@ -12,8 +12,10 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import edu.utah.hci.query.Crypt;
-import edu.utah.hci.query.Util;
+
+import edu.utah.hci.misc.Crypt;
+import edu.utah.hci.misc.Util;
+
 import static org.junit.Assert.*;
 
 /**

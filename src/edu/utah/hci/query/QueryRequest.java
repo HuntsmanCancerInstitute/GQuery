@@ -6,11 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
@@ -18,26 +13,20 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import edu.utah.hci.it.SimpleBed;
-import edu.utah.hci.query.tabix.TabixDataChunk;
-import edu.utah.hci.query.tabix.TabixDataQuery;;
+import edu.utah.hci.misc.Util;
+import edu.utah.hci.tabix.TabixDataLineLoader;
+import edu.utah.hci.tabix.TabixDataQuery;
+import edu.utah.hci.tabix.TabixFileRegionIntersector;;
 
 public class QueryRequest {
 
 	//fields
 	private QueryFilter queryFilter; 
-	private Query query;
+	private MasterQuery masterQuery;
 	private File inputFile = null; //might be null if using GET request
 	private String[] bedRegions = null;
 	private String[] vcfRegions = null;
-	private DataSources dataSources;
-	private QueryIndex queryIndex;
-	private Set<String> availableIndexedChromosomes = null;
-	private ArrayList<TabixDataChunk> tabixChunks = new ArrayList<TabixDataChunk>();
-	private Iterator<TabixDataChunk> chunkIterator = null;
-	private long numberRetrievedResults = 0;
-	private int numberQueriesWithResults = 0;
-	private long numberSavedResults = 0;
-	private long time2Load = 0;
+	private int bpPadding = 0;
 	public static final Pattern BED_COLON_DASH_PATTERN = Pattern.compile("(\\w+):([\\d\\,]+)-([\\d\\,]+)");
 	public static final Pattern END_POSITION = Pattern.compile(".*END=(\\d+).*", Pattern.CASE_INSENSITIVE);
 	private static final Logger lg = LogManager.getLogger(QueryRequest.class);
@@ -48,11 +37,12 @@ public class QueryRequest {
 	/*Container of warning messages to set back to the user.*/
 	private ArrayList<String> warningTxtForUser = new ArrayList<String>();
 	/*Json objects with info elated to the query*/
+	private JSONObject queryOptions;
 	private JSONObject indexQueryStats = null;
 	private JSONObject indexFileFilteringStats = null;
 	private JSONObject dataRetrievalStats = null;
 
-	/*Contains all the TabixQueries split by chromosome. Some may contain results.*/
+	/*Contains all the user region TabixQueries split by chromosome. Will be loaded with results.*/
 	private HashMap<String, TabixDataQuery[]> chrTabixQueries = new HashMap<String, TabixDataQuery[]>();
 	
 	/*Contains a File pointer to a data source and the associated TabixQueries that intersect it.
@@ -62,185 +52,76 @@ public class QueryRequest {
 	
 	/**REST constructor.
 	 * @param user */
-	public QueryRequest(Query query, File inputFile, HashMap<String, String> options, User user) throws IOException {
-		this.query = query;
-		this.dataSources = query.getDataSources();
-		this.queryIndex = query.getQueryIndex();
+	public QueryRequest(MasterQuery masterQuery, File inputFile, HashMap<String, String> options, User user) throws IOException {
+		this.masterQuery = masterQuery;
 		this.inputFile = inputFile;
-		availableIndexedChromosomes = queryIndex.getAvailableChromosomes();
 		
-		//create a new file filter and modify it with the input
-		queryFilter = new QueryFilter(dataSources, user);
-
-		//parse and set the options
-		if (walkAndSetOptions(options)) {
-
-			//find dataSource files that intersect regions in the input file bed or vcf, will return false if bed or vcf not found
-			if (intersectRegionsWithIndex(inputFile)){
+		//create a new file filter and modify it with the input, this parses the user options including the bed/ vcf regions to search
+		queryFilter = new QueryFilter(user, this, options);
+		errTxtForUser = queryFilter.getErrTxtForUser();
+		if (errTxtForUser != null) return;
+		
+		//do they want the queryOptions?
+		if (queryFilter.isFetchOptions() == true) {
+			queryOptions = getQueryOptions(queryFilter, masterQuery.getDataDir());
+			return;
+		}
+		
+		//set bpPadding
+		bpPadding = queryFilter.getBpPadding();
+		
+		//load any bed/vcf file if provided and convert them to tabix chrom index queries
+		if (createChrTabixQuery(inputFile) == false) return;
+		
+		//which query indexes do they and can they actually see
+		ArrayList<SingleQuery> toSearch = queryFilter.fetchQueriesToSearch();
+		if (toSearch == null) {
+			warningTxtForUser.add("No indexes were found to match your directory path regex. Nothing to search!");
+			return;
+		}
+		
+		TabixFileRegionIntersector mtfri = new TabixFileRegionIntersector(this, toSearch);
+		indexQueryStats = mtfri.getIndexQueryStats();
+		
+		//filter which files to fetch data, this has already been User regEx filtered
+		indexFileFilteringStats = queryFilter.filterFiles(fileTabixQueries);
+		
+		//any left?
+		if (fileTabixQueries.size()!=0){
+			
+			//do they want to fetch the underlying data (slow)? 
+			if (queryFilter.isFetchData()) {
 				
-				//perform the index search
-				indexQueryStats = queryIndex.queryFileIndex(this);
+				TabixDataLineLoader mtdll = new TabixDataLineLoader(this);
 				
-				//add in all the forceFetch datasets?
-				if (queryFilter.isForceFetchData() && dataSources.getSkippedDataSourceNames().size() !=0) addInForceFetchDataSources();
-					
-				//filter which files to fetch data from base on the parent dir name, the actual file, the file extension 
-				indexFileFilteringStats = queryFilter.filter(fileTabixQueries);
+				//make json stats object
+				makeDataRetrievalStats(mtdll);
 				
 				
-				//any left?
-				if (fileTabixQueries.size()!=0){
-					//fetch the underlying data (slow)? 
-					if (queryFilter.isFetchData()) {
-						makeTabixChunks();
-						query.getQueryLoader().loadTabixQueriesWithData(this);
-						
-						//make json stats object
-						makeDataRetrievalStats();
-						
-						//log the results
-						lg.debug("Data retrieval stats:");
-						lg.debug(dataRetrievalStats.toString(5));
-					}
-					//just indicate which file hit which region (fast)
-					else loadTabixQueriesWithFileSources();
-				}
-				else lg.debug("No intersecting files after filtering");
+				//log the results
+				//lg.debug("Data retrieval stats:");
+				//lg.debug(dataRetrievalStats.toString(5));
 			}
+			//just indicate which file hit which region (fast)
+			else loadTabixQueriesWithFileSources();
 		}
-	}
-	
-	/**Collects all the force fetch data sources and associates them with all of the tabix queries.*/
-	private void addInForceFetchDataSources() {
-		//collect all the TabixQueries
-		ArrayList<TabixDataQuery> allQueries = new ArrayList<TabixDataQuery>();
-		for (TabixDataQuery[] tq: chrTabixQueries.values()){
-			for (TabixDataQuery t: tq) allQueries.add(t);
-		}
-		for (File f: dataSources.getForceFetchDataSources()) fileTabixQueries.put(f, allQueries);
+		else lg.debug("No intersecting files after filtering");
+
 	}
 
-	public void makeDataRetrievalStats(){
+	public void makeDataRetrievalStats(TabixDataLineLoader mtdll){
 		dataRetrievalStats = new JSONObject();
-		dataRetrievalStats.put("millSecToLoadRecords", time2Load);
-		dataRetrievalStats.put("queriesWithTabixRecords", numberQueriesWithResults);
-		dataRetrievalStats.put("recordsRetrieved", numberRetrievedResults);
-		dataRetrievalStats.put("recordsReturnedToUser", numberSavedResults);
+		dataRetrievalStats.put("millSecToLoadRecords", mtdll.getMsTimeToComplete());
+		dataRetrievalStats.put("numberDataLookupJobs", mtdll.getNumberLookupJobs());
+		dataRetrievalStats.put("numberQueries", mtdll.getNumberQueries());
+		dataRetrievalStats.put("numberQueriesWithData", mtdll.getNumberQueriesWithData());
+		dataRetrievalStats.put("numberQueriesWithDataThatPassDataLineRegEx", mtdll.getNumberQueriesWithDataThatPassRegEx());
 	}
 	
-	
-	private boolean walkAndSetOptions(HashMap<String, String> options) {
-		//walk through each option, forcing key to be case insensitive
-		for (String key: options.keySet()){
-			
-			//fetchData?
-			if (key.equals("fetchdata")){
-				String bool = options.get("fetchdata").toLowerCase();
-				//true
-				if (bool.startsWith("t")) queryFilter.setFetchData(true);
-				//force fetching on all data sources
-				else if (bool.startsWith("fo")){
-					queryFilter.setFetchData(true);
-					queryFilter.setForceFetchData(true);
-				}
-				else queryFilter.setFetchData(false);
-			}
-			//match vcf?
-			else if (key.equals("matchvcf")){
-				String bool = options.get("matchvcf").toLowerCase();
-				if (bool.startsWith("t")) queryFilter.setMatchVcf(true);
-				else queryFilter.setMatchVcf(false);
-			}
-			//include headers?
-			else if (key.equals("includeheaders")){
-				String bool = options.get("includeheaders").toLowerCase();
-				if (bool.startsWith("t")) queryFilter.setIncludeHeaders(true);
-				else queryFilter.setIncludeHeaders(false);
-			}
-			
-			//filter with regular expressions where all must match?
-			else if (key.equals("regexall")){
-				String[] rgs = Util.SEMI_COLON.split(options.get("regexall"));
-				Pattern[] ps = new Pattern[rgs.length];
-				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
-				queryFilter.setFilterOnRegEx(true);
-				queryFilter.setRegExAll(ps);
-			}
-			
-			//filter data lines with regular expressions where all patterns must match?
-			else if (key.equals("regexalldata")){
-				String[] rgs = Util.SEMI_COLON.split(options.get("regexalldata"));
-				Pattern[] ps = new Pattern[rgs.length];
-				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*", Pattern.CASE_INSENSITIVE);
-				queryFilter.setFilterOnRegEx(true);
-				queryFilter.setRegExAllData(ps);
-			}
-			
-			//filter data lines with regular expressions where all patterns must match?
-			else if (key.equals("regexonedata")){
-				String[] rgs = Util.SEMI_COLON.split(options.get("regexonedata"));
-				Pattern[] ps = new Pattern[rgs.length];
-				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*", Pattern.CASE_INSENSITIVE);
-				queryFilter.setFilterOnRegEx(true);
-				queryFilter.setRegExOneData(ps);
-			}
-			
-			//filter with regular expressions where all must match?
-			else if (key.equals("regexone")){
-				String[] rgs = Util.SEMI_COLON.split(options.get("regexone"));
-				Pattern[] ps = new Pattern[rgs.length];
-				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
-				queryFilter.setFilterOnRegEx(true);
-				queryFilter.setRegExOne(ps);
-			}
-			
-			//any incomming bed or vcf regions from a GET request?  not present with POST
-			else if (key.equals("bed")) {
-				bedRegions = Util.SEMI_COLON.split(options.get("bed"));
-			}
-			else if (key.equals("vcf")) vcfRegions = Util.SEMI_COLON.split(options.get("vcf"));
-			
-			//authentication token, ignore
-			else if (key.equals("key")){}
-			
-			//something odd coming in, throw error
-			else {
-				errTxtForUser= "Unrecognized cmd -> "+ key+"="+options.get(key);
-				lg.error("Unrecognized cmd -> "+ key+"="+options.get(key));
-				return false;
-			}
-		}
-		
-		//are they indicating matchVcf or filtering by data regexes? if so then fetchData so we can examine the ref alt etc but indicate they don't want the data hits returned just the number
-		if (queryFilter.isMatchVcf() || queryFilter.getRegExAllData() != null || queryFilter.getRegExOneData() != null){
-			if (queryFilter.isFetchData() == false){
-				queryFilter.setExcludeDataFromResults(true);
-				queryFilter.setFetchData(true);
-			}
-		}
-		
-		//have they set fetchData to force? Require that they have provided at least one regex
-		if (queryFilter.isForceFetchData() == true){
-			if (queryFilter.filterOnRegEx == false){
-				errTxtForUser= "please provide one or more regEx filters to limit the data paths that are tabix queried. This is required when setting fetchData=force";
-				lg.debug(errTxtForUser);
-				return false;
-			}
-		}
-		
-		//check for both bed and vcf
-		//bed present?
-		if (bedRegions != null && vcfRegions != null){
-			errTxtForUser= "Please provide either bed regions or vcf regions, not both.";
-			lg.debug(errTxtForUser);
-			return false;
-		}
-		return true;
-	}
 
 
 	/**This takes a bed file, parses each region into a TabixQuery object and identifies which file data sources contain data that intersects it.*/
-	public boolean intersectRegionsWithIndex(File inputFile) throws IOException {
+	public boolean createChrTabixQuery(File inputFile) throws IOException {
 
 		//is the input present, thus POST request?
 		if (inputFile != null){
@@ -253,11 +134,7 @@ public class QueryRequest {
 				//convert them to TabixQuery 
 				chrTabixQueries = parseBedRegions();
 			}
-
-			else if (name.endsWith(".vcf.gz") || name.endsWith(".vcf")){
-				chrTabixQueries = convertVcfToTabixQuery(inputFile);  
-			}
-
+			else if (name.endsWith(".vcf.gz") || name.endsWith(".vcf"))chrTabixQueries = convertVcfToTabixQuery(inputFile);  
 			else {
 				errTxtForUser = "Input file must be either bed or vcf (.gz/.zip OK) format";
 				lg.debug(errTxtForUser);
@@ -268,9 +145,7 @@ public class QueryRequest {
 		//nope, GET request with already loaded regions
 		else {
 			if (vcfRegions != null) chrTabixQueries = parseVcfRegions();
-			else if (bedRegions != null) {
-				chrTabixQueries = parseBedRegions();
-			}
+			else if (bedRegions != null) chrTabixQueries = parseBedRegions();
 		}	
 		
 		//any queries?
@@ -360,7 +235,7 @@ public class QueryRequest {
 		}
 		
 		//check chrom
-		else if (availableIndexedChromosomes.contains(t[0]) == false){
+		else if (masterQuery.getAvailableIndexedChromosomes().contains(t[0]) == false){
 			String message = "WARNING: Failed to find a chromosome for '"+t[0]+ "' excluding from search -> "+bedLine;
 			warningTxtForUser.add(message);
 			lg.debug(message);
@@ -371,8 +246,8 @@ public class QueryRequest {
 			//remove any potential commas
 			t[1] = Util.COMMA.matcher(t[1]).replaceAll("");
 			t[2] = Util.COMMA.matcher(t[2]).replaceAll("");
-			int start = Integer.parseInt(t[1]);
-			int stop = Integer.parseInt(t[2]);
+			int start = Integer.parseInt(t[1])- bpPadding;
+			int stop = Integer.parseInt(t[2])+ bpPadding;
 			if (start < 0) start = 0; 	
 			return new SimpleBed(t[0], start, stop, bedLine);
 			
@@ -400,7 +275,7 @@ public class QueryRequest {
 		}
 		
 		//check chrom
-		else if (availableIndexedChromosomes.contains(t[0]) == false){
+		else if (masterQuery.getAvailableIndexedChromosomes().contains(t[0]) == false){
 			warningTxtForUser.add("WARNING: Failed to find a chromosome for '"+t[0]+ "' excluding from search -> "+vcfLine);
 			lg.debug(warningTxtForUser);
 		}
@@ -410,6 +285,8 @@ public class QueryRequest {
 			//fetch start and stop for effected bps.
 			int[] startStop = fetchEffectedBps(t);
 			if (startStop != null) {
+				startStop[0] = startStop[0]- bpPadding;
+				startStop[1] = startStop[1]- bpPadding;
 				if (startStop[0] < 0) startStop[0] = 0;
 				return new SimpleBed(t[0], startStop[0], startStop[1], vcfLine);
 			}
@@ -537,7 +414,7 @@ public class QueryRequest {
 			SimpleBed[] b = bedHash.get(chr);		
 			TabixDataQuery[] tq = new TabixDataQuery[b.length];
 			for (int i=0; i< b.length; i++) {
-				tq[i] = new TabixDataQuery(b[i], dataSources.getDataFileDisplayName());
+				tq[i] = new TabixDataQuery(b[i]);
 				if (parseVcf) tq[i].parseVcf();
 			}
 			tqs.put(chr, tq);
@@ -548,23 +425,23 @@ public class QueryRequest {
 	public JSONObject getJsonResults() {
 		JSONObject jo = new JSONObject();
 		jo.put("querySettings", queryFilter.getCurrentSettings(inputFile));
-		if (indexQueryStats != null) jo.put("indexQueryStats", indexQueryStats);
-		if (indexFileFilteringStats != null) jo.put("indexFileFilteringStats", indexFileFilteringStats);
-		if (dataRetrievalStats != null) jo.put("dataRetrievalStats", dataRetrievalStats);
-		if (chrTabixQueries != null) appendQueryResults(jo);
-		if (queryFilter.includeHeaders() && fileTabixQueries.size()!=0) jo.put("fileHeaders", getFileHeaders());
+		if (queryOptions != null) jo.put("queryOptions", queryOptions);
+		else {
+			if (indexQueryStats != null) jo.put("fileIndexQueryStats", indexQueryStats);
+			if (indexFileFilteringStats != null) jo.put("fileIndexFilteringStats", indexFileFilteringStats);
+			if (dataRetrievalStats != null) jo.put("dataRetrievalStats", dataRetrievalStats);
+			if (chrTabixQueries != null) appendQueryResults(jo);
+			if (queryFilter.includeHeaders() && fileTabixQueries.size()!=0) jo.put("dataHitFileHeaders", getFileHeaders());
+		}
 		if (warningTxtForUser.size() !=0) jo.put("warningMessages", warningTxtForUser);
 		return jo;
 	}
 	
 	private ArrayList<JSONObject> getFileHeaders() {
 		try {
-		ArrayList<JSONObject> al = new ArrayList<JSONObject>();
-		for (File f: fileTabixQueries.keySet()){
-			JSONObject jo = dataSources.fetchFileHeader(f);
-			al.add(jo);
-		}
-		return al;
+			ArrayList<JSONObject> al = new ArrayList<JSONObject>();
+			for (File f: fileTabixQueries.keySet()) al.add(masterQuery.fetchFileHeader(f));
+			return al;
 		} catch (Exception e) {
 			errTxtForUser= "Problem fetching file headers for -> "+ fileTabixQueries.keySet()+" contact admin! ";
 			lg.error(errTxtForUser+"\n"+Util.getStackTrace(e));
@@ -582,92 +459,211 @@ public class QueryRequest {
 			TabixDataQuery[] tqs = chrTabixQueries.get(chr);
 			//for each query that has a hit
 			for (int i=0; i< tqs.length; i++){
-				if (tqs[i].getSourceResults().size() !=0) jo.append("queryResults", tqs[i].getResults(returnData));
+				if (tqs[i].getSourceResults().size() !=0) jo.append("queryResults", tqs[i].getResults(returnData, masterQuery.getNumCharToSkipForDataDir()));
 			}	
 		}
 	}
-
-	/**Returns the next chunk or null.*/
-	public TabixDataChunk getChunk(){
-		if (chunkIterator.hasNext()) return chunkIterator.next();
-		return null;
-	}
-
-	private void makeTabixChunks() {
-		int numberQueriesInChunk = query.getNumberQueriesInChunk();
-
-		//walk through files
-		for (File f: fileTabixQueries.keySet()){
-			ArrayList<TabixDataQuery> al = fileTabixQueries.get(f);
-			int numTQs = al.size();			
-
-			if (numTQs <= numberQueriesInChunk) tabixChunks.add( new TabixDataChunk(f, al, this));
-			else {
-				//walk it
-				ArrayList<TabixDataQuery> tqSub = new ArrayList<TabixDataQuery>();
-				for (TabixDataQuery tq : al){
-					tqSub.add(tq);
-					//hit max?
-					if (tqSub.size() == numberQueriesInChunk) {
-						tabixChunks.add(new TabixDataChunk(f, tqSub, this));
-						tqSub = new ArrayList<TabixDataQuery>();
-					}
-				}
-				//add last?
-				if (tqSub.size() !=0) tabixChunks.add(new TabixDataChunk(f, tqSub, this));
-			}
-		}
-
-		//create iterator for Loaders to pull from
-		chunkIterator = tabixChunks.iterator();
-
-		lg.debug(tabixChunks.size()+"\tQuery chunks created");
-	}
 	
-	public synchronized void incrementNumRetrievedResults(long n){
-		numberRetrievedResults += n;
+	/**Set inputs to null to just get options without the data sources.*/
+	public static JSONObject getQueryOptions(QueryFilter mqf, File rootDataDir) {
+		ArrayList<JSONObject> al = new ArrayList<JSONObject>();
+		ArrayList<Boolean> tf = new ArrayList<Boolean>();
+		tf.add(true);
+		tf.add(false);
+		
+		//fetchOptions
+		JSONObject fo = new JSONObject();
+		fo.put("name", "fetchOptions");
+		fo.put("description", "Returns this list of options and filters, see https://github.com/HuntsmanCancerInstitute/Query for examples.");
+		al.add(fo);
+		
+		//bed
+		JSONObject bed = new JSONObject();
+		bed.put("name", "bed");
+		bed.put("description", "Region(s) of interest to query in bed region format, https://genome.ucsc.edu/FAQ/FAQformat.html#format1, semicolon delimited. Commas and prepended 'chr' are ignored. ");
+		ArrayList<String> bedEx = new ArrayList<String>();
+		bedEx.add("chr21:145569-145594"); 
+		bedEx.add("21:145,569-145,594"); 
+		bedEx.add("21:145569-145594;22:4965784-4965881;X:8594-8599");
+		bedEx.add("21\t11058198\t11058237\tMYCInt\t4.3\t-");
+		bed.put("examples", bedEx);
+		al.add(bed);
+		
+		//vcf
+		JSONObject vcf = new JSONObject();
+		vcf.put("name", "vcf");
+		vcf.put("description", "Region(s) of interest to query in vcf format, http://samtools.github.io/hts-specs/VCFv4.3.pdf, semicolon delimited. Prepended 'chr' are ignored. Watch out "
+				+ "for semicolons in the vcf INFO and FORMAT fields.  Replace the INFO column with a '.' and delete the remainder, otherwise semi-colons will break the input parser.");
+		ArrayList<String> vcfEx = new ArrayList<String>();
+		vcfEx.add("chr20\t4162847\t.\tC\tT\t.\tPASS\t."); 
+		vcfEx.add("20\t4163144\t.\tC\tA\t.\t.\t.;20\t4228734\t.\tC\tCCAAG\t.\tPASS\tAF=0.5"); 
+		vcf.put("examples", vcfEx);
+		al.add(vcf);
+
+		//fetchData
+		JSONObject fd = new JSONObject();
+		fd.put("name", "fetchData");
+		fd.put("description", "Pull records from disk (slow). First develop and appropriate restrictive regEx filter set, then fetchData.");
+		ArrayList<String> tff = new ArrayList<String>();
+		tff.add("true"); tff.add("false");
+		fd.put("options", tff);
+		fd.put("defaultOption", false);
+		al.add(fd);
+		
+		//bpPadding
+		JSONObject pad = new JSONObject();
+		pad.put("name", "bpPadding");
+		pad.put("description", "Pad each vcf or bed region +/- bpPadding value.");
+		pad.put("defaultOption", 0);
+		al.add(pad);
+
+		//matchVcf
+		JSONObject mv = new JSONObject();
+		mv.put("name", "matchVcf");
+		mv.put("description", "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. "
+				+ "Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.");
+		mv.put("options", tf);
+		mv.put("defaultOption", false);
+		al.add(mv);
+
+		//includeHeaders
+		JSONObject ih = new JSONObject();
+		ih.put("name", "includeHeaders");
+		ih.put("description", "Return the file headers associated with the intersecting datasets.");
+		ih.put("options", tf);
+		ih.put("defaultOption", false);
+		al.add(ih);
+		
+		//regExDirPath
+		JSONObject rx = new JSONObject();
+		rx.put("name", "regExDirPath");
+		rx.put("description", "Require records to belong to a file whose file path matches these java regular expressions, "
+				+ "semicolon delimited. Note, a .* is added to both ends of each regEx.");
+		ArrayList<String> rxEx = new ArrayList<String>();
+		rxEx.add("/B37/"); 
+		rxEx.add("\\.vcf\\.gz"); 
+		rx.put("examples", rxEx);
+		al.add(rx);
+		
+		//regExFileName
+		JSONObject rxo = new JSONObject();
+		rxo.put("name", "regExFileName");
+		rxo.put("description", "Require records to belong to a file whose name matches these java regular expressions, "
+				+ "semicolon delimited. Note, a .* is added to both ends of each regEx.");
+		ArrayList<String> rxoEx = new ArrayList<String>();
+		rxoEx.add("\\.vcf\\.gz;\\.maf\\.txt\\.gz");  
+		rxo.put("examples", rxoEx);
+		al.add(rxo);
+		
+		//regExDataLine
+		JSONObject rxd = new JSONObject();
+		rxd.put("name", "regExDataLine");
+		rxd.put("description", "Require each record data line to match these java regular expressions, "
+				+ "semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true. Case insensitive.");
+		ArrayList<String> rxExD = new ArrayList<String>();
+		rxExD.add("Pathogenic"); 
+		rxExD.add("LOF"); 
+		rxd.put("examples", rxExD);
+		al.add(rxd);
+		
+		//matchAllDirPathRegEx
+		JSONObject madpr = new JSONObject();
+		madpr.put("name", "matchAllDirPathRegEx");
+		madpr.put("description", "Require that all regExDirPath expressions match.");
+		madpr.put("options", tf);
+		madpr.put("defaultOption", false);
+		al.add(madpr);
+		
+		//matchAllFileNameRegEx
+		JSONObject mafnr = new JSONObject();
+		mafnr.put("name", "matchAllFileNameRegEx");
+		mafnr.put("description", "Require that all regExFileName expressions match.");
+		mafnr.put("options", tf);
+		mafnr.put("defaultOption", false);
+		al.add(mafnr);
+		
+		//matchAllDataLineRegEx
+		JSONObject madlr = new JSONObject();
+		madlr.put("name", "matchAllDataLineRegEx");
+		madlr.put("description", "Require that all regExDataLine expressions match.");
+		madlr.put("options", tf);
+		madlr.put("defaultOption", false);
+		al.add(madlr);
+
+		//data sources, only return when a user was built
+		if (mqf != null && mqf.getRegExDirPathUser() != null) {
+			ArrayList<String> fs = fetchDataSources (mqf.getTruncFilePathsUserCanSee(), rootDataDir);
+		
+			//dataSources for lookup and retrieval
+			JSONObject ds = new JSONObject();
+			ds.put("name", "dataSources");
+			ds.put("userName", mqf.getUserName());
+			ds.put("userDirPathRegEx", mqf.getRegExDirPathUser());
+			ds.put("description", "Data sources available for searching by the user. Design regExDirPath and regExFileName expressions to match particular sets of these.");
+			ds.put("searchableFiles", fs);
+			al.add(ds);
+		}
+		
+		JSONObject queryOptions = new JSONObject();
+		queryOptions.put("queryOptionsAndFilters", al);
+	
+		return queryOptions;
+}
+
+	/**Filters the dataSources based on the Users permitted regExOne patterns.*/
+	private static ArrayList<String> fetchDataSources(ArrayList<String> trucFilePathsUserCanSee, File rootDataDir) {
+		ArrayList<String> filePaths = new ArrayList<String>();
+			File parent = rootDataDir.getParentFile();
+			//for each DataSource
+			for (String ds: trucFilePathsUserCanSee) {
+				File dir = new File (parent, ds);			
+				ArrayList<File> files = Util.fetchFiles(dir, ".gz");
+				for (File f: files) {
+					
+					filePaths.add(ds+f.getName());
+				}
+				
+			}
+		return filePaths;
 	}
-	public synchronized void incrementNumQueriesWithResults(int n){
-		numberQueriesWithResults += n;
-	}
-	public synchronized void incrementNumSavedResults(long n){
-		numberSavedResults += n;
-	}
-	public QueryFilter getFilter() {
-		return queryFilter;
-	}
-	public Query getQuery() {
-		return query;
-	}
-	public ArrayList<TabixDataChunk> getTabixChunks() {
-		return tabixChunks;
-	}
-	public Iterator<TabixDataChunk> getChunkIterator() {
-		return chunkIterator;
-	}
+
+
+	
 	public HashMap<String, TabixDataQuery[]> getChrTabixQueries() {
 		return chrTabixQueries;
 	}
 	public HashMap<File, ArrayList<TabixDataQuery>> getFileTabixQueries() {
 		return fileTabixQueries;
 	}
-	public long getNumberRetrievedResults() {
-		return numberRetrievedResults;
-	}
-	public int getNumberQueriesWithResults() {
-		return numberQueriesWithResults;
-	}
-	public long getNumberSavedResults() {
-		return numberSavedResults;
-	}
-	public void setTime2Load(long l) {
-		time2Load = l;
-	}
 	public String getErrTxtForUser() {
 		return errTxtForUser;
 	}
 	public ArrayList<String> getWarningTxtForUser() {
 		return warningTxtForUser;
+	}
+
+	public QueryFilter getQueryFilter() {
+		return queryFilter;
+	}
+
+	public MasterQuery getMasterQuery() {
+		return masterQuery;
+	}
+
+	public String[] getBedRegions() {
+		return bedRegions;
+	}
+
+	public void setBedRegions(String[] bedRegions) {
+		this.bedRegions = bedRegions;
+	}
+
+	public String[] getVcfRegions() {
+		return vcfRegions;
+	}
+
+	public void setVcfRegions(String[] vcfRegions) {
+		this.vcfRegions = vcfRegions;
 	}
 
 }

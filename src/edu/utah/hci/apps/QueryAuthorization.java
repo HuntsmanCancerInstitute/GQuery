@@ -1,4 +1,4 @@
-package edu.utah.hci.query;
+package edu.utah.hci.apps;
 
 import java.io.File;
 import java.security.Key;
@@ -18,6 +18,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import edu.utah.hci.misc.Crypt;
+import edu.utah.hci.misc.Util;
 
 /**Returns an encrypted token with the username:timestamp for use by the QueryService
  * Puts it either in the header under Authorization http://localhost:8080/Query/fetchKey or 

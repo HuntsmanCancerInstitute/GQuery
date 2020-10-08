@@ -1,14 +1,14 @@
-package edu.utah.hci.index;
+package edu.utah.hci.indexer;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.utah.hci.query.Util;
+import edu.utah.hci.apps.GQueryIndexer;
+import edu.utah.hci.misc.Util;
 import htsjdk.tribble.readers.TabixReader;
 import htsjdk.tribble.readers.TabixReader.Iterator;
 

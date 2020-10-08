@@ -1,9 +1,9 @@
-package edu.utah.hci.index;
+package edu.utah.hci.indexer;
 
 public class IndexRegion implements Comparable<IndexRegion> {
-	protected int start;
-	protected int stop;
-	protected Integer fileId;
+	public int start;
+	public int stop;
+	public Integer fileId;
 	
 	public IndexRegion(int start, int stop, Integer fileId){
 		this.start = start;

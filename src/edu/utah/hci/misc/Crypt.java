@@ -1,4 +1,4 @@
-package edu.utah.hci.query;
+package edu.utah.hci.misc;
 
 import java.io.File;
 import java.security.Key;

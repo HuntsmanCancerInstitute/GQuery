@@ -1,13 +1,12 @@
-package edu.utah.hci.query.tabix;
+package edu.utah.hci.tabix;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeMap;
 import org.json.JSONObject;
 import edu.utah.hci.it.SimpleBed;
-import edu.utah.hci.query.Util;
+import edu.utah.hci.misc.Util;
 
 
 public class TabixDataQuery {
@@ -24,18 +23,16 @@ public class TabixDataQuery {
 	private String[] alts = null;
 	
 	private HashMap<File, ArrayList<String>> sourceResults = new HashMap<File, ArrayList<String>>();
-	private TreeMap<File, String> dataFileDisplayName = null;
 	
-	//from tabix intersecting file id approach, will be nulled after initial search
-	private HashSet<Integer> intersectingFileIds = null;
+	//from tabix intersecting file search
+	private HashSet<File> intersectingFiles = new HashSet<File>();
 	
 	//constructors
-	public TabixDataQuery(SimpleBed bed, TreeMap<File, String> dataFileDisplayName) {
+	public TabixDataQuery(SimpleBed bed) {
 		chr = bed.getChr();
 		start = bed.getStart();
 		stop = bed.getStop();
 		input = bed.getName();
-		this.dataFileDisplayName = dataFileDisplayName;
 	}
 	
 	/**Good to call if working with vcf data so that an exact match can be made*/
@@ -77,24 +74,24 @@ public class TabixDataQuery {
 		return chr+":"+start+"-"+stop;
 	}
 	
-	public JSONObject getResults(boolean returnData){
+	public JSONObject getResults(boolean returnData,  int numCharToSkipForDataDir){
 		JSONObject jo = new JSONObject();
 		jo.put("chr", chr);
 		jo.put("start", start);
 		jo.put("stop", stop);
 		if (input.length()!=0) jo.put("input", input);
-		jo.put("numberHits", sourceResults.size());
+		jo.put("numberIntersectingDataFiles", sourceResults.size());
 		if (sourceResults.size()!=0){
-			jo.put("hits", getHits(returnData));
+			jo.put("hits", getHits(returnData, numCharToSkipForDataDir));
 		}
 		return jo;
 	}
 	
-	private ArrayList<JSONObject> getHits(boolean returnData){
+	private ArrayList<JSONObject> getHits(boolean returnData, int numCharToSkipForDataDir){
 		ArrayList<JSONObject> hits = new ArrayList<JSONObject>();
 		//for each file
 		for (File source: sourceResults.keySet()){
-			String trimmedName = dataFileDisplayName.get(source);
+			String trimmedName = source.toString().substring(numCharToSkipForDataDir);
 			JSONObject hit = new JSONObject();
 			hit.put("source", trimmedName);
 			//any data loaded?
@@ -129,10 +126,13 @@ public class TabixDataQuery {
 	public int getStop() {
 		return stop;
 	}
-	public void setIntersectingFileIds(HashSet<Integer> fileIds) {
-		intersectingFileIds = fileIds;
+	public synchronized void addIntersectingFiles(File[] files) {
+		for (File f: files)intersectingFiles.add(f);
 	}
-	public HashSet<Integer> getIntersectingFileIds() {
-		return intersectingFileIds;
+	public HashSet<File> getIntersectingFiles() {
+		return intersectingFiles;
+	}
+	public String getInput() {
+		return input;
 	}
 }

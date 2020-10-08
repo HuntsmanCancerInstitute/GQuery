@@ -1,4 +1,4 @@
-package edu.utah.hci.query;
+package edu.utah.hci.misc;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -73,6 +73,9 @@ public class Util {
 	public static final Pattern WHITESPACE = Pattern.compile("\\s+");
 	public static final Pattern TAB = Pattern.compile("\t");
 	public static final Pattern COLON = Pattern.compile(":");
+	public static final Pattern UNDERSCORE = Pattern.compile("_");
+	public static final Pattern QUOTE_SINGLE = Pattern.compile("'");
+	public static final Pattern QUOTE_DOUBLE = Pattern.compile("\"");
 	
 	
 	/**Attempts to delete a directory and it's contents.*/
@@ -114,6 +117,20 @@ public class Util {
 			System.out.println("Problem extractFiles() "+directory);
 			e.printStackTrace();
 			return null;
+		}
+	}
+	
+	/**Writes a String to disk. */
+	public static boolean writeString(String data, File file) {
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter(file));
+			out.print(data);
+			out.close();
+			return true;
+		} catch (IOException e) {
+			System.out.println("Problem writing String to disk!");
+			e.printStackTrace();
+			return false;
 		}
 	}
 	
@@ -202,6 +219,61 @@ public class Util {
 			}
 		}
 		return files;
+	}
+	
+	/**Fetches all files with a given extension in a directory recursing through sub directories.*/
+	public static ArrayList<File> fetchFiles (File directory, String extension){
+		ArrayList<File> files = new ArrayList<File>(); 
+		File[] list = directory.listFiles();
+		for (int i=0; i< list.length; i++){
+			if (list[i].getName().endsWith(extension) && list[i].isFile()) files.add(list[i]);
+		}
+		return files;
+	}
+	
+	/**Fetches directories recursively that end in the extension.*/
+	public static ArrayList<File> fetchDirectoriesRecursively (File directory, String extension){
+		ArrayList<File> dirs = new ArrayList<File>(); 
+		File[] list = directory.listFiles();
+		if (list != null){
+			for (int i=0; i< list.length; i++){
+				if (list[i].isDirectory()) {
+					if (list[i].getName().endsWith(extension)) dirs.add(list[i]);
+					dirs.addAll(fetchDirectoriesRecursively(list[i], extension));
+				}				
+			}
+		}
+		return dirs;
+	}
+	
+	/**Fetches directories recursively that end in the extension.*/
+	public static ArrayList<File> fetchNamedDirectoriesRecursively (File directory, String name){
+		ArrayList<File> dirs = new ArrayList<File>(); 
+		File[] list = directory.listFiles();
+		if (list != null){
+			for (int i=0; i< list.length; i++){
+				if (list[i].isDirectory()) {
+					if (list[i].getName().equals(name)) dirs.add(list[i]);
+					dirs.addAll(fetchNamedDirectoriesRecursively(list[i], name));
+				}				
+			}
+		}
+		return dirs;
+	}
+	
+	/**Fetches all directories recursively*/
+	public static ArrayList<File> fetchDirectoriesRecursively (File directory){
+		ArrayList<File> dirs = new ArrayList<File>(); 
+		File[] list = directory.listFiles();
+		if (list != null){
+			for (int i=0; i< list.length; i++){
+				if (list[i].isDirectory()) {
+					dirs.add(list[i]);
+					dirs.addAll(fetchDirectoriesRecursively(list[i]));
+				}				
+			}
+		}
+		return dirs;
 	}
 	
 	/**Converts a double ddd.dddddddd to sss.s */
@@ -662,6 +734,33 @@ public class Util {
 		return options;
 	}
 	
+	/**Processes the GET params*/
+	public static HashMap<String, String> loadGetMultiQueryServiceOptions(HashMap<String, List<String>> lc) {
+		HashMap<String,String> options = new HashMap<String,String>();
+		addTrueFalse("fetchData", lc, options);
+		addTrueFalse("matchVcf", lc, options);
+		addTrueFalse("includeHeaders", lc, options);
+		
+		addTrueFalse("matchAllDirPathRegEx", lc, options);
+		addTrueFalse("matchAllFileNameRegEx", lc, options);
+		addTrueFalse("matchAllDataLineRegEx", lc, options);
+
+		addConcat("regExDirPath", lc, options);
+		addConcat("regExFileName", lc, options);
+		addConcat("regExDataLine", lc, options);
+		addConcat("regExDataLineExclude", lc, options);
+		
+		addConcat("vcf", lc, options);
+		addConcat("key", lc, options);
+		addConcat("bed", lc, options);
+		addConcat("fetchOptions", lc, options);
+		addConcat("vcf", lc, options);
+		addConcat("bpPadding", lc, options);
+		
+		lg.debug("Incoming user GET options: "+options);
+		return options;
+	}
+	
 	/**Concats the List<String>, if it exist with a semicolon and puts it into the options.*/
 	private static void addConcat(String key, HashMap<String, List<String>> lcInput, HashMap<String, String> options) {
 		List<String> val = lcInput.get(key);
@@ -682,8 +781,7 @@ public class Util {
 		if (val == null || val.size() ==0) return;
 		String o = val.get(0).toLowerCase();
 		if (o.startsWith("t")) op2Return.put(key, "true");
-		else if (o.startsWith("fa")) op2Return.put(key, "false");
-		else if (o.startsWith("fo")) op2Return.put(key, "force");
+		else if (o.startsWith("f")) op2Return.put(key, "false");
 		//do nothing, leave at default
 	}
 

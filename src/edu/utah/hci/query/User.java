@@ -5,6 +5,10 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import edu.utah.hci.apps.QueryService;
+import edu.utah.hci.misc.Crypt;
+import edu.utah.hci.misc.Util;
+
 /**Decrypts and parses a user name and whether their session has expired.*/
 public class User {
 
@@ -46,6 +50,13 @@ public class User {
 			errorMessage = "Problem with instantiating a User "+userName+" "+encryptedKey+"\n"+st;
 			lg.error(errorMessage);
 		}
+	}
+	
+	/*Just for testing and cmd line tools.*/
+	public User (String userName, String[] userDirPathRegExs) {
+		this.userName = userName;
+		regExOne = new Pattern[userDirPathRegExs.length];
+		for (int i=0; i< regExOne.length; i++) regExOne[i] = Pattern.compile(userDirPathRegExs[i]);
 	}
 
 	public String getUserName() {

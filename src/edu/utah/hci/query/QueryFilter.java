@@ -1,6 +1,7 @@
 package edu.utah.hci.query;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -8,21 +9,27 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import edu.utah.hci.query.tabix.TabixDataQuery;
+
+import edu.utah.hci.misc.Util;
+import edu.utah.hci.tabix.TabixDataQuery;
+
 import java.util.Iterator;
-import java.util.TreeMap;
+//import java.util.TreeMap;
 
 public class QueryFilter {
 
-	private DataSources dataSources;
-
-	/**One or more patterns that a file path or data line will be scored against to be included in the output. 
-	 * Set the orRegexFilters to false to require all to match or true to only require one.*/
-	private Pattern[] regExAll = null;
-	private Pattern[] regExAllData = null;
-	private Pattern[] regExOne = null;
-	private Pattern[] regExOneData = null;
-	private Pattern[] regExOneUser = null;
+	/**One or more case-insensitive patterns that a file path or data line will be scored against to be included in the output.*/
+	private Pattern[] regExDirPath;
+	private Pattern[] regExFileName;
+	private Pattern[] regExDataLine;
+	private Pattern[] regExDataLineExclude;
+	private boolean matchAllDirPathRegEx = false;
+	private boolean matchAllFileNameRegEx = false;
+	private boolean matchAllDataLineRegEx = false;
+	private int numCharToSkipForDataDir = -1;
+	private QueryRequest queryRequest;
+	
+	private Pattern[] regExDirPathUser = null;
 	private String userName = null;
 	boolean filterOnRegEx = false;
 
@@ -31,63 +38,258 @@ public class QueryFilter {
 
 	private boolean matchVcf = false;
 	private boolean fetchData = false;
-	private boolean forceFetchData = false;
+	private boolean fetchOptions = false;
 	private boolean excludeDataFromResults = false;
 	private boolean includeHeaders = false;
 	private int bpPadding = 0;
-	private int numCharToSkipForDataDir = 0;
+	private HashMap<String, SingleQuery> dirTNameQueryIndexes = null;
+	private ArrayList<String> truncFilePathsUserCanSee = null;
+	
+	/*If not null then the query failed.*/
+	private String errTxtForUser = null;
+	
 
 	private static final Logger lg = LogManager.getLogger(QueryFilter.class); 
 
 	//constructors
-	public QueryFilter(DataSources dataSources, User user){
-		this.dataSources = dataSources;
-		numCharToSkipForDataDir = dataSources.getDataDir().getParentFile().toString().length()+1;
+	public QueryFilter(User user, QueryRequest queryRequest, HashMap<String, String> options) throws IOException{
+		this.queryRequest = queryRequest;
+		dirTNameQueryIndexes = queryRequest.getMasterQuery().getQueryIndexes();
 		if (user != null) {
 			userName = user.getUserName();
-			regExOneUser = user.getRegExOne();
-			filterOnRegEx = true;
+			regExDirPathUser = user.getRegExOne();
 		}
+		truncFilePathsUserCanSee = fetchTruncFilePathsUserCanSee();
+		setOptions(options);
+		numCharToSkipForDataDir = queryRequest.getMasterQuery().getNumCharToSkipForDataDir();
+	}
+	
+	private boolean setOptions(HashMap<String, String> options) {
+		//walk through each option, forcing key to be case insensitive
+		for (String key: options.keySet()){
+			String lcKey = key.toLowerCase();
+			
+			//fetchOptions?
+			if (lcKey.equals("fetchoptions")){
+				String bool = options.get(key).toLowerCase();
+				//true
+				if (bool.startsWith("t")) {
+					fetchOptions = true;
+					return true;
+				}
+				else fetchOptions = false;
+			}
+			//fetchData?
+			else if (lcKey.equals("fetchdata")){
+				String bool = options.get(key).toLowerCase();
+				//true
+				if (bool.startsWith("t")) fetchData = true;
+				else fetchData = false;
+			}
+			//match vcf?
+			else if (lcKey.equals("matchvcf")){
+				String bool = options.get(key).toLowerCase();
+				if (bool.startsWith("t")) matchVcf = true;
+				else matchVcf = false;
+			}
+			//include headers?
+			else if (lcKey.equals("includeheaders")){
+				String bool = options.get(key).toLowerCase();
+				if (bool.startsWith("t")) includeHeaders = true;
+				else  includeHeaders = false;
+			}
+			//filter files based on dir path
+			else if (lcKey.equals("regexdirpath")){
+				String[] rgs = Util.SEMI_COLON.split(options.get(key));
+				Pattern[] ps = new Pattern[rgs.length];
+				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
+				filterOnRegEx = true;
+				regExDirPath = ps;
+			}
+
+			//filter files based on name? 
+			else if (lcKey.equals("regexfilename")){
+				String[] rgs = Util.SEMI_COLON.split(options.get(key));
+				Pattern[] ps = new Pattern[rgs.length];
+				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
+				filterOnRegEx = true;
+				regExFileName = ps;
+			}
+
+			//filter data lines with regular expressions?
+			else if (lcKey.equals("regexdataline")){
+				String[] rgs = Util.SEMI_COLON.split(options.get(key));
+				Pattern[] ps = new Pattern[rgs.length];
+				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
+				filterOnRegEx = true;
+				regExDataLine = ps;
+			}
+			//filter data lines with regular expressions?
+			else if (lcKey.equals("regexdatalineexclude")){
+				String[] rgs = Util.SEMI_COLON.split(options.get(key));
+				Pattern[] ps = new Pattern[rgs.length];
+				for (int i=0; i< rgs.length; i++) ps[i] = Pattern.compile(".*"+rgs[i]+".*");
+				filterOnRegEx = true;
+				regExDataLineExclude = ps;
+			}
+			// must all of the Dir regexes match?
+			else if (lcKey.equals("matchalldirpathregex")){
+				String bool = options.get(key).toLowerCase();
+				if (bool.startsWith("t")) matchAllDirPathRegEx = true;
+				else matchAllDirPathRegEx = false;
+			}
+			// must all of the file name regexes match?
+			else if (lcKey.equals("matchallfilenameregex")){
+				String bool = options.get(key).toLowerCase();
+				if (bool.startsWith("t")) matchAllFileNameRegEx = true;
+				else matchAllFileNameRegEx = false;
+			}
+			// must all of the data line regexes match?
+			else if (lcKey.equals("matchalldatalineregex")){
+				String bool = options.get(key).toLowerCase();
+				if (bool.startsWith("t")) matchAllDataLineRegEx = true;
+				else matchAllDataLineRegEx = false;
+			}
+
+			//any incomming bed or vcf regions from a GET request?  not present with POST
+			else if (lcKey.equals("bed")) queryRequest.setBedRegions(Util.SEMI_COLON.split(options.get("bed")));
+			else if (lcKey.equals("vcf")) queryRequest.setVcfRegions(Util.SEMI_COLON.split(options.get("vcf")));
+			
+			//bpPadding
+			else if (lcKey.equals("bppadding")){
+				String s = options.get(key);
+				bpPadding = Integer.parseInt(s);
+			}
+			
+			//authentication token, ignore
+			else if (lcKey.equals("key")){}
+
+			//something odd coming in, throw error
+			else {
+				errTxtForUser= "Unrecognized cmd -> "+ key+"="+options.get(key);
+				lg.error("Unrecognized cmd -> "+ key+"="+options.get(key));
+				return false;
+			}
+		}
+		
+		//do they want to filter file paths or names?
+		if (regExFileName != null || regExDirPath != null) filterOnRegEx = true;
+
+		//are they indicating matchVcf or filtering by data regexes? if so then fetchData so we can examine the ref alt etc but indicate they don't want the data hits returned just the number
+		if (matchVcf || regExDataLine != null){
+			if (fetchData == false){
+				excludeDataFromResults = true;
+				fetchData = true;
+			}
+		}
+
+		//check for both bed and vcf
+		//bed present?
+		if (queryRequest.getBedRegions() != null && queryRequest.getVcfRegions() != null){
+			errTxtForUser= "Please provide either bed regions or vcf regions, not both.";
+			lg.debug(errTxtForUser);
+			return false;
+		}
+		return true;
+	}
+
+	
+	public ArrayList<String>  fetchTruncFilePathsUserCanSee () throws IOException{
+		ArrayList<String> canSee = new ArrayList<String>();
+		
+		if (regExDirPathUser == null) canSee.addAll(dirTNameQueryIndexes.keySet());
+		else {
+			//for each trunc file path
+			for (String tp: dirTNameQueryIndexes.keySet()) {
+				for (Pattern p: regExDirPathUser){
+					if (p.matcher(tp).matches()){						
+						canSee.add(tp);
+						break;
+					}
+				}
+			}
+		}
+		lg.debug("User can see: "+canSee.toString());
+		if (canSee.size() == 0) {
+			lg.error("User cannot see any of the indexed data directories?!");
+			throw new IOException("User cannot see any of the indexed data directories?! ");
+		}
+		return canSee;
+	}
+	
+	/**Given a users access restrictions and provided regExDirPath s, returns the SingleQuerys to search.
+	 * If none were found returns null.*/
+	public ArrayList<SingleQuery> fetchQueriesToSearch (){
+		ArrayList<SingleQuery> toSearch = new ArrayList<SingleQuery>();
+		//filter on dir path?
+		if (regExDirPath == null) {
+			//add all they can see
+			for (String s: truncFilePathsUserCanSee) toSearch.add(dirTNameQueryIndexes.get(s));
+		}
+		else {
+			//for each truncated file path they can see
+			for (String s: truncFilePathsUserCanSee) {
+				//for each reg ex dir path
+				for (Pattern p: regExDirPath){
+					if (p.matcher(s).matches()) {
+						toSearch.add(dirTNameQueryIndexes.get(s));
+						break;
+					}
+				}
+			}
+		}
+		if (toSearch.size() == 0) return null;
+		return toSearch;
 	}
 
 	public JSONObject getCurrentSettings(File userFile){
 		JSONObject jo = new JSONObject();
 		if (userFile!= null) jo.put("inputFile", userFile.getName());
+		jo.put("fetchOptions", fetchOptions);
 		jo.put("matchVcf", matchVcf);
 		//don't return data?
 		if (excludeDataFromResults) jo.put("fetchData", false);
 		else jo.put("fetchData", fetchData);
-		jo.put("forceFetchData", forceFetchData);
 		jo.put("includeHeaders", includeHeaders);
-		if (filterOnRegEx) {
-			if (regExAll != null) {
-				ArrayList<String> pat = new ArrayList<String>();
-				for (Pattern p: regExAll) pat.add(p.toString());
-				jo.put("regExAll", pat);
-			}
-			if (regExAllData != null) {
-				ArrayList<String> pat = new ArrayList<String>();
-				for (Pattern p: regExAllData) pat.add(p.toString());
-				jo.put("regExAllData", pat);
-			}
-			if (regExOne != null) {
-				ArrayList<String> patOne = new ArrayList<String>();
-				for (Pattern p: regExOne) patOne.add(p.toString());
-				jo.put("regExOne", patOne);
-			}
-			if (regExOneData != null) {
-				ArrayList<String> patOne = new ArrayList<String>();
-				for (Pattern p: regExOneData) patOne.add(p.toString());
-				jo.put("regExOneData", patOne);
-			}
-			if (regExOneUser != null) {
-				ArrayList<String> patOne = new ArrayList<String>();
-				for (Pattern p: regExOneUser) patOne.add(p.toString());
-				jo.put("regExOneUser", patOne);
-			}
+		if (regExDirPath != null) {
+			jo.put("matchAllDirPathRegEx", matchAllDirPathRegEx);
+			ArrayList<String> pat = new ArrayList<String>();
+			for (Pattern p: regExDirPath) pat.add(p.toString());
+			jo.put("regExDirPath", pat);
 		}
-		if (userName != null){
-			jo.put("userName", userName);
+		if (regExFileName != null) {
+			jo.put("matchAllFileNameRegEx", matchAllFileNameRegEx);
+			ArrayList<String> pat = new ArrayList<String>();
+			for (Pattern p: regExFileName) pat.add(p.toString());
+			jo.put("regExFileName", pat);
+		}
+		if (regExDataLine != null) {
+			jo.put("matchAllDataLineRegEx", matchAllDataLineRegEx);
+			ArrayList<String> pat = new ArrayList<String>();
+			for (Pattern p: regExDataLine) pat.add(p.toString());
+			jo.put("regExDataLine", pat);
+		}
+		if (regExDataLineExclude != null) {
+			ArrayList<String> pat = new ArrayList<String>();
+			for (Pattern p: regExDataLineExclude) pat.add(p.toString());
+			jo.put("regExDataLineExclude", pat);
+		}
+		if (regExDirPathUser != null) {
+			ArrayList<String> patOne = new ArrayList<String>();
+			for (Pattern p: regExDirPathUser) patOne.add(p.toString());
+			jo.put("userDirPathRegEx", patOne);
+		}
+		if (userName != null)jo.put("userName", userName);
+		
+		if (bpPadding != 0)jo.put("bpPadding", bpPadding);
+		
+		//regions
+		ArrayList<String> bedVcfRegions = new ArrayList<String>();
+		if (queryRequest.getBedRegions() != null) for (String bed: queryRequest.getBedRegions()) bedVcfRegions.add(bed);
+		if (queryRequest.getVcfRegions() != null) for (String vcf: queryRequest.getVcfRegions()) bedVcfRegions.add(vcf);
+		if (bedVcfRegions.size() !=0) {
+			jo.put("numberQueries", bedVcfRegions.size());
+			jo.put("queries", bedVcfRegions);
 		}
 		return jo;
 	}
@@ -98,53 +300,69 @@ public class QueryFilter {
 		jo.put(key, sb);
 	}
 
-	public JSONObject filter(HashMap<File, ArrayList<TabixDataQuery>> fileTabixQueries){
+	/**Filter files to return based on this MQF, these have already been restricted to what they can see*/
+	public JSONObject filterFiles(HashMap<File, ArrayList<TabixDataQuery>> fileTabixQueries){
+
 		int numFiles = fileTabixQueries.size();
 		int numToKeep = numFiles;
 		boolean fileFiltering = false;
 
 		//filter?
 		if (filterOnRegEx){
-			fileFiltering = true;
-			ArrayList<File> toKeep = new ArrayList<File>();		
-			//for each file
 			
+			fileFiltering = true;
+			ArrayList<File> toKeep = new ArrayList<File>();	
+			
+			//for each file
 			for (File f: fileTabixQueries.keySet()){
+				boolean addItPath = true;
+				boolean addItName = true;
+				String tPath = f.toString().substring(numCharToSkipForDataDir);
 				
-				boolean addIt = true;
-				String fPath = f.toString();
-				String tPath = fPath.substring(numCharToSkipForDataDir);
-				//look at all
-				if (regExAll !=null){
-					for (Pattern p: regExAll){
-						if (p.matcher(tPath).matches() == false){						
-							addIt = false;
+				//filter on file path?
+				if (regExDirPath != null) {
+					for (Pattern p: regExDirPath){
+						addItPath = false;
+						boolean match = p.matcher(tPath).matches();
+						//just need one?
+						if (matchAllDirPathRegEx == false && match == true) {
+							addItPath = true;
 							break;
+						}
+						//need all and it doesn't match
+						else if (matchAllDirPathRegEx == true) {
+							if (match == false) {
+								addItPath = false;
+								break;
+							}
+							else addItPath = true;
 						}
 					}
 				}
-				//look at one
-				if (addIt && regExOne != null){
-					addIt = false;				
-					for (Pattern p: regExOne){
-						if (p.matcher(tPath).matches()){						
-							addIt = true;
+				
+				//filter on file name?
+				if (addItPath == true && regExFileName != null) {
+					for (Pattern p: regExFileName){
+						addItName = false;
+						boolean match = p.matcher(f.getName()).matches();
+						//just need one?
+						if (matchAllFileNameRegEx == false && match == true) {
+							addItName = true;
 							break;
+						}
+						//need all and it doesn't match
+						else if (matchAllFileNameRegEx == true) {
+							if (match == false) {
+								addItName = false;
+								break;
+							}
+							else addItName = true;
 						}
 					}
 				}
-				//look at user one, note these patterns match the whole path not truncated path
-				if (addIt && regExOneUser != null){
-					addIt = false;
-					for (Pattern p: regExOneUser){
-						if (p.matcher(fPath).matches()){						
-							addIt = true;
-							break;
-						}
-					}
-				}
-				if (addIt) toKeep.add(f);
+				if (addItPath == true && addItName == true) toKeep.add(f);
 			}
+			
 			//OK toss those not in toKeep
 			fileTabixQueries.keySet().retainAll(toKeep);
 			numToKeep = toKeep.size();
@@ -156,24 +374,10 @@ public class QueryFilter {
 			JSONObject stats = new JSONObject();
 			stats.put("filesPreFiltering", numFiles);
 			stats.put("filesPostFiltering", numToKeep);
-			//log stats
-			lg.debug("Index File Filtering Stats:");
-			lg.debug(stats.toString(3));
 			return stats;
 		}
 
 		else return null;
-	}
-
-
-	public void addTrunkName(JSONObject jo, String key, Iterator<File> it){
-		TreeMap<File, String> dataFileDisplayName = dataSources.getDataFileDisplayName();
-		ArrayList<String> sb = new ArrayList<String>();
-		while (it.hasNext()) {
-			File f = it.next();
-			sb.add(dataFileDisplayName.get(f));
-		}
-		jo.put(key, sb);
 	}
 
 	//getters and setters
@@ -207,49 +411,11 @@ public class QueryFilter {
 	public void setIncludeHeaders(boolean b){
 		includeHeaders = b;
 	}
-	public boolean isForceFetchData() {
-		return forceFetchData;
-	}
-	public void setForceFetchData(boolean forceFetchData) {
-		this.forceFetchData = forceFetchData;
-	}
 	public boolean isFilterOnRegEx() {
 		return filterOnRegEx;
 	}
 	public void setFilterOnRegEx(boolean filterOnRegEx) {
 		this.filterOnRegEx = filterOnRegEx;
-	}
-
-	public Pattern[] getRegExAll() {
-		return regExAll;
-	}
-
-	public void setRegExAll(Pattern[] regExAll) {
-		this.regExAll = regExAll;
-	}
-
-	public Pattern[] getRegExOne() {
-		return regExOne;
-	}
-
-	public void setRegExOne(Pattern[] regExOne) {
-		this.regExOne = regExOne;
-	}
-
-	public Pattern[] getRegExAllData() {
-		return regExAllData;
-	}
-
-	public void setRegExAllData(Pattern[] regExAllData) {
-		this.regExAllData = regExAllData;
-	}
-
-	public Pattern[] getRegExOneData() {
-		return regExOneData;
-	}
-
-	public void setRegExOneData(Pattern[] regExOneData) {
-		this.regExOneData = regExOneData;
 	}
 
 	public boolean isExcludeDataFromResults() {
@@ -258,5 +424,41 @@ public class QueryFilter {
 
 	public void setExcludeDataFromResults(boolean excludeDataFromResults) {
 		this.excludeDataFromResults = excludeDataFromResults;
+	}
+
+	public String getErrTxtForUser() {
+		return errTxtForUser;
+	}
+
+	public Pattern[] getRegExDataLine() {
+		return regExDataLine;
+	}
+
+	public boolean isMatchAllDataLineRegEx() {
+		return matchAllDataLineRegEx;
+	}
+
+	public ArrayList<String> getTruncFilePathsUserCanSee() {
+		return truncFilePathsUserCanSee;
+	}
+
+	public Pattern[] getRegExDirPathUser() {
+		return regExDirPathUser;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public boolean isFetchOptions() {
+		return fetchOptions;
+	}
+
+	public void setFetchOptions(boolean fetchOptions) {
+		this.fetchOptions = fetchOptions;
+	}
+
+	public Pattern[] getRegExDataLineExclude() {
+		return regExDataLineExclude;
 	}
 }

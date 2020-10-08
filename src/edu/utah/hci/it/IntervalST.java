@@ -15,7 +15,7 @@ package edu.utah.hci.it;
 
 import java.util.LinkedList;
 
-import edu.utah.hci.query.Util;
+import edu.utah.hci.misc.Util;
 
 
 public class IntervalST<Value>  implements java.io.Serializable {
