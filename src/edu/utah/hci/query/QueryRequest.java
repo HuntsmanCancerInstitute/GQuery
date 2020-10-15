@@ -286,7 +286,7 @@ public class QueryRequest {
 			int[] startStop = fetchEffectedBps(t);
 			if (startStop != null) {
 				startStop[0] = startStop[0]- bpPadding;
-				startStop[1] = startStop[1]- bpPadding;
+				startStop[1] = startStop[1]+ bpPadding;
 				if (startStop[0] < 0) startStop[0] = 0;
 				return new SimpleBed(t[0], startStop[0], startStop[1], vcfLine);
 			}

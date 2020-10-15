@@ -109,7 +109,6 @@ public class GQueryIndexerTests {
 			e.printStackTrace();
 		} 
 		return md5;
-
 	}
 
 

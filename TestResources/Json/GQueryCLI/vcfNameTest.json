@@ -1,0 +1,55 @@
+{
+   "querySettings": {
+      "matchAllFileNameRegEx": false,
+      "inputFile": "b37Test.vcf",
+      "fetchData": false,
+      "matchVcf": false,
+      "userDirPathRegEx": [".+"],
+      "includeHeaders": false,
+      "regExFileName": [
+         ".*.vcf.gz.*",
+         ".*.maf.txt.gz.*"
+      ],
+      "userName": "CLI",
+      "fetchOptions": false
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 3,
+      "millSecForFileIntersectionSearch": 65,
+      "numberQueries": 3,
+      "numberIndexLookupJobs": 18
+   },
+   "queryResults": [
+      {
+         "hits": [
+            {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+            {"source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"}
+         ],
+         "input": "20\t4162847\t.\tC\tT\t.\tPASS\t.",
+         "stop": 4162847,
+         "start": 4162846,
+         "chr": "20",
+         "numberIntersectingDataFiles": 2
+      },
+      {
+         "hits": [{"source": "Data/B37/VCFData/chr20_cosmic.vcf.gz"}],
+         "input": "20\t4163144\t.\tC\tA\t.\t.\t.",
+         "stop": 4163144,
+         "start": 4163143,
+         "chr": "20",
+         "numberIntersectingDataFiles": 1
+      },
+      {
+         "hits": [{"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}],
+         "input": "20\t4228734\t.\tC\tCCAAG\t.\tPASS\tAF=0.5",
+         "stop": 4228735,
+         "start": 4228733,
+         "chr": "20",
+         "numberIntersectingDataFiles": 1
+      }
+   ],
+   "fileIndexFilteringStats": {
+      "filesPreFiltering": 6,
+      "filesPostFiltering": 4
+   }
+}

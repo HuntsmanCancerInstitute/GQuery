@@ -625,6 +625,25 @@ public class Util {
 		return hm;
 	}
 	
+	/**Counts the number of lines in a file skipping blanks.*/
+	public static long countNonBlankLines(File file){
+		long num =0;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(file));
+			String line;
+			while ((line = in.readLine()) !=null) {
+				line = line.trim();
+				if (line.length() !=0) num++;
+			}
+			in.close();
+		}
+		catch (IOException e){
+			System.out.println("\nProblem counting the number of lines in the file: "+file);
+			e.printStackTrace();
+		}
+		return num;
+	}
+	
 	/**Returns a gz zip or straight file reader on the file based on it's extension. Be sure to close it!
 	 * @author davidnix*/
 	public static BufferedReader fetchBufferedReader( File txtFile) throws IOException{

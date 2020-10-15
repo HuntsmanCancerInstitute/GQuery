@@ -229,12 +229,26 @@ public class QueryFilter {
 		else {
 			//for each truncated file path they can see
 			for (String s: truncFilePathsUserCanSee) {
-				//for each reg ex dir path
-				for (Pattern p: regExDirPath){
-					if (p.matcher(s).matches()) {
-						toSearch.add(dirTNameQueryIndexes.get(s));
-						break;
+				if (matchAllDirPathRegEx == false) {
+					//for each reg ex dir path
+					for (Pattern p: regExDirPath){
+						if (p.matcher(s).matches()) {
+							toSearch.add(dirTNameQueryIndexes.get(s));
+							break;
+						}
 					}
+				}
+				else {
+					boolean addIt = true;
+					//for each reg ex dir path
+					for (Pattern p: regExDirPath){
+						if (p.matcher(s).matches() == false) {
+							addIt = false;
+							break;
+						}
+					}
+					if (addIt) toSearch.add(dirTNameQueryIndexes.get(s));
+					
 				}
 			}
 		}

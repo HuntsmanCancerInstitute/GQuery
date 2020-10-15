@@ -1,9 +1,7 @@
 package edu.utah.hci.apps;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
@@ -162,7 +160,7 @@ public class GQueryCLI {
 		
 		for (int i = 0; i<args.length; i++){
 			Matcher mat = pat.matcher(args[i]);
-			if (mat.matches()){
+			if (mat.matches()){				
 				char test = args[i].charAt(1);
 				try{
 					switch (test){
@@ -200,14 +198,15 @@ public class GQueryCLI {
 					Util.printErrAndExit("\nSorry, something doesn't look right with this parameter: -"+test+"\n");
 				}
 			}
+			else Util.printErrAndExit("\nSorry, something doesn't look right with these arguments: "+argsString+"\n");
 		}
 		if (printMenu) {
 			printDocs();
 			System.exit(0);
 		}
 		//gQueryIndex?, only set once
-		if (gQueryIndexDir == null) {
-			Util.printErrAndExit("ERROR: please provide a GQuery indexed genomic data directory -g, aborting.\n");
+		if (gQueryIndexDir == null || gQueryIndexDir.exists() == false) {
+			Util.printErrAndExit("\nERROR: please provide a GQuery indexed genomic data directory -g, aborting. Does '"+gQueryIndexDir+"' exits?\n");
 			System.exit(1);
 		}
 		//processors to use, only set once
@@ -225,20 +224,21 @@ public class GQueryCLI {
 				}
 			}
 		}
-		else Util.printErrAndExit("ERROR: please complete one of the following arguments: -o -r -b or -v");
+		else Util.printErrAndExit("\nERROR: please complete one of the following arguments: -o -r -f or -v\n");
 		
 		//make a user
-		if (userRx !=null) userRegEx = Util.SEMI_COLON.split(userRx);
-		user = new User(userName, userRegEx);
-		
+		if (userRx !=null) {
+			userRegEx = Util.SEMI_COLON.split(userRx);
+			for (int i=0; i< userRegEx.length; i++) userRegEx[i] = ".*"+userRegEx[i]+".*";
+		}
+		user = new User(userName, userRegEx);	
 		return uq;
 	}
-	
 	
 	public static void printDocs(){
 		Util.pl("\n" +
 				"**************************************************************************************\n" +
-				"**                         GQuery Command Line Interface "+version+": Oct 2020              **\n" +
+				"**                     GQuery Command Line Interface "+version+": Oct 2020                  **\n" +
 				"**************************************************************************************\n" +
 				"GQueryCLI executes queries on GQuery indexed genomic data. First run the GQueryIndexer\n"+
 				"application on directories containing thousands of tabix indexed genomic data files.\n"+
@@ -246,14 +246,14 @@ public class GQueryCLI {
 				"\nRequired Arguments:\n"+
 				"-g A data directory containing GQuery indexed data files. See the GQueryIndexer app.\n\n"+
 				
-				"     And one of the following. (Any semi-colons? Surrond with quotes, e.g. 'xxx;xxx') \n\n"+
+				"     And one of the following. (Any ; ? Surrond with quotes, e.g. 'xxx;xxx') \n\n"+
 				
 				"-o Fetch detailed query options and available data sources. Use the later to create\n"+
 				"     java regex expressions to focus and speed up queries.\n"+
 				"-r Regions to use in searching, no spaces, semi-colon separated, chr and , ignored \n"+
 				"     e.g. 'chr17:43,042,295-43,127,364;chr13:32313480-32401672' \n"+
-				"-v Vcf records to use in searching, replace tabs with _ ,no spaces, semi-colon separated, \n"+
-				"     e.g. '20_5559143_rs41282130_G_A'\n"+
+				"-v Vcf records to use in searching, replace tabs with _ ,no spaces, ; separated, \n"+
+				"     e.g. 'chr17_43063930_Foundation71_C_T'\n"+
 				"-f File of bed or vcf records to use in searching, xxx.bed or xxx.vcf, .zip/.gz OK\n\n"+
 
 				"\nOptional Arguments:\n"+
@@ -267,9 +267,8 @@ public class GQueryCLI {
 				"     e.g. 'HIGH;Pathogenic;Likely_pathogenic'\n"+
 				"-e Data record regex(s) to exclude particular data lines from returning, ditto \n" + 
 				"     e.g. 'Benign;Likely_benign'\n"+
-				"-u User specific directory path regex(s) to limit searching to IRB approved datasets,\n"+
-				"     unlike above, surround each with .*, e.g. '.*/Tempus/.*;.*/ARUP/.*'\n"+
-				"     defaults to '.+'\n"+
+				"-u User specific directory path regex(s) to limit searching to approved datasets,\n"+
+				"     e.g. '.*/Tempus/.*;.*/ARUP/.*', defaults to '.+'\n"+
 				"-w User name, defaults to CLI\n\n"+
 
 				"-P Match all DirPathRegExs, defaults to just one\n"+
@@ -288,10 +287,12 @@ public class GQueryCLI {
 
 				"\nExamples:\n"+
 				"# Pull data source paths and detailed options:\n"+
-				"java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -o\n"+
+				"   java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -o\n\n"+
+				
 				"# Execute a query for BRCA1 and BRCA2 pathogenic germline vcf variants\n"+
-				"java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -d -n .vcf.gz\n"+
-				"-p '/Germline/;/Hg38/' -P -l '=Pathogenic;=Likely_pathogenic' -s results.json\n\n"+
+				"   java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -d -n .vcf.gz\n"+
+				"   -p '/Germline/;/Hg38/' -P -l '=Pathogenic;=Likely_pathogenic' -s results.json\n"+
+				"   -r 'chr17:43,042,295-43,127,364;chr13:32313480-32401672' \n\n"+
 
 				"**************************************************************************************\n");
 	}
