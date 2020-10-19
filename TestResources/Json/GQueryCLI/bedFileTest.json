@@ -1,0 +1,63 @@
+{
+   "querySettings": {
+      "inputFile": "b37Test.bed",
+      "fetchData": false,
+      "matchVcf": false,
+      "userDirPathRegEx": [".+"],
+      "numberQueries": 3,
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false,
+      "queries": [
+         "20\t4162827\t4162867",
+         "21\t11058198\t11058237\ttestX\t4.3\t-",
+         "20\t3893036\t3898261\tjustName"
+      ]
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 3,
+      "millSecForFileIntersectionSearch": 52,
+      "numberQueries": 3,
+      "numberIndexLookupJobs": 16
+   },
+   "queryResults": [
+      {
+         "hits": [
+            {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"},
+            {"source": "Data/B37/VCFData/chr20-21TRF037738.vcf.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"}
+         ],
+         "input": "20\t3893036\t3898261\tjustName",
+         "stop": 3898261,
+         "start": 3893036,
+         "chr": "20",
+         "numberIntersectingDataFiles": 4
+      },
+      {
+         "hits": [
+            {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+            {"source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"}
+         ],
+         "input": "20\t4162827\t4162867",
+         "stop": 4162867,
+         "start": 4162827,
+         "chr": "20",
+         "numberIntersectingDataFiles": 4
+      },
+      {
+         "hits": [
+            {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"}
+         ],
+         "input": "21\t11058198\t11058237\ttestX\t4.3\t-",
+         "stop": 11058237,
+         "start": 11058198,
+         "chr": "21",
+         "numberIntersectingDataFiles": 3
+      }
+   ]
+}
