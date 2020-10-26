@@ -241,7 +241,8 @@ public class GQueryCLI {
 				"**                     GQuery Command Line Interface "+version+": Oct 2020                  **\n" +
 				"**************************************************************************************\n" +
 				"GQueryCLI executes queries on GQuery indexed genomic data. First run the GQueryIndexer\n"+
-				"application on directories containing thousands of tabix indexed genomic data files.\n"+
+				"application on a base data directory containing sub directories with thousands of\n"+
+				"tabix indexed genomic data files.\n"+
 
 				"\nRequired Arguments:\n"+
 				"-g A data directory containing GQuery indexed data files. See the GQueryIndexer app.\n\n"+
@@ -292,7 +293,7 @@ public class GQueryCLI {
 				"# Execute a query for BRCA1 and BRCA2 pathogenic germline vcf variants\n"+
 				"   java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -d -n .vcf.gz\n"+
 				"   -p '/Germline/;/Hg38/' -P -l '=Pathogenic;=Likely_pathogenic' -s results.json\n"+
-				"   -r 'chr17:43,042,295-43,127,364;chr13:32313480-32401672' \n\n"+
+				"   -r 'chr17:43,042,295-43,127,364;chr13:32313480-32401672'\n\n"+
 
 				"**************************************************************************************\n");
 	}

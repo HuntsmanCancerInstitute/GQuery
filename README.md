@@ -1,14 +1,162 @@
-# GQuery API
-A RESTful webapp API service for rapidly querying large numbers (>10K) of tabix indexed genomic data files, e.g. vcf, gvcf, maf, bed, bedGraph, etc. from multiple species with different genome builds.
+# GQuery
+GQuery is a software platform that enables rapid querying of large numbers (>10K) of bgzip compressed, tabix indexed genomic data files, e.g. vcf, gvcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to write custom file parsers.
 
-A GET or POST request triggers a two step search.  User's regions of interest (ROI) are intersected against an in-memory interval tree data structure (or for large datasets or low memory servers, a tabix search of the flat file chromosome index may be used) to identify genomic data files that contain intersecting records. Intersection times are typically < 1 second for 100's of ROI against 1Ks of data files.  Two regular expression filters are provided to limit what file paths are returned.  Often this is all that is needed for basic genomic queries.  Upon request, a high performance, threaded tabix fetch request can be executed to return the actual intersecting records along with the file headers for downstream processing. These records can also be filtered using regular expressions.
+It includes three Java applications:
 
-This approach of an in memory interval tree region file look up combine with tabix retrieval is a good approach to address the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed/ tabix indexed file format eliminates the need to duplicate the data source content and create/ maintain custom data file parsers.  If you can tabix index it, you can search it. See https://www.htslib.org/doc/tabix.html
+GQueryIndexer - a command line tool for building chromosome indexes that associate genomic coordinates with data files that contain intersecting records. 
 
-This web app is built using the Java Jersy JAX RESTful API framework. It is JUnit tested and deployed on Apache Tomcat for optimized performance. Results are returned in JSON.
+GQuery CLI - a command line tool for executing queries locally on GQuery indexed data directories.
+
+GQuery API - a RESTful web application API service for executing queries on remote servers.
+
+Each query triggers an initial intersection of each user's regions of interest against the GQuery chromosome indexes to identify data files that contain intersecting records. Regular expression filters are provided to limit which directory paths are searched and which file types are returned.  Often this is all that is needed for a basic query.  If requested, a second tabix search is used to fetch the actual intersecting records from the data files. These records can also be filtered using regular expressions.  
+
+This approach of searching genomic coordinate indexes for intersecting data files combine with tabix data record retrieval is an excellent approach to address the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed, tabix indexed file format (https://www.htslib.org/doc/tabix.html) eliminates the need to duplicate the data source content and requirement to create and maintain custom db data file importers that can accommodate a large set of disparate file formats and format flavors.  If you can tabix index it, you can search it.
+
+Getting up and going with GQuery is a simple three step process: download the latest jar files, build the chromosome data file indexes, and execute queries using the CLI.  
+
+For those looking to provide search capability via a web application, deploy the GQuery RESTful web API.  This is especially useful when searching needs to be restricted to subsets of the data, e.g. IRB approved, unpublished project data.
+
+
+
+---
+# Step 1: Build the Chromosome Data File Indexes with the GQueryIndexer
+
+The first step in getting GQuery up and going with your data is to build the chromosome genome indexes with the GQueryIndexer application. It is multi-threaded and junit tested.
+
+Give some thought to how to best structure the base Data directory for your group.  If you are working with multiple species and genome builds then create a sub directory named with the build for easy directory path regular expression matching (e.g. Data/B37/, Data/Hg38, Data/MM10, etc.). Likewise create directories for each major project (e.g. Data/Hg38/TCGA, Data/Hg38/AVATAR, Data/Hg38/Clinical/Foundation) and particular data types (e.g. Data/Hg38/AVATAR/Germline, Data/Hg38/AVATAR/Somatic/Vcf, Data/Hg38/AVATAR/Somatic/Cnv). Keep in mind that a chromosome genome index is created in each directory that contains xxx.gz.tbi files.  Thus the most optimal indexing strategy is to soft link or copy over 100's of files into the same directory. The worst strategy is to have many directories with just a few data files. Lastly, directory path regular expressions are used by GQuery to both restrict  what a user can search and to speed up the searching so structure the base Data directory in a way that best meets your needs. 
+
+<pre>
+> java -jar -Xmx30G ~/YourPathTo/GQueryIndexer.jar
+
+**************************************************************************************
+**                               GQuery Indexer: Oct 2020                           **
+**************************************************************************************
+GQI builds index files for GQuery by recursing through a base data directory looking
+for directories containing bgzip compressed and tabix indexed genomic data files, e.g. 
+xxx.gz and xxx.gz.tbi . A GQuery index is created for each directory, thus place or
+link 100 or more related files in the same directory, e.g. Data/Hg38/Somatic/Vcfs/
+and Data/Hg38/Somatic/Cnvs/ . This app is threaded for simultaneous file loading
+and requires >30G RAM to run on large data collections. Lastly, the indexer will only
+re index an existing index if the data files have changed. Thus, run it nightly to
+keep the indexes up to date.
+
+Required Params:
+-c A bed file of chromosomes and their lengths (e.g. chr21 0 48129895) to use to 
+     building the intersection index. Exclude those you don't want to index. For
+     multiple builds and species, add all, duplicates will be collapsed taking the
+     maximum length. Any 'chr' prefixes are ignored when indexing and searching.
+-d A base data directory containing sub directories with tabix indexed data
+     files. Known file types include xx.vcf.gz, xx.bed.gz, xx.bedGraph.gz, and 
+     xx.maf.txt.gz. Others will be parsed using info from the xx.gz.tbi index. See
+     https://github.com/samtools/htslib . For bed files don't use the -p option,
+     use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,
+     see http://genome.sph.umich.edu/wiki/Vt.
+-t Full path directory containing the compiled bgzip and tabix executables. See
+     https://github.com/samtools/htslib
+
+Optional Params:
+-q Quiet output, no per record warnings.
+-b BP block to process, defaults to 250000000. Reduce if out of memory issues occur.
+-n Number cores to use, defaults to all
+
+Example for generating the test index using the GitHub GQuery/TestResources files
+see https://github.com/HuntsmanCancerInstitute/GQuery
+
+d=/pathToYourLocalGitHubInstalled/GQuery/TestResources
+java -jar -Xmx115G GQueryIndexer.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data
+-t $d/Htslib_1.10.2/bin/ 
+
+**************************************************************************************</pre>
+
+
+
+
+
+
+---
+# Step 2: Run Local Queries with the GQuery Command Line Interface
+
+Run queries locally using the GQueryCLI application. It is multi-threaded and junit tested. Results are returned in JSON. Specify one or more regions of interest in bed or vcf format.  Use the path and file name regular expressions to speed up and limit what files are searched.  
+
+For example, if you're only interested in Germline mutations and your base data dir is organized into Data/Germline and Data/Somatic files, use a dir path regex '-p Data/Germline' to only search the germline data.  
+
+Likewise, if you are only interested in actual vcf variants, specify a file name regex '-n vcf.gz'
+
+Lastly, fetching the actual intersecting data records from each file can be a computationally intensive process so only use the '-d' fetch data option after you've narrowed down your search with path and file name regexes.  In many cases it's not needed, for example if you're only interested in identifying patients with a BRCA1 mutation, then skip the '-d' option and just parse the 'source' names from the JSON output.
+
+<pre>
+> java -jar -Xmx30G ~/YourPathTo/GQueryCLI.jar
+
+**************************************************************************************
+**                     GQuery Command Line Interface 0.1: Oct 2020                  **
+**************************************************************************************
+GQueryCLI executes queries on GQuery indexed genomic data. First run the GQueryIndexer
+application on directories containing thousands of tabix indexed genomic data files.
+
+Required Arguments:
+-g A data directory containing GQuery indexed data files. See the GQueryIndexer app.
+
+     And one of the following. (Any ; ? Surrond with quotes, e.g. 'xxx;xxx') 
+
+-o Fetch detailed query options and available data sources. Use the later to create
+     java regex expressions to focus and speed up queries.
+-r Regions to use in searching, no spaces, semi-colon separated, chr and , ignored 
+     e.g. 'chr17:43,042,295-43,127,364;chr13:32313480-32401672' 
+-v Vcf records to use in searching, replace tabs with _ ,no spaces, ; separated, 
+     e.g. 'chr17_43063930_Foundation71_C_T'
+-f File of bed or vcf records to use in searching, xxx.bed or xxx.vcf, .zip/.gz OK
+
+
+Optional Arguments:
+-p Directory path regex(s) to select particular directory paths to search,
+     semi-colon delimited, no spaces, 'quote multiple regexes', case sensitive,
+     each rx is surrounded with .* so no need to add these 
+     e.g. '/Somatic/Avatar/;/Somatic/Tempus/' 
+-n File name regex(s) to select particular file names to search, ditto
+     e.g. '.vcf.gz;.maf.txt.gz' 
+-l Data record regex(s) to select particular data lines to return, ditto 
+     e.g. 'HIGH;Pathogenic;Likely_pathogenic'
+-e Data record regex(s) to exclude particular data lines from returning, ditto 
+     e.g. 'Benign;Likely_benign'
+-u User specific directory path regex(s) to limit searching to approved datasets,
+     e.g. '.*/Tempus/.*;.*/ARUP/.*', defaults to '.+'
+-w User name, defaults to CLI
+
+-P Match all DirPathRegExs, defaults to just one
+-N Match all FileNameRegExs
+-L Match all DataLineRegEx
+
+-d Fetch data, defaults to just returning the data source file paths
+-j Include data source headers
+-m Match vcf record's CHROM POS REF ALT 
+-a Pad each vcf or bed region +/- this bp value
+
+-s Save the json output to this file
+-i Run an interactive session to enable sequential queries
+-c Number processors to use, defaults to all
+-h Print this help menu
+
+Examples:
+# Pull data source paths and detailed options:
+   java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -o
+
+# Execute a query for BRCA1 and BRCA2 pathogenic germline vcf variants
+   java -jar -Xmx20G ~/YourPathTo/GQueryCLI.jar -g ~/GQueryIndexedData/ -d -n .vcf.gz
+   -p '/Germline/;/Hg38/' -P -l '=Pathogenic;=Likely_pathogenic' -s results.json
+   -r 'chr17:43,042,295-43,127,364;chr13:32313480-32401672'
+
+**************************************************************************************
+</pre>
+
+
+
+
 
 ---
 # Example Usage with Test Resource Files
+
+This web app is built using the Java Jersey JAX RESTful API framework. It is JUnit tested and deployed on Apache Tomcat for optimized performance. Results are returned in JSON.
 
 ### Fetch Options
 This API call returns the available options and data sources 
@@ -68,94 +216,8 @@ Note, you will likely need to encode the tabs by replacing them with %09 if past
 
 https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/TestResources/Json/QueryExamples/vcfMatch.json
 
----
-# Building the file system genome index
 
-The first step in getting GQuery up and going with your data is to build the requisit interval tree and data file objects using the GQueryIndexer app:
 
-<pre>
-> java -jar ~/YourPathTo/GQueryIndexer_0.1.jar
-
-**************************************************************************************
-**                               GQuery Indexer: Jan 2019                           **
-**************************************************************************************
-Builds index files for GQuery by recursing through a data directory looking for bgzip
-compressed and tabix indexed genomic data files (e.g. vcf, bed, maf, and custom).
-Interval trees are built containing regions that overlap the data sources.
-These are used by the GQuery REST service to rapidly identify which data files contain
-records that overlap user's ROI. This app is threaded for simultanious file loading
-and requires >30G RAM to run on large data collections so use a big analysis server.
-Note, relative file paths are saved. So long as the structure of the Data Directory is
-preserved, the GQueryIndexer and GQuery REST service don't need to run on the same
-file system. Lastly, the indexer will only re index an existing index if the data
-files have changed. Thus, run nightly to keep up to date.
-
-Required Params:
--c A bed file of chromosomes and their lengths (e.g. chr21 0 48129895) to use to 
-     building the intersection index. Exclude those you don't want to index. For
-     multiple builds and species, add all, duplicates will be collapsed taking the
-     maximum length. Any 'chr' prefixes are ignored when indexing and searching.
--d A data directory containing bgzipped and tabix indexed data files. Known file
-     types include xxx.vcf.gz, xxx.bed.gz, xxx.bedGraph.gz, and xxx.maf.txt.gz. Others
-     will be parsed using info from the xxx.gz.tbi index. See
-     https://github.com/samtools/htslib . For bed files DO NOT use the -p option,
-     use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,
-     see http://genome.sph.umich.edu/wiki/Vt. Files may be hard linked but not soft.
--t Full path directory containing the compiled bgzip and tabix executables. See
-     https://github.com/samtools/htslib
--i A directory in which to save the index files
-
-Optional Params:
--s One or more directory paths, comma delimited no spaces, to skip when building
-     interval trees but make available for data source record retrieval. Useful for
-     whole genome gVCFs and read coverage files that cover large genomic regions.
--q Quiet output, no per record warnings.
--b BP block to process, defaults to 250000000. Reduce if out of memory issues occur.
--n Number cores to use, defaults to all
-
-Example for generating the test index using the GitHub GQuery/TestResources files
-see https://github.com/HuntsmanCancerInstitute/GQuery
-
-d=/pathToYourLocalGitHubInstalled/GQuery/TestResources
-java -jar -Xmx115G GQueryIndexer_0.1.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data
--i $d/Index -t ~/BioApps/HTSlib/1.10.2/bin/ -s $d/Data/Public/B37/GVCFs 
-
-**************************************************************************************</pre>
-
-Give some thought to how to best structure the data directory.  If you are supporting multiple species/ genome builds then create a sub directory named with the build for easy regular expression matching (e.g. MyDataDir/B37/ , MyDataDir/MM10 , etc.). Likewise for big projects, multi institute programs, and different data source releases, (e.g. /TCGA/, /CvDC/, /GATA4_KO/RNASeq/, /GATA4_KO/ChIPSeq/, etc.).  The two regEx filters used by the GQuery API (all patterns must match and/ or only one must match) are both simple and very effective at selecting just the data sources the user requests, provided the directory structure is well organized. 
-
-Note the TestResource example in the cmd line menu:
-
-<pre>
-java  -jar -Xmx8G ~/Code/GQuery/target/GQueryIndexer_0.1.jar -c ~/Code/GQuery/TestResources/b37Chr20-21ChromLen.bed -d ~/Code/GQuery/TestResources/Data -i ~/Code/GQuery/TestResources/NewIndex -t ~/Code/GQuery/TestResources/Htslib_1.10.2/bin/ -s ~/Code/GQuery/TestResources/Data/B37/GVCFs
-
-GQuery Indexer Arguments: -c /Users/u0028003/Code/GQuery/TestResources/b37Chr20-21ChromLen.bed -d /Users/u0028003/Code/GQuery/TestResources/Data -i /Users/u0028003/Code/GQuery/TestResources/NewIndex -t /Users/u0028003/Code/GQuery/TestResources/Htslib_1.10.2/bin/ -s /Users/u0028003/Code/GQuery/TestResources/Data/B37/GVCFs
-
-8 available processors, using 7
-
-Searching for tabix indexes and bgzipped data sources...
-	11 Data sources with known formats (vcf.gz, bed.gz, bedgraph.gz, maf.txt.gz)
-
-Creating file id hash...
-
-Checking tbi files for chr content...
-
-Indexing records by chr...
-	ChrBlock	#Parsed
-	20:0-63025522	16555
-	21:0-48129897	8911
-	22:0-51304568	1145
-
-Compressing master index...
-
-Saving file objects...
-
-0 Min to parse ~26611 records and build the query index
-</pre>
-
-Java version 1.8 works. It takes ~ 1hr to index 10K files with 100M records on a 23 core machine.
-
----
 # Installing the GQuery Web App
 ### See also https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/Misc/queryNotes.txt
 

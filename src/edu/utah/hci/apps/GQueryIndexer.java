@@ -630,7 +630,7 @@ public class GQueryIndexer {
 		//for each look inside for tbi indexes
 		for (File dir: dirs) {
 			//skip index dirs
-			if (dir.getName().equals(INDEX_DIR_NAME)) continue;
+			if (dir.getName().startsWith(".")) continue;
 			
 			File[] list = dir.listFiles();
 			for (int i=0; i< list.length; i++){
@@ -639,7 +639,7 @@ public class GQueryIndexer {
 					break;
 				}
 			}
-		}
+		}		
 		if (dirsWithTbis.size() == 0) Util.printErrAndExit("\nERROR: No directories were found with xxx.gz.tbi files inside "+dataDir+" Aborting!");
 	}
 	
@@ -713,13 +713,13 @@ public class GQueryIndexer {
 	public static void printDocs(){
 		Util.pl("\n" +
 				"**************************************************************************************\n" +
-				"**                               GQuery Indexer: Feb 2020                           **\n" +
+				"**                               GQuery Indexer: Oct 2020                           **\n" +
 				"**************************************************************************************\n" +
-				"GQI builds index files for GQuery by recursing through a root data directory looking for\n"+
-				"directories containing bgzip compressed and tabix indexed genomic data files, e.g. \n"+
+				"GQI builds index files for GQuery by recursing through a base data directory looking\n"+
+				"for directories containing bgzip compressed and tabix indexed genomic data files, e.g. \n"+
 				"xxx.gz and xxx.gz.tbi . A GQuery index is created for each directory, thus place or\n"+
 				"link 100 or more related files in the same directory, e.g. Data/Hg38/Somatic/Vcfs/\n"+
-				"and Data/Hg38/Somatic/Cnvs/ . This app is threaded for simultanious file loading\n"+
+				"and Data/Hg38/Somatic/Cnvs/ . This app is threaded for simultaneous file loading\n"+
 				"and requires >30G RAM to run on large data collections. Lastly, the indexer will only\n"+
 				"re index an existing index if the data files have changed. Thus, run it nightly to\n"+
 				"keep the indexes up to date.\n"+
@@ -729,9 +729,9 @@ public class GQueryIndexer {
 				"     building the intersection index. Exclude those you don't want to index. For\n"+
 				"     multiple builds and species, add all, duplicates will be collapsed taking the\n"+
 				"     maximum length. Any 'chr' prefixes are ignored when indexing and searching.\n"+
-				"-d A data directory containing bgzipped and tabix indexed data files. Known file\n"+
-				"     types include xxx.vcf.gz, xxx.bed.gz, xxx.bedGraph.gz, and xxx.maf.txt.gz. Others\n"+
-				"     will be parsed using info from the xxx.gz.tbi index. See\n"+
+				"-d A base data directory containing sub directories with tabix indexed data\n"+
+				"     files. Known file types include xx.vcf.gz, xx.bed.gz, xx.bedGraph.gz, and \n"+
+				"     xx.maf.txt.gz. Others will be parsed using info from the xx.gz.tbi index. See\n"+
 				"     https://github.com/samtools/htslib . For bed files don't use the -p option,\n"+
 				"     use '-0 -s 1 -b 2 -e 3'. For vcf files, vt normalize and decompose_blocksub,\n"+
 				"     see http://genome.sph.umich.edu/wiki/Vt.\n"+
@@ -747,7 +747,7 @@ public class GQueryIndexer {
 				"see https://github.com/HuntsmanCancerInstitute/GQuery\n\n"+
 				
 				"d=/pathToYourLocalGitHubInstalled/GQuery/TestResources\n"+
-				"java -jar -Xmx115G GQueryIndexer_0.1.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data\n"+
+				"java -jar -Xmx115G GQueryIndexer.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data\n"+
 				"-t $d/Htslib_1.10.2/bin/ \n\n" +
 
 				"**************************************************************************************\n");
@@ -771,6 +771,10 @@ public class GQueryIndexer {
 
 	public long getTotalRecordsProcessed() {
 		return totalRecordsProcessed;
+	}
+
+	public int getTotalFilesIndexed() {
+		return totalFilesIndexed;
 	}
 
 }

@@ -52,7 +52,6 @@ public class User {
 		}
 	}
 	
-	/*Just for testing and cmd line tools.*/
 	public User (String userName, String[] userDirPathRegExs) {
 		this.userName = userName;
 		regExOne = new Pattern[userDirPathRegExs.length];

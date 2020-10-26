@@ -58,9 +58,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
 import com.sun.jersey.multipart.FormDataBodyPart;
-
 
 /**Static helper methods.*/
 public class Util {
@@ -83,6 +81,15 @@ public class Util {
 		if (dir == null || dir.exists() == false) return;
 		if (dir.isDirectory()) for (File f: dir.listFiles()) deleteDirectory(f);
 		dir.delete();
+		if (dir.exists()) deleteDirectoryViaCmdLine(dir);
+	}
+
+	public static void deleteDirectoryViaCmdLine(File dir){
+		try {
+			executeViaProcessBuilder(new String[]{"rm","-rf",dir.getCanonicalPath()}, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**Extracts the full path file names of all the files and directories in a given directory. If a file is given it is
@@ -735,6 +742,54 @@ public class Util {
 		}
 	}
 	
+	/**Copies a given directory and it's contents to the destination directory.
+	 * Use a extension (e.g. "class$|properties$") to limit the files copied over or set to null for all.*/
+	public static boolean copyDirectoryRecursive (File sourceDir, File destDir, String extension){
+		Pattern pat = null;
+		if(extension != null) pat = Pattern.compile(extension);
+		if (destDir.exists() == false) destDir.mkdir();
+		//for each file in source copy to destDir		
+		File[] files = extractFiles(sourceDir);
+		for (int i=0; i< files.length; i++){
+			if (files[i].isDirectory()) {
+				copyDirectoryRecursive(files[i], new File (destDir, files[i].getName()), extension);
+			}
+			else {
+				if (pat != null){
+					Matcher mat = pat.matcher(files[i].getName());
+					if (mat.find()){
+						File copied = new File (destDir, files[i].getName());					
+						if (copyViaFileChannel(files[i], copied) == false ) return false;
+					}
+				}
+				else {
+					File copied = new File (destDir, files[i].getName());					
+					if (copyViaFileChannel(files[i], copied) == false ) return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	/** Fast & simple file copy. From GForman http://www.experts-exchange.com/M_500026.html
+	 * Hit an odd bug with a "Size exceeds Integer.MAX_VALUE" error when copying a vcf file. -Nix.*/
+	public static boolean copyViaFileChannel(File source, File dest){
+		FileChannel in = null, out = null;
+		try {
+			in = new FileInputStream(source).getChannel();
+			out = new FileOutputStream(dest).getChannel();
+			long size = in.size();
+			MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, size);
+			out.write(buf);
+			in.close();
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+	
 	/**Processes the GET params*/
 	public static HashMap<String, String> loadGetQueryServiceOptions(HashMap<String, List<String>> lc) {
 		HashMap<String,String> options = new HashMap<String,String>();
@@ -812,28 +867,39 @@ public class Util {
 	}
 	
 	/**Processes the POST params*/
-	public static HashMap<String, String> loadPostQueryServiceOptions(String fetchData, String matchVcf, String includeHeaders,
-			List<FormDataBodyPart> regExAll, List<FormDataBodyPart> regExOne, List<FormDataBodyPart> regExAllData, List<FormDataBodyPart> regExOneData) {
+	public static HashMap<String, String> loadPostQueryServiceOptions(
+			String fetchOptions, String fetchData, String matchVcf, String includeHeaders, String bpPadding, 
+			List<FormDataBodyPart> regExDirPath, List<FormDataBodyPart> regExFileName, List<FormDataBodyPart> regExDataLine, List<FormDataBodyPart> regExDataLineExclude, 
+			String matchAllDirPathRegEx, String matchAllFileNameRegEx, String matchAllDataLineRegEx) {
+		
 		HashMap<String,String> options = new HashMap<String,String>();
+		if (notEmpty(fetchData)) options.put("fetchOptions", fetchOptions.toLowerCase());
 		if (notEmpty(fetchData)) options.put("fetchdata", fetchData.toLowerCase());
 		if (notEmpty(matchVcf)) options.put("matchvcf", matchVcf.toLowerCase());
 		if (notEmpty(includeHeaders)) options.put("includeheaders", includeHeaders.toLowerCase());
-		if (regExAll!=null && regExAll.size()!=0) {
-			String rgx = concat(regExAll);
-			if (rgx!=null) options.put("regexall", rgx);
+		if (notEmpty(bpPadding)) options.put("bpPadding", bpPadding.toLowerCase());
+		
+		if (regExDirPath!=null && regExDirPath.size()!=0) {
+			String rgx = concat(regExDirPath);
+			if (rgx!=null) options.put("regexdirpath", rgx);
 		}
-		if (regExOne!=null && regExOne.size()!=0) {
-			String rgx = concat(regExOne);
-			if (rgx!=null) options.put("regexone", rgx);
+		if (regExFileName!=null && regExFileName.size()!=0) {
+			String rgx = concat(regExFileName);
+			if (rgx!=null) options.put("regexfilename", rgx);
 		}
-		if (regExAllData!=null && regExAllData.size()!=0) {
-			String rgx = concat(regExAllData);
-			if (rgx!=null) options.put("regexalldata", rgx);
+		if (regExDataLine!=null && regExDataLine.size()!=0) {
+			String rgx = concat(regExDataLine);
+			if (rgx!=null) options.put("regexdataline", rgx);
 		}
-		if (regExOneData!=null && regExOneData.size()!=0) {
-			String rgx = concat(regExOneData);
-			if (rgx!=null) options.put("regexonedata", rgx);
+		if (regExDataLineExclude!=null && regExDataLineExclude.size()!=0) {
+			String rgx = concat(regExDataLineExclude);
+			if (rgx!=null) options.put("regexdatalineexclude", rgx);
 		}
+		
+		if (notEmpty(matchAllDirPathRegEx)) options.put("matchAllDirPathRegEx", matchAllDirPathRegEx.toLowerCase());
+		if (notEmpty(matchAllFileNameRegEx)) options.put("matchAllFileNameRegEx", matchAllFileNameRegEx.toLowerCase());
+		if (notEmpty(matchAllDataLineRegEx)) options.put("matchAllDataLineRegEx", matchAllDataLineRegEx.toLowerCase());
+		
 		lg.debug("Incoming user POST options: "+options);
 		return options;
 	}

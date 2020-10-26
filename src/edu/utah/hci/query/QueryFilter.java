@@ -86,13 +86,13 @@ public class QueryFilter {
 				if (bool.startsWith("t")) fetchData = true;
 				else fetchData = false;
 			}
-			//match vcf?
+			//matchVcf?
 			else if (lcKey.equals("matchvcf")){
 				String bool = options.get(key).toLowerCase();
 				if (bool.startsWith("t")) matchVcf = true;
 				else matchVcf = false;
 			}
-			//include headers?
+			//includeHeaders?
 			else if (lcKey.equals("includeheaders")){
 				String bool = options.get(key).toLowerCase();
 				if (bool.startsWith("t")) includeHeaders = true;
@@ -151,7 +151,7 @@ public class QueryFilter {
 				else matchAllDataLineRegEx = false;
 			}
 
-			//any incomming bed or vcf regions from a GET request?  not present with POST
+			//any incoming bed or vcf regions from a GET request?  not present with POST
 			else if (lcKey.equals("bed")) queryRequest.setBedRegions(Util.SEMI_COLON.split(options.get("bed")));
 			else if (lcKey.equals("vcf")) queryRequest.setVcfRegions(Util.SEMI_COLON.split(options.get("vcf")));
 			
