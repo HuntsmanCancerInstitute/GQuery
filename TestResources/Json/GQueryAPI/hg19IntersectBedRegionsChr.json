@@ -1,0 +1,46 @@
+{
+ "querySettings": {
+  "fetchData": true,
+  "matchVcf": false,
+  "matchAllDirPathRegEx": false,
+  "regExDirPath": [".*/Hg19/.*"],
+  "numberQueries": 1,
+  "includeHeaders": false,
+  "fetchOptions": false,
+  "bpPadding": 1000000,
+  "queries": ["22:25,973,988-27,015,054"]
+ },
+ "dataRetrievalStats": {
+  "numberQueriesWithDataThatPassDataLineRegEx": 1,
+  "numberDataLookupJobs": 1,
+  "numberQueriesWithData": 1,
+  "millSecToLoadRecords": 1,
+  "numberQueries": 1
+ },
+ "fileIndexQueryStats": {
+  "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+  "millSecForFileIntersectionSearch": 1,
+  "numberQueries": 1,
+  "numberIndexLookupJobs": 1
+ },
+ "queryResults": [{
+  "hits": [{
+   "data": [
+    "chr22\t26111008\t26111136",
+    "chr22\t26786633\t26786742"
+   ],
+   "source": "Data/Hg19/chr20-22Ribo.bed.gz"
+  }],
+  "input": "22:25,973,988-27,015,054",
+  "stop": 28015054,
+  "start": 24973988,
+  "chr": "22",
+  "numberIntersectingDataFiles": 1
+ }],
+ "fileIndexFilteringStats": {
+  "filesPreFiltering": 1,
+  "filesPostFiltering": 1
+ },
+ "url": "http://localhost:8080/GQuery/search?bed=22%3A25%2C973%2C988-27%2C015%2C054&regExDirPath=%2FHg19%2F&fetchData=true&bpPadding=1000000",
+ "responseCode": 200
+}

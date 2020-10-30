@@ -1,0 +1,46 @@
+{
+   "querySettings": {
+      "fetchData": true,
+      "matchVcf": true,
+      "userDirPathRegEx": [".+"],
+      "regExDataLine": [
+         ".*PASS.*",
+         ".*FOXOG.*"
+      ],
+      "numberQueries": 1,
+      "matchAllDataLineRegEx": true,
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false,
+      "bpPadding": 10000,
+      "queries": ["22\t39358173\trs61743667\tT\tG"]
+   },
+   "dataRetrievalStats": {
+      "numberQueriesWithDataThatPassDataLineRegEx": 1,
+      "numberDataLookupJobs": 3,
+      "numberQueriesWithData": 1,
+      "millSecToLoadRecords": 4,
+      "numberQueries": 1
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+      "millSecForFileIntersectionSearch": 11,
+      "numberQueries": 1,
+      "numberIndexLookupJobs": 4
+   },
+   "queryResults": [{
+      "hits": [{
+         "data": ["22\t39358173\trs61743667\tT\tG\t.\tPASS\tDB;ECNT=1;HCNT=22;MAX_ED=.;MIN_ED=.;NLOD=48.69;TLOD=7.73\tGT:AD:AF:ALT_F1R2:ALT_F2R1:FOXOG:QSS:REF_F1R2:REF_F2R1\t0/1:349,7:0.025:5:2:0.714:11682,232:170:179\t0/0:204,1:6.024e-03:0:1:0.00:7002,15:109:95"],
+         "source": "Data/B37/Thor/3994-7.mt2.pass.vcf.gz"
+      }],
+      "input": "22\t39358173\trs61743667\tT\tG",
+      "stop": 39368173,
+      "start": 39348172,
+      "chr": "22",
+      "numberIntersectingDataFiles": 1
+   }],
+   "fileIndexFilteringStats": {
+      "filesPreFiltering": 3,
+      "filesPostFiltering": 3
+   }
+}

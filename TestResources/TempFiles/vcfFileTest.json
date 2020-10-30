@@ -1,0 +1,56 @@
+{
+   "querySettings": {
+      "inputFile": "b37Test.vcf",
+      "fetchData": false,
+      "matchVcf": false,
+      "userDirPathRegEx": [".+"],
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 3,
+      "millSecForFileIntersectionSearch": 11,
+      "numberQueries": 3,
+      "numberIndexLookupJobs": 18
+   },
+   "queryResults": [
+      {
+         "hits": [
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+            {"source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"},
+            {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"}
+         ],
+         "input": "20\t4162847\t.\tC\tT\t.\tPASS\t.",
+         "stop": 4162847,
+         "start": 4162846,
+         "chr": "20",
+         "numberIntersectingDataFiles": 4
+      },
+      {
+         "hits": [
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+            {"source": "Data/B37/VCFData/chr20_cosmic.vcf.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"}
+         ],
+         "input": "20\t4163144\t.\tC\tA\t.\t.\t.",
+         "stop": 4163144,
+         "start": 4163143,
+         "chr": "20",
+         "numberIntersectingDataFiles": 3
+      },
+      {
+         "hits": [
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+            {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+            {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}
+         ],
+         "input": "20\t4228734\t.\tC\tCCAAG\t.\tPASS\tAF=0.5",
+         "stop": 4228735,
+         "start": 4228733,
+         "chr": "20",
+         "numberIntersectingDataFiles": 3
+      }
+   ]
+}

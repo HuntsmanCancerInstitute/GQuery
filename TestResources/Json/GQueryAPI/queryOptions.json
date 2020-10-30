@@ -1,0 +1,114 @@
+{
+ "querySettings": {
+  "fetchData": false,
+  "matchVcf": false,
+  "includeHeaders": false,
+  "fetchOptions": true
+ },
+ "queryOptions": [
+  {
+   "name": "fetchOptions",
+   "description": "Returns this list of options and filters, see https://github.com/HuntsmanCancerInstitute/Query for examples."
+  },
+  {
+   "examples": [
+    "chr21:145569-145594",
+    "21:145,569-145,594",
+    "21:145569-145594;22:4965784-4965881;X:8594-8599",
+    "21\t11058198\t11058237\tMYCInt\t4.3\t-"
+   ],
+   "name": "bed",
+   "description": "Region(s) of interest to query in bed region format, https://genome.ucsc.edu/FAQ/FAQformat.html#format1, semicolon delimited. Commas and prepended 'chr' are ignored. "
+  },
+  {
+   "examples": [
+    "chr20\t4162847\t.\tC\tT\t.\tPASS\t.",
+    "20\t4163144\t.\tC\tA\t.\t.\t.;20\t4228734\t.\tC\tCCAAG\t.\tPASS\tAF=0.5"
+   ],
+   "name": "vcf",
+   "description": "Region(s) of interest to query in vcf format, http://samtools.github.io/hts-specs/VCFv4.3.pdf, semicolon delimited. Prepended 'chr' are ignored. Watch out for semicolons in the vcf INFO and FORMAT fields.  Replace the INFO column with a '.' and delete the remainder, otherwise semi-colons will break the input parser."
+  },
+  {
+   "name": "fetchData",
+   "options": [
+    "true",
+    "false"
+   ],
+   "description": "Pull records from disk (slow). First develop an appropriate restrictive regEx filter set, then fetchData.",
+   "defaultOption": false
+  },
+  {
+   "name": "bpPadding",
+   "description": "Pad each vcf or bed region +/- bpPadding value.",
+   "defaultOption": 0
+  },
+  {
+   "name": "matchVcf",
+   "options": [
+    true,
+    false
+   ],
+   "description": "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.",
+   "defaultOption": false
+  },
+  {
+   "name": "includeHeaders",
+   "options": [
+    true,
+    false
+   ],
+   "description": "Return the file headers associated with the intersecting datasets.",
+   "defaultOption": false
+  },
+  {
+   "examples": [
+    "/B37/",
+    "\\.vcf\\.gz"
+   ],
+   "name": "regExDirPath",
+   "description": "Require records to belong to a file whose file path matches these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx."
+  },
+  {
+   "examples": ["\\.vcf\\.gz;\\.maf\\.txt\\.gz"],
+   "name": "regExFileName",
+   "description": "Require records to belong to a file whose name matches these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx."
+  },
+  {
+   "examples": [
+    "Pathogenic",
+    "LOF"
+   ],
+   "name": "regExDataLine",
+   "description": "Require each record data line to match these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true."
+  },
+  {
+   "name": "matchAllDirPathRegEx",
+   "options": [
+    true,
+    false
+   ],
+   "description": "Require that all regExDirPath expressions match.",
+   "defaultOption": false
+  },
+  {
+   "name": "matchAllFileNameRegEx",
+   "options": [
+    true,
+    false
+   ],
+   "description": "Require that all regExFileName expressions match.",
+   "defaultOption": false
+  },
+  {
+   "name": "matchAllDataLineRegEx",
+   "options": [
+    true,
+    false
+   ],
+   "description": "Require that all regExDataLine expressions match.",
+   "defaultOption": false
+  }
+ ],
+ "url": "http://localhost:8080/GQuery/search?fetchOptions=true",
+ "responseCode": 200
+}

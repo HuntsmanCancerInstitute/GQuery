@@ -1,0 +1,34 @@
+{
+   "querySettings": {
+      "inputFile": "b37Test.vcf",
+      "fetchData": false,
+      "matchVcf": false,
+      "matchAllDirPathRegEx": true,
+      "userDirPathRegEx": [".+"],
+      "regExDirPath": [
+         ".*B37/.*",
+         ".*TCGA/AP.*"
+      ],
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+      "millSecForFileIntersectionSearch": 2,
+      "numberQueries": 3,
+      "numberIndexLookupJobs": 3
+   },
+   "queryResults": [{
+      "hits": [{"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"}],
+      "input": "20\t4162847\t.\tC\tT\t.\tPASS\t.",
+      "stop": 4162847,
+      "start": 4162846,
+      "chr": "20",
+      "numberIntersectingDataFiles": 1
+   }],
+   "fileIndexFilteringStats": {
+      "filesPreFiltering": 1,
+      "filesPostFiltering": 1
+   }
+}

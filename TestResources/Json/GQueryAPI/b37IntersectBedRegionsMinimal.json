@@ -1,0 +1,62 @@
+{
+ "querySettings": {
+  "fetchData": false,
+  "matchVcf": false,
+  "numberQueries": 3,
+  "includeHeaders": false,
+  "fetchOptions": false,
+  "queries": [
+   "20\t4162827\t4162867",
+   "21\t11058198\t11058237\ttestX\t4.3\t-",
+   "chr20\t3893036\t3898261\tjustName"
+  ]
+ },
+ "fileIndexQueryStats": {
+  "numberQueriesThatIntersectDataFilesPreFiltering": 3,
+  "millSecForFileIntersectionSearch": 4,
+  "numberQueries": 3,
+  "numberIndexLookupJobs": 16
+ },
+ "queryResults": [
+  {
+   "hits": [
+    {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+    {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+    {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"},
+    {"source": "Data/B37/VCFData/chr20-21TRF037738.vcf.gz"}
+   ],
+   "input": "chr20\t3893036\t3898261\tjustName",
+   "stop": 3898261,
+   "start": 3893036,
+   "chr": "20",
+   "numberIntersectingDataFiles": 4
+  },
+  {
+   "hits": [
+    {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+    {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+    {"source": "Data/B37/TCGA/AP/AP_Test.maf.txt.gz"},
+    {"source": "Data/B37/TCGA/CU/CU_Test.maf.txt.gz"}
+   ],
+   "input": "20\t4162827\t4162867",
+   "stop": 4162867,
+   "start": 4162827,
+   "chr": "20",
+   "numberIntersectingDataFiles": 4
+  },
+  {
+   "hits": [
+    {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+    {"source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"},
+    {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}
+   ],
+   "input": "21\t11058198\t11058237\ttestX\t4.3\t-",
+   "stop": 11058237,
+   "start": 11058198,
+   "chr": "21",
+   "numberIntersectingDataFiles": 3
+  }
+ ],
+ "url": "http://localhost:8080/GQuery/search?bed=20%094162827%094162867%3B21%0911058198%0911058237%09testX%094.3%09-&bed=chr20%093893036%093898261%09justName",
+ "responseCode": 200
+}

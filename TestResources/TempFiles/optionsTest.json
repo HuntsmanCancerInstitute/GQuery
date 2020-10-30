@@ -116,10 +116,10 @@
             "Data/B37/TCGA/CU/CU_Test.maf.txt.gz",
             "Data/B37/Thor/3994-7.mt2.pass.vcf.gz",
             "Data/B37/TCGA/AP/AP_Test.maf.txt.gz",
-            "Data/B37/GVCFs/wgSeq_chr22.g.vcf.gz",
             "Data/B37/VCFData/chr20-21TRF037738.vcf.gz",
             "Data/B37/VCFData/chr20_cosmic.vcf.gz",
             "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz",
+            "Data/B37/GVCFs/wgSeq_chr22.g.vcf.gz",
             "Data/Hg19/chr20-22Ribo.bed.gz",
             "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz",
             "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"

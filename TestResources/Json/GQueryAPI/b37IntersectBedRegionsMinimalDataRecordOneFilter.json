@@ -1,0 +1,54 @@
+{
+ "querySettings": {
+  "fetchData": true,
+  "matchVcf": false,
+  "regExDataLine": [
+   ".*4162828.*",
+   ".*4163495.*"
+  ],
+  "numberQueries": 1,
+  "matchAllDataLineRegEx": false,
+  "includeHeaders": false,
+  "fetchOptions": false,
+  "queries": ["20:4,162,827-4,162,867"]
+ },
+ "dataRetrievalStats": {
+  "numberQueriesWithDataThatPassDataLineRegEx": 1,
+  "numberDataLookupJobs": 4,
+  "numberQueriesWithData": 1,
+  "millSecToLoadRecords": 3,
+  "numberQueries": 1
+ },
+ "fileIndexQueryStats": {
+  "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+  "millSecForFileIntersectionSearch": 3,
+  "numberQueries": 1,
+  "numberIndexLookupJobs": 6
+ },
+ "queryResults": [{
+  "hits": [
+   {
+    "data": ["20\t4162735\t4163495\tENSG00000088826_SMOX\t0\t+"],
+    "source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+   },
+   {
+    "data": [
+     "20\t4162827\t4162828\t283",
+     "20\t4162828\t4162829\t284"
+    ],
+    "source": "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz"
+   }
+  ],
+  "input": "20:4,162,827-4,162,867",
+  "stop": 4162867,
+  "start": 4162827,
+  "chr": "20",
+  "numberIntersectingDataFiles": 2
+ }],
+ "fileIndexFilteringStats": {
+  "filesPreFiltering": 4,
+  "filesPostFiltering": 4
+ },
+ "url": "http://localhost:8080/GQuery/search?bed=20%3A4%2C162%2C827-4%2C162%2C867&regExDataLine=4162828%3B4163495&fetchData=true",
+ "responseCode": 200
+}

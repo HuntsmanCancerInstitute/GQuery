@@ -1,0 +1,42 @@
+{
+   "querySettings": {
+      "fetchData": false,
+      "matchVcf": false,
+      "userDirPathRegEx": [".+"],
+      "numberQueries": 2,
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false,
+      "queries": [
+         "chr20:257584-257886",
+         "chr22:39441112-39441312"
+      ]
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 2,
+      "millSecForFileIntersectionSearch": 5,
+      "numberQueries": 2,
+      "numberIndexLookupJobs": 10
+   },
+   "queryResults": [
+      {
+         "hits": [{"source": "Data/B37/Thor/3994-7.mt2.pass.vcf.gz"}],
+         "input": "chr22:39441112-39441312",
+         "stop": 39441312,
+         "start": 39441112,
+         "chr": "22",
+         "numberIntersectingDataFiles": 1
+      },
+      {
+         "hits": [
+            {"source": "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"},
+            {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}
+         ],
+         "input": "chr20:257584-257886",
+         "stop": 257886,
+         "start": 257584,
+         "chr": "20",
+         "numberIntersectingDataFiles": 2
+      }
+   ]
+}

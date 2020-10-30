@@ -1,0 +1,31 @@
+{
+   "querySettings": {
+      "fetchData": false,
+      "matchVcf": false,
+      "userDirPathRegEx": [".+"],
+      "numberQueries": 1,
+      "includeHeaders": false,
+      "userName": "CLI",
+      "fetchOptions": false,
+      "bpPadding": 10000,
+      "queries": ["22\t39358173\trs61743667\tT\tG"]
+   },
+   "fileIndexQueryStats": {
+      "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+      "millSecForFileIntersectionSearch": 43,
+      "numberQueries": 1,
+      "numberIndexLookupJobs": 4
+   },
+   "queryResults": [{
+      "hits": [
+         {"source": "Data/B37/VCFData/chr20_cosmic.vcf.gz"},
+         {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"},
+         {"source": "Data/B37/Thor/3994-7.mt2.pass.vcf.gz"}
+      ],
+      "input": "22\t39358173\trs61743667\tT\tG",
+      "stop": 39368173,
+      "start": 39348172,
+      "chr": "22",
+      "numberIntersectingDataFiles": 3
+   }]
+}
