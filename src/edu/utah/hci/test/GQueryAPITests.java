@@ -408,11 +408,18 @@ public class GQueryAPITests {
 		keysResponse.addAll(r.keySet());
 		
 		checkNullThenString("matchVcf", keysArchive, keysResponse, a, r);
+		checkNullThenString("bpPadding", keysArchive, keysResponse, a, r);
 		checkNullThenString("fetchData", keysArchive, keysResponse, a, r);
 		checkNullThenString("includeHeaders", keysArchive, keysResponse, a, r);
-		checkNullThenString("regExOne", keysArchive, keysResponse, a, r);
-		checkNullThenString("regExAll", keysArchive, keysResponse, a, r);	
+		checkNullThenString("regExDirPath", keysArchive, keysResponse, a, r);
+		checkNullThenString("regExFileName", keysArchive, keysResponse, a, r);	
+		checkNullThenString("regExDataLine", keysArchive, keysResponse, a, r);
+		checkNullThenString("regExDataLineExclude", keysArchive, keysResponse, a, r);
+		checkNullThenString("matchAllDirPathRegEx", keysArchive, keysResponse, a, r);
+		checkNullThenString("matchAllFileNameRegEx", keysArchive, keysResponse, a, r);	
+		checkNullThenString("matchAllDataLineRegEx", keysArchive, keysResponse, a, r);
 	}
+
 	
 	private void checkNullThenString(String key, HashSet<String> keysArchive, HashSet<String> keysResponse, JSONObject a, JSONObject r) {
 		//obj present?

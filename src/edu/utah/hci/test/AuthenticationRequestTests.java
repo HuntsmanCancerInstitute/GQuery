@@ -90,7 +90,7 @@ public class AuthenticationRequestTests {
 		assertEquals(200, responseJo.getInt("responseCode"));
 
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37ObamaSearch.json"));
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37ObamaSearch.json"));
 
 		checkQueries(archivedJo, responseJo);
 	}
@@ -99,7 +99,7 @@ public class AuthenticationRequestTests {
 	@Test
 	public void guestSearch() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37GuestSearch.json"));
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37GuestSearch.json"));
 		
 		//build the query
 		URIBuilder b = new URIBuilder(searchUrl);
@@ -115,12 +115,10 @@ public class AuthenticationRequestTests {
 	
 	@Test
 	public void badUserRequest() throws Exception {
-
 		//fetch the key
 		URL u = new URL(fetchKeyUrl);
 		String keyValue = Util.loadDigestGet(u, "Trump", "ILovePutin");
 		assertTrue("A key value was returned but shouldn't have been "+keyValue, keyValue==null);
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -258,17 +256,16 @@ public class AuthenticationRequestTests {
 	/**Helper method looking at query stats*/
 	private void checkIndexQueryStats(JSONObject archivedJo, JSONObject responseJo) {
 		//obj present?
-		boolean aPres = rootKeysArchive.contains("indexQueryStats");
-		boolean rPres = rootKeysResponse.contains("indexQueryStats");
+		boolean aPres = rootKeysArchive.contains("fileIndexQueryStats");
+		boolean rPres = rootKeysResponse.contains("fileIndexQueryStats");
 		if (aPres == false && rPres == false) return;
-		assertTrue(aPres+" indexQueryStats not present in both "+rPres, aPres == rPres);
+		assertTrue(aPres+" fileIndexQueryStats not present in both "+rPres, aPres == rPres);
 		
-		JSONObject a = archivedJo.getJSONObject("indexQueryStats");
-		JSONObject r = responseJo.getJSONObject("indexQueryStats");
-		checkInt("skippedUserQueries", a, r);
-		checkInt("searchedUserQueries", a, r);
-		checkInt("totalIndexHits", a, r);
-		checkInt("queriesWithIndexHits", a, r);
+		JSONObject a = archivedJo.getJSONObject("fileIndexQueryStats");
+		JSONObject r = responseJo.getJSONObject("fileIndexQueryStats");
+		checkInt("numberQueriesThatIntersectDataFilesPreFiltering", a, r);
+		checkInt("numberQueries", a, r);
+		checkInt("numberIndexLookupJobs", a, r);
 	}
 	
 	/**Helper method looking at query stats*/
@@ -289,12 +286,18 @@ public class AuthenticationRequestTests {
 		keysResponse.addAll(r.keySet());
 		
 		checkNullThenString("matchVcf", keysArchive, keysResponse, a, r);
+		checkNullThenString("bpPadding", keysArchive, keysResponse, a, r);
 		checkNullThenString("fetchData", keysArchive, keysResponse, a, r);
 		checkNullThenString("includeHeaders", keysArchive, keysResponse, a, r);
-		checkNullThenString("regExOne", keysArchive, keysResponse, a, r);
-		checkNullThenString("regExAll", keysArchive, keysResponse, a, r);
-		checkNullThenString("userName", keysArchive, keysResponse, a, r);
+		checkNullThenString("regExDirPath", keysArchive, keysResponse, a, r);
+		checkNullThenString("regExFileName", keysArchive, keysResponse, a, r);	
+		checkNullThenString("regExDataLine", keysArchive, keysResponse, a, r);
+		checkNullThenString("regExDataLineExclude", keysArchive, keysResponse, a, r);
+		checkNullThenString("matchAllDirPathRegEx", keysArchive, keysResponse, a, r);
+		checkNullThenString("matchAllFileNameRegEx", keysArchive, keysResponse, a, r);	
+		checkNullThenString("matchAllDataLineRegEx", keysArchive, keysResponse, a, r);
 	}
+
 	
 	private void checkNullThenString(String key, HashSet<String> keysArchive, HashSet<String> keysResponse, JSONObject a, JSONObject r) {
 		//obj present?
@@ -315,9 +318,10 @@ public class AuthenticationRequestTests {
 		
 		JSONObject a = archivedJo.getJSONObject("dataRetrievalStats");
 		JSONObject r = responseJo.getJSONObject("dataRetrievalStats");
-		checkInt("recordsRetrieved", a, r); 
-		checkInt("recordsReturnedToUser", a, r);
-		checkInt("queriesWithTabixRecords", a, r);
+		checkInt("numberQueriesWithDataThatPassDataLineRegEx", a, r);
+		checkInt("numberDataLookupJobs", a, r); 
+		checkInt("numberQueriesWithData", a, r);
+		checkInt("numberQueries", a, r);
 	}
 
 	/**Helper method*/

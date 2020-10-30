@@ -77,7 +77,7 @@ public class QueryService implements ServletContextListener {
 		}
 
 		if (options.get("fetchOptions") != null || options.get("bed") != null || options.get("vcf") != null) return processRequest(options, null, user);
-		else return Response.status(400).entity("XXX Invalid request, missing query bed or vcf region(s)? or fetchOptions in the input params "+options+", see "+helpUrl).build();
+		else return Response.status(400).entity("Invalid request, missing query bed or vcf region(s)? or fetchOptions in the input params "+options+", see "+helpUrl).build();
 	}
 
 	@POST

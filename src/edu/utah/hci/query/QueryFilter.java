@@ -200,7 +200,7 @@ public class QueryFilter {
 		if (regExDirPathUser == null) canSee.addAll(dirTNameQueryIndexes.keySet());
 		else {
 			//for each trunc file path
-			for (String tp: dirTNameQueryIndexes.keySet()) {
+			for (String tp: dirTNameQueryIndexes.keySet()) {		
 				for (Pattern p: regExDirPathUser){
 					if (p.matcher(tp).matches()){						
 						canSee.add(tp);
@@ -210,10 +210,7 @@ public class QueryFilter {
 			}
 		}
 		lg.debug("User can see: "+canSee.toString());
-		if (canSee.size() == 0) {
-			lg.error("User cannot see any of the indexed data directories?!");
-			throw new IOException("User cannot see any of the indexed data directories?! ");
-		}
+		if (canSee.size() == 0) lg.debug("User cannot see any of the indexed data directories?!");
 		return canSee;
 	}
 	
