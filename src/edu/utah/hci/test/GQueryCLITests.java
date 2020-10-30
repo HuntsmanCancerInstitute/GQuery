@@ -36,7 +36,7 @@ public class GQueryCLITests {
 	//Defile the paths to the test resources
 	private File testResourceDir = new File (System.getProperty("user.dir")+"/TestResources");
 	private File tempDir = new File (testResourceDir, "TempFiles");
-	private File dataDir = new File (testResourceDir, "TempFiles/Data");
+	private File dataDir = new File (testResourceDir, "Data");
 	private File jsonDir = new File (testResourceDir, "Json/GQueryCLI");
 	
 	@Test

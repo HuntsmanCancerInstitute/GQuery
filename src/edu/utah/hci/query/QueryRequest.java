@@ -37,7 +37,7 @@ public class QueryRequest {
 	/*Container of warning messages to set back to the user.*/
 	private ArrayList<String> warningTxtForUser = new ArrayList<String>();
 	/*Json objects with info elated to the query*/
-	private JSONObject queryOptions;
+	private ArrayList<JSONObject> queryOptions;
 	private JSONObject indexQueryStats = null;
 	private JSONObject indexFileFilteringStats = null;
 	private JSONObject dataRetrievalStats = null;
@@ -465,7 +465,7 @@ public class QueryRequest {
 	}
 	
 	/**Set inputs to null to just get options without the data sources.*/
-	public static JSONObject getQueryOptions(QueryFilter mqf, File rootDataDir) {
+	public static ArrayList<JSONObject> getQueryOptions(QueryFilter mqf, File rootDataDir) {
 		ArrayList<JSONObject> al = new ArrayList<JSONObject>();
 		ArrayList<Boolean> tf = new ArrayList<Boolean>();
 		tf.add(true);
@@ -503,7 +503,7 @@ public class QueryRequest {
 		//fetchData
 		JSONObject fd = new JSONObject();
 		fd.put("name", "fetchData");
-		fd.put("description", "Pull records from disk (slow). First develop and appropriate restrictive regEx filter set, then fetchData.");
+		fd.put("description", "Pull records from disk (slow). First develop an appropriate restrictive regEx filter set, then fetchData.");
 		ArrayList<String> tff = new ArrayList<String>();
 		tff.add("true"); tff.add("false");
 		fd.put("options", tff);
@@ -559,7 +559,7 @@ public class QueryRequest {
 		JSONObject rxd = new JSONObject();
 		rxd.put("name", "regExDataLine");
 		rxd.put("description", "Require each record data line to match these java regular expressions, "
-				+ "semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true. Case insensitive.");
+				+ "semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true.");
 		ArrayList<String> rxExD = new ArrayList<String>();
 		rxExD.add("Pathogenic"); 
 		rxExD.add("LOF"); 
@@ -603,11 +603,7 @@ public class QueryRequest {
 			ds.put("searchableFiles", fs);
 			al.add(ds);
 		}
-		
-		JSONObject queryOptions = new JSONObject();
-		queryOptions.put("queryOptionsAndFilters", al);
-	
-		return queryOptions;
+		return al;
 }
 
 	/**Filters the dataSources based on the Users permitted regExOne patterns.*/

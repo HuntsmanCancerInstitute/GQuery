@@ -15,7 +15,7 @@
     <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>com.sun.jersey.config.property.packages</param-name>
-      <param-value>edu.utah.hci.query</param-value>
+      <param-value>edu.utah.hci.apps</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -24,10 +24,10 @@
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
   <listener>
-    <listener-class>edu.utah.hci.query.QueryService</listener-class>
+    <listener-class>edu.utah.hci.apps.QueryService</listener-class>
   </listener>
   <listener>
-    <listener-class>edu.utah.hci.query.QueryAuthorization</listener-class>
+    <listener-class>edu.utah.hci.apps.QueryAuthorization</listener-class>
   </listener>
   
   <security-constraint>

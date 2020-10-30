@@ -19,9 +19,8 @@ import edu.utah.hci.misc.Util;
 
 import static org.junit.Assert.*;
 
-/**Be sure to turn off authentication by modifying the web.xml and restarting tomcat.
- * Run this test suite twice, with and without interval tree lookup by modifying the WebContent/WEB-INF/web.xml 'useIntervalTree' param.*/
-public class SearchRequestTests {
+/**Be sure to turn off authentication by modifying the web.xml and restarting tomcat.*/
+public class GQueryAPITests {
 	
 	/**Modify this url to match your running instance*/
 	private String url = new String("http://localhost:8080/GQuery/search");
@@ -31,35 +30,29 @@ public class SearchRequestTests {
 	private File testBedFile = new File(testResourcesDir, "b37Test.bed");
 	private HashSet<String> rootKeysArchive = null;
 	private HashSet<String> rootKeysResponse = null;
-	private static final Logger lg = LogManager.getLogger(SearchRequestTests.class);
+	private static final Logger lg = LogManager.getLogger(GQueryAPITests.class);
 	
 	@Test
 	public void fetchOptionsTest() throws URISyntaxException{
 			//load archived response to compare this new response to
-			JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/queryOptionsAndFilters.json"));
+			JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/queryOptions.json"));
 			//build the query
 			URIBuilder b = new URIBuilder(url);
 			b.addParameter("fetchOptions", "true");
+			
 			//fetch json response
 			JSONObject responseJo = Util.get(b);
 			System.out.println("\nfetchOptionsTest:\n"+responseJo.toString(1));
 			assertEquals(200, responseJo.getInt("responseCode"));
+			
 			//pull arrays and compare
-			HashMap<String, JSONObject> resMap = Util.buildHashOnKey("name", responseJo.getJSONArray("queryOptionsAndFilters"));
-			HashMap<String, JSONObject> arcMap = Util.buildHashOnKey("name", archivedJo.getJSONArray("queryOptionsAndFilters"));
+			HashMap<String, JSONObject> resMap = Util.buildHashOnKey("name", responseJo.getJSONArray("queryOptions"));
+			HashMap<String, JSONObject> arcMap = Util.buildHashOnKey("name", archivedJo.getJSONArray("queryOptions"));
 			assertTrue(arcMap.size()+" lenOptions!= "+resMap.size(), resMap.size() == arcMap.size());
 			//fetchData
 			JSONArray resJa = (JSONArray) resMap.get("fetchData").get("options");
 			JSONArray arcJa = (JSONArray) arcMap.get("fetchData").get("options");
 			compareJsonStringArrays(resJa, arcJa);	
-			//dataSources
-			resJa = (JSONArray) resMap.get("dataSources").get("options");
-			arcJa = (JSONArray) arcMap.get("dataSources").get("options");
-			compareJsonStringArrays(resJa, arcJa);
-			//forceFetchDataSources
-			resJa = (JSONArray) resMap.get("forceFetchDataSources").get("options");
-			arcJa = (JSONArray) arcMap.get("forceFetchDataSources").get("options");
-			compareJsonStringArrays(resJa, arcJa);
 			//matchVcf
 			resJa = (JSONArray) resMap.get("matchVcf").get("options");
 			arcJa = (JSONArray) arcMap.get("matchVcf").get("options");
@@ -73,8 +66,7 @@ public class SearchRequestTests {
 	@Test
 	public void intersectVcfRegionsMinimal() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectVcfRegionsMatchVcf.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectVcfRegionsMatchVcf.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("vcf", "chr20\t4162847\t.\tC\tT\t.\tPASS\t.");
@@ -85,7 +77,6 @@ public class SearchRequestTests {
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectVcfRegionsMinimal:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
 		checkQueries(archivedJo, responseJo);
 	}
 	
@@ -93,65 +84,40 @@ public class SearchRequestTests {
 	@Test
 	public void intersectBedFileRegionsAll() throws URISyntaxException, FileNotFoundException, UnsupportedEncodingException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedFileRegionsAll.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedFileRegionsAll.json"));
 		MultipartEntity entity = new MultipartEntity();
 		entity.addPart("fetchData", new StringBody("true"));
 		entity.addPart("includeHeaders", new StringBody("true"));
-
 		//fetch json response
 		JSONObject responseJo = Util.post(testBedFile, url, entity);
-
 		assertTrue("Post returned an error", responseJo != null);
 		System.out.println("\nintersectBedFileRegionsAll:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
 		checkQueries(archivedJo, responseJo);
 	}
 	
 	@Test
 	public void intersectBedRegionsAll() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsAll.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsAll.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20:4,162,827-4,162,867;21\t11058198\t11058237\ttestX\t4.3\t-");
 		b.addParameter("bed", "20\t3893036\t3898261\tjustName");
 		b.addParameter("fetchData", "true");
 		b.addParameter("includeHeaders", "true");
+		b.addParameter("regExDataLineExclude", "PANK2");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsAll:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
-		checkQueries(archivedJo, responseJo);
-	}
-	
-	@Test
-	public void intersectBedForceFetchData() throws URISyntaxException {
-		//load archived response to compare this new response to 
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedForceFetchData.json"));
-		
-		//build the query
-		URIBuilder b = new URIBuilder(url);
-		b.addParameter("bed", "chr22:16,051,925-16,051,971");
-		b.addParameter("fetchData", "force");
-		b.addParameter("regExOne", "Data/B37/GVCFs/wgSeq_chr22\\.g\\.vcf\\.gz;Data/B37/BedData/b37EnsGenes_ExonsChr20-21\\.bed\\.gz");
-		
-		//fetch json response
-		JSONObject responseJo = Util.get(b);
-		System.out.println("\nintersectBedForceFetchData:\n"+responseJo.toString(1));
-		assertEquals(200, responseJo.getInt("responseCode"));
-		
 		checkQueries(archivedJo, responseJo);
 	}
 	
 	@Test
 	public void intersectBedRegionsMinimal() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimal.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimal.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20\t4162827\t4162867;21\t11058198\t11058237\ttestX\t4.3\t-");
@@ -160,7 +126,6 @@ public class SearchRequestTests {
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsMinimal:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-		
 		checkQueries(archivedJo, responseJo);
 	}
 	
@@ -168,69 +133,63 @@ public class SearchRequestTests {
 	public void intersectBedRegionsChr() throws URISyntaxException {
 		//show that chr is ignored at both the user entry and tabix query level on an hg19 tabix indexed bed file
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/hg19IntersectBedRegionsChr.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/hg19IntersectBedRegionsChr.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "22:25,973,988-27,015,054");
-		b.addParameter("regExAll", "/Hg19/");
+		b.addParameter("regExDirPath", "/Hg19/");
 		b.addParameter("fetchData", "true");
+		b.addParameter("bpPadding", "1000000");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsChr:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-		
 		checkQueries(archivedJo, responseJo);
 	}
 	
 	@Test
 	public void intersectBedRegionsMinimalFileTypeFilter() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimalFileTypeFilter.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimalFileTypeFilter.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20\t4162827\t4162867;21\t11058198\t11058237\ttestX\t4.3\t-");
 		b.addParameter("bed", "20\t3893036\t3898261\tjustName");
-		b.addParameter("regExOne", "\\.vcf\\.gz;\\.bedGraph\\.gz");
+		b.addParameter("regExFileName", "\\.vcf\\.gz;\\.bedGraph\\.gz");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsMinimalFileTypeFilter:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
 		checkQueries(archivedJo, responseJo);
 	}
 	
 	@Test
 	public void intersectBedRegionsMinimalDataPathsFilter() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimalDataPathsFilter.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimalDataPathsFilter.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20\t4162827\t4162867;21\t11058198\t11058237\ttestX\t4.3\t-");
 		b.addParameter("bed", "20\t3893036\t3898261\tjustName");
-		b.addParameter("regExOne", "Data/B37/TCGA/AP/");
-		b.addParameter("regExOne", "Data/B37/BedData/");
+		b.addParameter("regExDirPath", "Data/B37/TCGA/AP/");
+		b.addParameter("regExDirPath", "Data/B37/BedData/");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsMinimalDataPathsFilter:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
 		checkQueries(archivedJo, responseJo);
 	}
 	
 	@Test
 	public void intersectBedRegionsMinimalDataSourcesFilter() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimalDataSourcesFilter.json"));
-		
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimalDataSourcesFilter.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20\t4162827\t4162867;21\t11058198\t11058237\ttestX\t4.3\t-");
 		b.addParameter("bed", "20\t3893036\t3898261\tjustName");
-		b.addParameter("regExOne", "Data/B37/TCGA/AP/AP_Test\\.maf\\.txt\\.gz");
-		b.addParameter("regExOne", "Data/B37/BedData/chr20-21_Exome_UniObRC\\.bedGraph\\.gz");
+		b.addParameter("regExFileName", "AP_Test.maf.txt.gz");
+		b.addParameter("regExFileName", "chr20-21_Exome_UniObRC.bedGraph.gz");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsMinimalDataSourcesFilter:\n"+responseJo.toString(1));
@@ -239,28 +198,14 @@ public class SearchRequestTests {
 	}
 	
 	@Test
-	public void intersectBedRegionsMinimalGenomeBuildFilter() throws URISyntaxException {
-		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b38IntersectBedRegionsMinimalGenomeBuildFilter.json"));
-		//build the query
-		URIBuilder b = new URIBuilder(url);
-		b.addParameter("bed", "21:31660839-31664437");
-		b.addParameter("regExAll", "/B38/");
-		//fetch json response
-		JSONObject responseJo = Util.get(b);
-		System.out.println("\nintersectBedRegionsMinimalGenomeBuildFilter:\n"+responseJo.toString(1));
-		assertEquals(200, responseJo.getInt("responseCode"));
-		checkQueries(archivedJo, responseJo);
-	}
-	
-	@Test
 	public void intersectBedRegionsMinimalDataRecordAllFilter() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimalDataRecordAllFilter.json"));
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimalDataRecordAllFilter.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20:4,162,827-4,162,867");
-		b.addParameter("regExAllData", "SMOX;Illumina");
+		b.addParameter("regExDataLine", "SMOX;Illumina");
+		b.addParameter("matchAllDataLineRegEx", "true");
 		b.addParameter("fetchData", "true");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
@@ -272,17 +217,16 @@ public class SearchRequestTests {
 	@Test
 	public void intersectBedRegionsMinimalDataRecordOneFilter() throws URISyntaxException {
 		//load archived response to compare this new response to
-		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/b37IntersectBedRegionsMinimalDataRecordOneFilter.json"));
+		JSONObject archivedJo = Util.loadJsonFile(new File (testResourcesDir, "Json/GQueryAPI/b37IntersectBedRegionsMinimalDataRecordOneFilter.json"));
 		//build the query
 		URIBuilder b = new URIBuilder(url);
 		b.addParameter("bed", "20:4,162,827-4,162,867");
-		b.addParameter("regExOneData", "4162828;4163495");
+		b.addParameter("regExDataLine", "4162828;4163495");
 		b.addParameter("fetchData", "true");
 		//fetch json response
 		JSONObject responseJo = Util.get(b);
 		System.out.println("\nintersectBedRegionsMinimalDataRecordOneFilter:\n"+responseJo.toString(1));
 		assertEquals(200, responseJo.getInt("responseCode"));
-
 		checkQueries(archivedJo, responseJo);
 	}
 	
@@ -434,17 +378,16 @@ public class SearchRequestTests {
 	/**Helper method looking at query stats*/
 	private void checkIndexQueryStats(JSONObject archivedJo, JSONObject responseJo) {
 		//obj present?
-		boolean aPres = rootKeysArchive.contains("indexQueryStats");
-		boolean rPres = rootKeysResponse.contains("indexQueryStats");
+		boolean aPres = rootKeysArchive.contains("fileIndexQueryStats");
+		boolean rPres = rootKeysResponse.contains("fileIndexQueryStats");
 		if (aPres == false && rPres == false) return;
-		assertTrue(aPres+" indexQueryStats not present in both "+rPres, aPres == rPres);
+		assertTrue(aPres+" fileIndexQueryStats not present in both "+rPres, aPres == rPres);
 		
-		JSONObject a = archivedJo.getJSONObject("indexQueryStats");
-		JSONObject r = responseJo.getJSONObject("indexQueryStats");
-		checkInt("skippedUserQueries", a, r);
-		checkInt("searchedUserQueries", a, r);
-		checkInt("totalIndexHits", a, r);
-		checkInt("queriesWithIndexHits", a, r);
+		JSONObject a = archivedJo.getJSONObject("fileIndexQueryStats");
+		JSONObject r = responseJo.getJSONObject("fileIndexQueryStats");
+		checkInt("numberQueriesThatIntersectDataFilesPreFiltering", a, r);
+		checkInt("numberQueries", a, r);
+		checkInt("numberIndexLookupJobs", a, r);
 	}
 	
 	/**Helper method looking at query stats*/
@@ -490,9 +433,10 @@ public class SearchRequestTests {
 		
 		JSONObject a = archivedJo.getJSONObject("dataRetrievalStats");
 		JSONObject r = responseJo.getJSONObject("dataRetrievalStats");
-		checkInt("recordsRetrieved", a, r); 
-		checkInt("recordsReturnedToUser", a, r);
-		checkInt("queriesWithTabixRecords", a, r);
+		checkInt("numberQueriesWithDataThatPassDataLineRegEx", a, r);
+		checkInt("numberDataLookupJobs", a, r); 
+		checkInt("numberQueriesWithData", a, r);
+		checkInt("numberQueries", a, r);
 	}
 
 	/**Helper method*/

@@ -791,25 +791,8 @@ public class Util {
 	}
 	
 	/**Processes the GET params*/
-	public static HashMap<String, String> loadGetQueryServiceOptions(HashMap<String, List<String>> lc) {
-		HashMap<String,String> options = new HashMap<String,String>();
-		addTrueFalse("fetchdata", lc, options);
-		addTrueFalse("matchvcf", lc, options);
-		addTrueFalse("includeheaders", lc, options);
-		addConcat("regexall", lc, options);
-		addConcat("regexalldata", lc, options);
-		addConcat("regexone", lc, options);
-		addConcat("regexonedata", lc, options);
-		addConcat("vcf", lc, options);
-		addConcat("key", lc, options);
-		addConcat("bed", lc, options);
-		addConcat("fetchoptions", lc, options);
-		lg.debug("Incoming user GET options: "+options);
-		return options;
-	}
-	
-	/**Processes the GET params*/
 	public static HashMap<String, String> loadGetMultiQueryServiceOptions(HashMap<String, List<String>> lc) {
+		lg.debug("Preparsed user GET options: "+lc);
 		HashMap<String,String> options = new HashMap<String,String>();
 		addTrueFalse("fetchData", lc, options);
 		addTrueFalse("matchVcf", lc, options);
@@ -860,9 +843,9 @@ public class Util {
 	}
 
 	/**Converts the keys to lower case.*/
-	public static HashMap<String, List<String>> lowercaseKeys(MultivaluedMap<String, String> queryParams){
+	public static HashMap<String, List<String>> convertKeys(MultivaluedMap<String, String> queryParams){
 		HashMap<String, List<String>> options = new HashMap<String, List<String>>();
-		for (String key : queryParams.keySet()) options.put(key.toLowerCase(), queryParams.get(key));
+		for (String key : queryParams.keySet()) options.put(key, queryParams.get(key));
 		return options;
 	}
 	
@@ -873,32 +856,32 @@ public class Util {
 			String matchAllDirPathRegEx, String matchAllFileNameRegEx, String matchAllDataLineRegEx) {
 		
 		HashMap<String,String> options = new HashMap<String,String>();
-		if (notEmpty(fetchData)) options.put("fetchOptions", fetchOptions.toLowerCase());
-		if (notEmpty(fetchData)) options.put("fetchdata", fetchData.toLowerCase());
-		if (notEmpty(matchVcf)) options.put("matchvcf", matchVcf.toLowerCase());
-		if (notEmpty(includeHeaders)) options.put("includeheaders", includeHeaders.toLowerCase());
-		if (notEmpty(bpPadding)) options.put("bpPadding", bpPadding.toLowerCase());
+		if (notEmpty(fetchOptions)) options.put("fetchOptions", fetchOptions);
+		if (notEmpty(fetchData)) options.put("fetchData", fetchData);
+		if (notEmpty(matchVcf)) options.put("matchVcf", matchVcf);
+		if (notEmpty(includeHeaders)) options.put("includeHeaders", includeHeaders);
+		if (notEmpty(bpPadding)) options.put("bpPadding", bpPadding);
 		
 		if (regExDirPath!=null && regExDirPath.size()!=0) {
 			String rgx = concat(regExDirPath);
-			if (rgx!=null) options.put("regexdirpath", rgx);
+			if (rgx!=null) options.put("regExDirPath", rgx);
 		}
 		if (regExFileName!=null && regExFileName.size()!=0) {
 			String rgx = concat(regExFileName);
-			if (rgx!=null) options.put("regexfilename", rgx);
+			if (rgx!=null) options.put("regExFileName", rgx);
 		}
 		if (regExDataLine!=null && regExDataLine.size()!=0) {
 			String rgx = concat(regExDataLine);
-			if (rgx!=null) options.put("regexdataline", rgx);
+			if (rgx!=null) options.put("regExDataLine", rgx);
 		}
 		if (regExDataLineExclude!=null && regExDataLineExclude.size()!=0) {
 			String rgx = concat(regExDataLineExclude);
-			if (rgx!=null) options.put("regexdatalineexclude", rgx);
+			if (rgx!=null) options.put("regExDataLineExclude", rgx);
 		}
 		
-		if (notEmpty(matchAllDirPathRegEx)) options.put("matchAllDirPathRegEx", matchAllDirPathRegEx.toLowerCase());
-		if (notEmpty(matchAllFileNameRegEx)) options.put("matchAllFileNameRegEx", matchAllFileNameRegEx.toLowerCase());
-		if (notEmpty(matchAllDataLineRegEx)) options.put("matchAllDataLineRegEx", matchAllDataLineRegEx.toLowerCase());
+		if (notEmpty(matchAllDirPathRegEx)) options.put("matchAllDirPathRegEx", matchAllDirPathRegEx);
+		if (notEmpty(matchAllFileNameRegEx)) options.put("matchAllFileNameRegEx", matchAllFileNameRegEx);
+		if (notEmpty(matchAllDataLineRegEx)) options.put("matchAllDataLineRegEx", matchAllDataLineRegEx);
 		
 		lg.debug("Incoming user POST options: "+options);
 		return options;

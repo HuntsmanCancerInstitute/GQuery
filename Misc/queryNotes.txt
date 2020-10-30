@@ -60,6 +60,9 @@ curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D hea
 
 # Problems with log4j? Add -Dlog4j.debug to the Tomcat args launch configuration in eclipse, double click the server in the Server view.
 
+# Starting and stopping tomcat scripts on laptop
+/Applications/Tomcat/apache-tomcat-7.0.99/bin/startup.sh
+/Applications/Tomcat/apache-tomcat-7.0.99/bin/shutdown.sh
 
 ################## Example deployment of a new WAR ################
 
@@ -118,6 +121,7 @@ check log4j output, nothing is there.
 
 # Check in a browser
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?fetchOptions=true
+http://localhost:8080/GQuery/search?fetchOptions=true for testing in eclipse
 
 # Will need authentication
 http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it 

@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -42,6 +44,7 @@ public class QueryService implements ServletContextListener {
 	private static File tempDir = null;
 	private static MasterQuery masterQuery = null;
 	private static HashMap<String, Pattern[]> userRegEx = null;
+	private static HashSet<String> availableOptions = null;
 	private static File keyFile = null;
 	private static Key key = null;
 	private static int minPerSession = 0;
@@ -54,9 +57,13 @@ public class QueryService implements ServletContextListener {
 		
 		//check to see if the service is running
 		if (initialized == false) return Response.status(500).entity("The query service failed initialization, contact admin "+helpUrl).build();
+	
+		//check options
+		String badOption = checkOptions(ui.getQueryParameters().keySet());
+		if (badOption != null) return Response.status(400).entity("Invalid request, this option doesn't exist '"+badOption+"', see "+helpUrl).build();
 		
-		//load options into a hash
-		HashMap<String,String> options = Util.loadGetQueryServiceOptions(Util.lowercaseKeys(ui.getQueryParameters()));
+		//load options 
+		HashMap<String,String> options = Util.loadGetMultiQueryServiceOptions(Util.convertKeys(ui.getQueryParameters()));
 		
 		//Create a user, can be left null
 		User user = null;
@@ -69,8 +76,8 @@ public class QueryService implements ServletContextListener {
 			if (user.getErrorMessage() != null) return Response.status(400).entity("Problem parsing user info, contact "+helpUrl+"\n"+user.getErrorMessage()).build();
 		}
 
-		if (options.get("fetchoptions") != null || options.get("bed") != null || options.get("vcf") != null) return processRequest(options, null, user);
-		else return Response.status(400).entity("Invalid request, missing query bed or vcf region(s)? or fetchOptions in the input params "+options+", see "+helpUrl).build();
+		if (options.get("fetchOptions") != null || options.get("bed") != null || options.get("vcf") != null) return processRequest(options, null, user);
+		else return Response.status(400).entity("XXX Invalid request, missing query bed or vcf region(s)? or fetchOptions in the input params "+options+", see "+helpUrl).build();
 	}
 
 	@POST
@@ -147,6 +154,11 @@ public class QueryService implements ServletContextListener {
 		}
 	}
 
+	private String checkOptions(Set<String> keys) {
+		for (String userOption: keys) if (this.availableOptions.contains(userOption) == false) return userOption;
+		return null;
+	}
+
 	public void contextDestroyed(ServletContextEvent arg) {
 		lg.info("STOPPING the GQueryService...");
 		masterQuery = null;
@@ -154,8 +166,6 @@ public class QueryService implements ServletContextListener {
 
 	public void contextInitialized(ServletContextEvent arg) {
 		lg.info("INITIALIZING the GQueryService...");
-		
-Util.pl("INITIALizzzzing");
 
 		//pull from web.xml, these will all write a fatal log4j error and return null if not found
 		ServletContext sc = arg.getServletContext();
@@ -238,6 +248,27 @@ Util.pl("INITIALizzzzing");
 				initialized = false;
 			}
 		}
+		
+		createAvailableOptions();
+	}
+
+	private void createAvailableOptions() {
+		availableOptions = new HashSet<String>();
+		availableOptions.add("vcf");
+		availableOptions.add("bed");
+		availableOptions.add("fetchOptions");
+		availableOptions.add("fetchData");
+		availableOptions.add("matchVcf");
+		availableOptions.add("includeHeaders");
+		availableOptions.add("bpPadding");
+		availableOptions.add("regExDirPath");
+		availableOptions.add("regExFileName");
+		availableOptions.add("regExDataLine");
+		availableOptions.add("regExDataLineExclude");
+		availableOptions.add("matchAllDirPathRegEx");
+		availableOptions.add("matchAllFileNameRegEx");
+		availableOptions.add("matchAllDataLineRegEx");
+		availableOptions.add("key");
 	}
 
 	/**Loads key serialized object.  If it fails it shuts down the service.*/
