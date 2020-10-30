@@ -19,12 +19,12 @@
       "numberQueriesWithDataThatPassDataLineRegEx": 1,
       "numberDataLookupJobs": 3,
       "numberQueriesWithData": 1,
-      "millSecToLoadRecords": 4,
+      "millSecToLoadRecords": 10,
       "numberQueries": 1
    },
    "fileIndexQueryStats": {
       "numberQueriesThatIntersectDataFilesPreFiltering": 1,
-      "millSecForFileIntersectionSearch": 11,
+      "millSecForFileIntersectionSearch": 3,
       "numberQueries": 1,
       "numberIndexLookupJobs": 4
    },

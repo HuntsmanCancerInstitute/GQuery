@@ -15,7 +15,7 @@
    },
    "fileIndexQueryStats": {
       "numberQueriesThatIntersectDataFilesPreFiltering": 3,
-      "millSecForFileIntersectionSearch": 8,
+      "millSecForFileIntersectionSearch": 9,
       "numberQueries": 3,
       "numberIndexLookupJobs": 6
    },

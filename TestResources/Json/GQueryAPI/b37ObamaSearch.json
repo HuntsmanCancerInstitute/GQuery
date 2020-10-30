@@ -1,39 +1,37 @@
 {
- "responseCode": 200,
- "indexQueryStats": {
-  "skippedUserQueries": 0,
-  "searchedUserQueries": 1,
-  "totalIndexHits": 3,
-  "queriesWithIndexHits": 1,
-  "millSecForIndexSearch": 0
- },
- "indexFileFilteringStats": {
-  "filesPreFiltering": 3,
-  "filesPostFiltering": 3
- },
  "querySettings": {
   "fetchData": false,
-  "regExOneUser": [
-   ".+/Data/B37/BedData/.+",
-   ".+/Data/B37/TCGA/.+",
-   ".+/Data/B37/VCFData/.+",
-   ".+/Data/B37/Thor/.+"
+  "matchVcf": false,
+  "userDirPathRegEx": [
+   "Data/B37/BedData/.*",
+   "Data/B37/TCGA/.*",
+   "Data/B37/VCFData/.*",
+   "Data/B37/Thor/.*"
   ],
-  "forceFetchData": false,
-  "userName": "Obama",
+  "numberQueries": 1,
   "includeHeaders": false,
-  "matchVcf": false
+  "userName": "Obama",
+  "fetchOptions": false,
+  "queries": ["chr22:39,281,892-39,515,517"]
  },
- "url": "http://localhost:8080/GQuery/search?bed=chr22%3A39%2C281%2C892-39%2C515%2C517&key=DUvY%2F64mYrk2JHJv9cv3JA%3D%3D%3AqW83Px7AvxIKRbd8dm%2Fz%2BrIVXDmNglyRx%2BFqJj4h8k4%3D",
+ "fileIndexQueryStats": {
+  "numberQueriesThatIntersectDataFilesPreFiltering": 1,
+  "millSecForFileIntersectionSearch": 3,
+  "numberQueries": 1,
+  "numberIndexLookupJobs": 2
+ },
  "queryResults": [{
-  "stop": 39515517,
-  "input": "chr22:39,281,892-39,515,517",
   "hits": [
    {"source": "Data/B37/VCFData/chr20_cosmic.vcf.gz"},
-   {"source": "Data/B37/Thor/3994-7.mt2.pass.vcf.gz"},
-   {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"}
+   {"source": "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz"},
+   {"source": "Data/B37/Thor/3994-7.mt2.pass.vcf.gz"}
   ],
+  "input": "chr22:39,281,892-39,515,517",
+  "stop": 39515517,
   "start": 39281892,
-  "chr": "22"
- }]
+  "chr": "22",
+  "numberIntersectingDataFiles": 3
+ }],
+ "url": "http://localhost:8080/GQuery/search?bed=chr22%3A39%2C281%2C892-39%2C515%2C517&key=fphSJVjVdF%2FGsc%2B%2BfNX1yA%3D%3D%3AXFDK4C4j3%2FZPBpyhOiFtjGaBArNFcG7mnMuXoiXLedA%3D",
+ "responseCode": 200
 }
