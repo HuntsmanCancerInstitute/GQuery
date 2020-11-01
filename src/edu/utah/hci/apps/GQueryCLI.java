@@ -33,7 +33,6 @@ public class GQueryCLI {
 	private String argsString = null;
 	private String userName = "CLI";
 	private String[] userRegEx = new String[] {".+"};
-	private static final String version = "0.1";
 
 	/*Constructor*/
 	public GQueryCLI(String[] args) {
@@ -148,7 +147,7 @@ public class GQueryCLI {
 		Pattern pat = Pattern.compile("-[a-zA-Z]");
 		UserQuery uq = new UserQuery();
 		argsString = Util.stringArrayToString(args, " ").trim();
-		if (printArgs) Util.pl("\nGQueryCLI "+ version+ " Arguments: "+ argsString +"\n");
+		if (printArgs) Util.pl("\nGQueryCLI Arguments: "+ argsString +"\n");
 		
 		bedVcfFile = null;
 		outputFile = null;
@@ -238,7 +237,7 @@ public class GQueryCLI {
 	public static void printDocs(){
 		Util.pl("\n" +
 				"**************************************************************************************\n" +
-				"**                     GQuery Command Line Interface "+version+": Oct 2020                  **\n" +
+				"**                      GQuery Command Line Interface : Oct 2020                    **\n" +
 				"**************************************************************************************\n" +
 				"GQueryCLI executes queries on GQuery indexed genomic data. First run the GQueryIndexer\n"+
 				"application on a base data directory containing sub directories with thousands of\n"+

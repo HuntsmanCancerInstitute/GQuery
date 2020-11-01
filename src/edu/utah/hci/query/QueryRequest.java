@@ -520,8 +520,8 @@ public class QueryRequest {
 		//matchVcf
 		JSONObject mv = new JSONObject();
 		mv.put("name", "matchVcf");
-		mv.put("description", "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. "
-				+ "Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.");
+		mv.put("description", "For vcf queries, require intersecting vcf records match chr, pos, ref, and at least one alt. "
+				+ "Will set 'fetchData' = true. Be sure to vt normalize your vcf input, see https://github.com/atks/vt.");
 		mv.put("options", tf);
 		mv.put("defaultOption", false);
 		al.add(mv);
@@ -565,6 +565,17 @@ public class QueryRequest {
 		rxExD.add("LOF"); 
 		rxd.put("examples", rxExD);
 		al.add(rxd);
+		
+		//regExDataLineExclude
+		JSONObject rxde = new JSONObject();
+		rxde.put("name", "regExDataLineExclude");
+		rxde.put("description", "Exclude record data lines that match any of these java regular expressions, "
+				+ "semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true.");
+		ArrayList<String> e = new ArrayList<String>();
+		e.add("Benign"); 
+		e.add("FailsQC"); 
+		rxde.put("examples", e);
+		al.add(rxde);
 		
 		//matchAllDirPathRegEx
 		JSONObject madpr = new JSONObject();
