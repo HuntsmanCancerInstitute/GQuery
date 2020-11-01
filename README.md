@@ -1,7 +1,7 @@
 # GQuery
 GQuery is a software tool for rapidly querying large numbers of bgzip compressed, tabix indexed genomic data files e.g. vcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to develop, debug, and maintain custom file parsers for every file format and flavor.  Just point the GQuery indexer at a collection of tabix indexed files and then run either the GQuery command line app or the web API to search them.  GQuery is built using a fast, multi-threaded genomic range search engine with extensive junit testing. Lastly, it is free to use. 
 
-<u>The GQuery package includes three Java applications:</u>
+**The GQuery package includes three Java applications:**
 <ol>
 <li>GQuery Indexer - a command line tool for building chromosome indexes that link genomic coordinates with the data files that contain intersecting records.</li> 
 <li>GQuery CLI - a command line tool for executing queries locally on GQuery indexed data directories.</li>
@@ -18,7 +18,7 @@ For those looking to provide search capability via a web application, deploy the
 
 ---
 ## Step 1: Download the Jar Files
-Go to <https://github.com/HuntsmanCancerInstitute/GQuery/releases> and download the latest xxx.jar files.  These are self contained. No other libraries are required.  Open a command line terminal.  Type 'java -version'. If needed, install java 1.8 or higher (<https://www.java.com/en/download/>). Launch the Indexer and CLI without options to pull the help menus, e.g. 
+Go to <https://github.com/HuntsmanCancerInstitute/GQuery/releases> and download the latest xxx.jar files.  These are self contained. No other libraries are required.  Open a command line terminal.  Type 'java -version'. If needed, install java 1.8 or higher, <https://www.java.com/en/download/>. In a command line terminal, launch the Indexer and CLI without options to pull the help menus, e.g. 
 
 <pre>java -jar pathToJars/GQueryIndexer.jar; java -jar pathToJars/GQueryCLI.jar</pre>
 
@@ -28,7 +28,9 @@ Go to <https://github.com/HuntsmanCancerInstitute/GQuery/releases> and download 
 
 The second step with GQuery is to build the chromosome indexes with the GQueryIndexer application. It is multi-threaded and junit tested.
 
-Give some thought to how to best structure the base Data directory for your group.  If you are working with multiple species and genome builds then create a sub directory named with the build for easy directory path regular expression matching (e.g. Data/B37/, Data/Hg38, Data/MM10, etc.). Likewise create directories for each major project (e.g. Data/Hg38/TCGA, Data/Hg38/AVATAR, Data/Hg38/Clinical/Foundation) and particular data types (e.g. Data/Hg38/AVATAR/Germline, Data/Hg38/AVATAR/Somatic/Vcf, AVATAR/Somatic/ReadCoverage, Data/Hg38/AVATAR/Somatic/Cnv). Keep in mind that a .GQuery chromosome index is created in each directory that contains xxx.gz.tbi files.  Thus the most optimal indexing strategy is to soft link or copy over 100's to 1000's of files into the same directory. The worst strategy is to have many directories with just a few data files. Lastly, directory path regular expressions are used by GQuery to both restrict  what a user can search and to speed up the searching, so create a directory structure in the way that best meets your needs. 
+Give some thought to how to best structure the base Data directory for your group.  If you are working with multiple species and genome builds then create a sub directory named with the build for easy directory path regular expression matching (e.g. Data/B37/, Data/Hg38, Data/MM10, etc.). Likewise create directories for each major project (e.g. Data/Hg38/TCGA, Data/Hg38/AVATAR, Data/Hg38/Clinical/Foundation) and particular data types (e.g. Data/Hg38/AVATAR/Germline, Data/Hg38/AVATAR/Somatic/Vcf, AVATAR/Somatic/ReadCoverage, Data/Hg38/AVATAR/Somatic/Cnv). 
+
+Keep in mind that a .GQuery chromosome index is created in each directory that contains xxx.gz.tbi files.  Thus the most optimal indexing strategy is to soft link or copy over 100's to 1000's of files into the same directory. The worst strategy is to have many directories with just a few data files. Lastly, directory path regular expressions are used by GQuery to both restrict  what a user can search and to speed up the searching, so create a directory structure in the way that best meets your needs. 
 
 <pre>
 java -jar -Xmx30G ~/YourPathTo/GQueryIndexer.jar
