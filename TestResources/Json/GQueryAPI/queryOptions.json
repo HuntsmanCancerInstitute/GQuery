@@ -48,7 +48,7 @@
     true,
     false
    ],
-   "description": "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.",
+   "description": "For vcf queries, require intersecting vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize your vcf input, see https://github.com/atks/vt.",
    "defaultOption": false
   },
   {
@@ -80,6 +80,14 @@
    ],
    "name": "regExDataLine",
    "description": "Require each record data line to match these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true."
+  },
+  {
+   "examples": [
+    "Benign",
+    "FailsQC"
+   ],
+   "name": "regExDataLineExclude",
+   "description": "Exclude record data lines that match any of these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true."
   },
   {
    "name": "matchAllDirPathRegEx",

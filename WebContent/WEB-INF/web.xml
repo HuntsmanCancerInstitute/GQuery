@@ -68,7 +68,7 @@
   <context-param>
     <description>Boolean indicating whether authorization is enabled.  If true, complete the userGroup param.</description>
     <param-name>authorizationEnabled</param-name>
-    <param-value>false</param-value>
+    <param-value>true</param-value>
   </context-param>
   <context-param>
     <description>If using authorization, provide a full path to the userGroup file. This parent dir will also be used to store the encryption key so keep it secure.</description>

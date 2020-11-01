@@ -50,7 +50,7 @@
             true,
             false
          ],
-         "description": "For vcf input queries, require that vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize and decompose_blocksub your vcf input, see https://github.com/atks/vt.",
+         "description": "For vcf queries, require intersecting vcf records match chr, pos, ref, and at least one alt. Will set 'fetchData' = true. Be sure to vt normalize your vcf input, see https://github.com/atks/vt.",
          "defaultOption": false
       },
       {
@@ -84,6 +84,14 @@
          "description": "Require each record data line to match these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true."
       },
       {
+         "examples": [
+            "Benign",
+            "FailsQC"
+         ],
+         "name": "regExDataLineExclude",
+         "description": "Exclude record data lines that match any of these java regular expressions, semicolon delimited. Note, a .* is added to both ends of each regEx. Will set 'fetchData' = true."
+      },
+      {
          "name": "matchAllDirPathRegEx",
          "options": [
             true,
@@ -113,16 +121,16 @@
       {
          "searchableFiles": [
             "Data/B38/clinvar_B38_chr21.vcf.gz",
-            "Data/B37/TCGA/CU/CU_Test.maf.txt.gz",
             "Data/B37/Thor/3994-7.mt2.pass.vcf.gz",
+            "Data/B37/TCGA/CU/CU_Test.maf.txt.gz",
             "Data/B37/TCGA/AP/AP_Test.maf.txt.gz",
             "Data/B37/GVCFs/wgSeq_chr22.g.vcf.gz",
             "Data/B37/VCFData/chr20-21TRF037738.vcf.gz",
             "Data/B37/VCFData/chr20_cosmic.vcf.gz",
             "Data/B37/VCFData/chr20_1_3Mut2.vcf.gz",
-            "Data/Hg19/chr20-22Ribo.bed.gz",
             "Data/B37/BedData/chr20-21_Exome_UniObRC.bedGraph.gz",
-            "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz"
+            "Data/B37/BedData/b37EnsGenes_ExonsChr20-21.bed.gz",
+            "Data/Hg19/chr20-22Ribo.bed.gz"
          ],
          "name": "dataSources",
          "userDirPathRegEx": [".+"],
