@@ -1,36 +1,37 @@
 # GQuery
-GQuery is a software tool for rapidly querying large numbers of bgzip compressed, tabix indexed genomic data files e.g. vcf, gvcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to develop, debug, and maintain custom file parsers for every file format and flavor.  Just point the GQuery indexer at a collection of tabix indexed files and then run either the GQuery command line app or the web API to search them.  GQuery is built using a fast, multi-threaded genomic range search engine with extensive junit testing. Lastly, it is free to use. 
+GQuery is a software tool for rapidly querying large numbers of bgzip compressed, tabix indexed genomic data files e.g. vcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to develop, debug, and maintain custom file parsers for every file format and flavor.  Just point the GQuery indexer at a collection of tabix indexed files and then run either the GQuery command line app or the web API to search them.  GQuery is built using a fast, multi-threaded genomic range search engine with extensive junit testing. Lastly, it is free to use. 
 
-The GQuery package includes three Java applications:
+<u>The GQuery package includes three Java applications:</u>
+<ol>
+<li>GQuery Indexer - a command line tool for building chromosome indexes that link genomic coordinates with the data files that contain intersecting records.</li> 
+<li>GQuery CLI - a command line tool for executing queries locally on GQuery indexed data directories.</li>
+<li>GQuery API - a RESTful web  API service for executing queries on remote servers for authenticated user groups.</li>
+</ol>
 
-GQueryIndexer - a command line tool for building chromosome indexes that link genomic coordinates with the data files that contain intersecting records. 
+Each query triggers an intersection of each user's regions of interest against the GQuery chromosome indexes to identify data files that contain intersecting records. Regular expression filters are provided to limit which directory paths are searched and which file types are returned.  Often this is all that is needed for a basic query.  If requested, a second tabix search is used to fetch the actual intersecting records from the data files. These records can also be filtered using regular expressions.  
 
-GQuery CLI - a command line tool for executing queries locally on GQuery indexed data directories.
+This approach of searching genomic coordinate indexes for intersecting data files combine with tabix data record retrieval is an excellent way to address the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed, tabix indexed file format (<https://www.htslib.org/doc/tabix.html>) eliminates the need to duplicate the data source content or create and maintain custom db data file importers.  If you can tabix index it, you can search it.
 
-GQuery API - a RESTful web  API service for executing queries on remote servers for authenticated user groups.
-
-Each query triggers an initial intersection of each user's regions of interest against the GQuery chromosome indexes to identify data files that contain intersecting records. Regular expression filters are provided to limit which directory paths are searched and which file types are returned.  Often this is all that is needed for a basic query.  If requested, a second tabix search is used to fetch the actual intersecting records from the data files. These records can also be filtered using regular expressions.  
-
-This approach of searching genomic coordinate indexes for intersecting data files combine with tabix data record retrieval is an excellent way to address the random range query problem. In our benchmarking tests, it significantly out performs both relational database (MySQL) and NoSQL (MongoDB) approaches. Moreover, use of the widely adopted, bgzip compressed, tabix indexed file format (https://www.htslib.org/doc/tabix.html) eliminates the need to duplicate the data source content or create and maintain custom db data file importers.  If you can tabix index it, you can search it.
-
-Getting up and going with GQuery is a simple three step process: download the latest jar files, build the chromosome data file indexes, and execute queries using the CLI.  
+Getting up and going with GQuery is a **simple three step process:** download the latest jar files, build the chromosome data file indexes, and execute queries using the CLI.  
 
 For those looking to provide search capability via a web application, deploy the GQuery RESTful web API.  This is especially useful when searching needs to be restricted to subsets of the data for particular user groups, e.g. patient, IRB restricted, or unpublished project data.
 
 ---
-# Step 1: Download the Jar Files
-Goto https://github.com/HuntsmanCancerInstitute/GQuery/releases and download the latest xxx.jar files.  These are self contained. No other libraries are required.  Open a command line terminal.  Type 'java -version'. If needed, install java 1.8 or higher.
+## Step 1: Download the Jar Files
+Go to <https://github.com/HuntsmanCancerInstitute/GQuery/releases> and download the latest xxx.jar files.  These are self contained. No other libraries are required.  Open a command line terminal.  Type 'java -version'. If needed, install java 1.8 or higher (<https://www.java.com/en/download/>). Launch the Indexer and CLI without options to pull the help menus, e.g. 
+
+<pre>java -jar pathToJars/GQueryIndexer.jar; java -jar pathToJars/GQueryCLI.jar</pre>
 
 
 ---
-# Step 2: Build the Chromosome Indexes
+## Step 2: Build the Chromosome Indexes
 
 The second step with GQuery is to build the chromosome indexes with the GQueryIndexer application. It is multi-threaded and junit tested.
 
 Give some thought to how to best structure the base Data directory for your group.  If you are working with multiple species and genome builds then create a sub directory named with the build for easy directory path regular expression matching (e.g. Data/B37/, Data/Hg38, Data/MM10, etc.). Likewise create directories for each major project (e.g. Data/Hg38/TCGA, Data/Hg38/AVATAR, Data/Hg38/Clinical/Foundation) and particular data types (e.g. Data/Hg38/AVATAR/Germline, Data/Hg38/AVATAR/Somatic/Vcf, AVATAR/Somatic/ReadCoverage, Data/Hg38/AVATAR/Somatic/Cnv). Keep in mind that a .GQuery chromosome index is created in each directory that contains xxx.gz.tbi files.  Thus the most optimal indexing strategy is to soft link or copy over 100's to 1000's of files into the same directory. The worst strategy is to have many directories with just a few data files. Lastly, directory path regular expressions are used by GQuery to both restrict  what a user can search and to speed up the searching, so create a directory structure in the way that best meets your needs. 
 
 <pre>
-> java -jar -Xmx30G ~/YourPathTo/GQueryIndexer.jar
+java -jar -Xmx30G ~/YourPathTo/GQueryIndexer.jar
 
 **************************************************************************************
 **                               GQuery Indexer: Oct 2020                           **
@@ -75,7 +76,7 @@ java -jar -Xmx115G GQueryIndexer.jar -c $d/b37Chr20-21ChromLen.bed -d $d/Data
 
 
 ---
-# Step 3: Run Local Queries with the Command Line Interface
+## Step 3: Run Local Queries with the Command Line Interface
 
 Run queries locally using the GQueryCLI application. It is multi-threaded and junit tested. Results are returned in JSON. Specify one or more regions of interest in bed region or vcf format.  Use the path and file name regular expressions to speed up and limit what files are searched.  
 
@@ -86,7 +87,7 @@ Likewise, if you are only interested in actual vcf variants, specify a file name
 Lastly, fetching the actual intersecting data records from each file can be a computationally intensive process so only use the '-d' fetch data option after you have narrowed down your search with path and file name regexes.  In many cases it's not needed, for example if you're only interested in identifying patients with a BRCA1 mutation, then skip the '-d' option and just parse the 'source' names from the JSON output.
 
 <pre>
-> java -jar -Xmx30G ~/YourPathTo/GQueryCLI.jar
+java -jar -Xmx30G ~/YourPathTo/GQueryCLI.jar
 
 **************************************************************************************
 **                     GQuery Command Line Interface: Oct 2020                      **
@@ -153,7 +154,7 @@ Examples:
 
 
 ---
-# Step 4 (Optional): Run Queries using the Web API
+## Step 4 (Optional): Run Queries using the Web API
 
 If needed, GQueries may be executing on remote servers using a web API. It is built using the Java Jersey JAX RESTful API framework. It is JUnit tested and deployed on Apache Tomcat for optimized performance. Results are returned in JSON. Key token based digest authentication may be enabled to restrict what user may search.  
 
@@ -209,18 +210,18 @@ Note, you will likely need to encode the tabs by replacing them with %09 if past
 <pre>http://localhost:8080/GQuery/search?vcf=20%094163144%09.%09C%09A%09.%09.%09.&ampmatchVcf=true&ampregExFileName=vcf\.gz&ampincludeHeaders=true</pre>
 
 
-# Installing the GQuery Web App
-### See also https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/Misc/queryNotes.txt
+## Installing the GQuery Web App
+See also <https://github.com/HuntsmanCancerInstitute/GQuery/blob/master/Misc/queryNotes.txt>
 
 ### Install Tomcat 7 on a large linux server (>12 cores, > 30G RAM)
-e.g. https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum
+e.g. <https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-7-on-centos-7-via-yum>
 
 Be sure to increase the Xmx and MaxPermSize params to > 30G RAM to avoid out of memory errors. Tomcat 8 likely works but hasn't been tested.
 
 ### Modify the latest GQuery-XX.war  
 
 Download, unzip, and modify the following config files to match your environment<br>
-https://github.com/HuntsmanCancerInstitute/GQuery/releases
+<https://github.com/HuntsmanCancerInstitute/GQuery/releases>
 
 <pre>unzip -q GQuery-XX.war </pre>
 
@@ -242,10 +243,10 @@ Examine the log4j log file for startup and test issues. Loading of the interval 
 Test the server: *http://IPAddressOfMyBigServer:8080/GQuery-XX/search?fetchOptions=true* <br>
 
 ---
-# Configuring GQuery for token based digest authentication
+## Configuring GQuery for token based digest authentication
 
 ### Enable digest authentication in tomcat, see the WEB-INF/web.xml doc for an example, details:
-https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/
+<https://techannotation.wordpress.com/2012/07/02/tomcat-digestauthentication/>
 
 Generate passwords:
 apache-tomcat-7.xxx/bin/digest.sh -a md5 Obama:GQuery:thankYou	
