@@ -70,72 +70,70 @@ curl --user Obama:thankYou --digest http://localhost:8080/GQuery/fetchKey -D hea
 scp ~/Code/GQuery/target/GQuery_0.1.war u0028003@hci-clingen1:~/
 
 # On hci-clingen1
-sudo su root
-cd /Data01/Repository/GQuery/Wars/New
-rm -rf /Data01/Repository/GQuery/Wars/New/*
-mv /home/u0028003/GQuery_0.1.war .
+mkdir /Data01/Repository/GQuery/Wars/NewGQuery
+cd /Data01/Repository/GQuery/Wars/NewGQuery
+mv /home/u0028003/GQuery_*.war .
+unzip GQuery.war
 
-# If needed, modify the WEB-INF/web.xml, WEB-INF/classes/log4j2.properties, and cp over the userGroup.txt file
-# Better to do this in eclipse and then build it
-mv GQuery_0.1.war GQuery.war; unzip GQuery.war
-
-# WEB-INF/web.xml
-path2DataDir /Repository/AnalysisData/QueryAPI/Data
-path2IndexDir /Repository/AnalysisData/QueryAPI/Index
+# Modify WEB-INF/web.xml
+path2DataDir /Data01/Repository/GQuery/WorkingGQuery/Data
 tempDir /Repository/AnalysisData/NixTransfers/QueryAPI/Temp
 userGroup /usr/share/apache-tomcat-7.0.79/webapps/GQuery/WEB-INF/userGroup.txt
 
-# WEB-INF/classes/log4j2.properties, currently just writing to stdout
-log4j /Repository/AnalysisData/QueryAPI/Logs/log4j.log
+# Modify the WEB-INF/userGroup.txt
+comment and uncomment the appropriate lines for testing or deploying
 
-# userGroup.txt, uncomment deploy, comment testing params
+# Modify WEB-INF/classes/log4j2.properties, currently just writing to stdout, change all of the levels to warn or info
+appender.rolling.fileName /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 
-# update the war
-zip -ru GQuery.war META-INF WEB-INF
+# update the war and clean up the 
+zip -ru GQuery.war WEB-INF
 
 # cleanup
 rm -rf  license.html queryPostExample.html META-INF WEB-INF
  
-# Starting up a new WAR, do as root, tomcat will auto detect the new xxx.war file and attempt a deployment
-cd /Repository/GQuery/Wars/New/
+# Starting up a new WAR, do as root, tomcat should auto detect the new xxx.war file and attempt a deployment
 chmod 755 GQuery.war
-chown tomcat GQuery.war
-cd /Repository/GQuery/Wars/New/
 echo Reset > /usr/share/apache-tomcat-7.0.79/logs/catalina.out
 echo Reset > /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 rm -rf /usr/share/apache-tomcat-7.0.79/webapps/GQuery*
 sleep 5s
 cp GQuery.war /usr/share/apache-tomcat-7.0.79/webapps/ 
+chown tomcat /usr/share/apache-tomcat-7.0.79/webapps/GQuery.war
 sleep 5s
 tail /usr/share/apache-tomcat-7.0.79/logs/catalina.out
 echo xxxxxxxGQueryxxxxxxx
 tail -F /usr/share/apache-tomcat-7.0.79/logs/gquery.log4j.txt
 
-add in shutdown and startup .sh scripts  as root
-check log4j output, nothing is there.
+# If the war doesn't auto deploy, as root:
+/usr/share/apache-tomcat-7.0.79/bin/shutdown.sh
+sleep 5s
+/usr/share/apache-tomcat-7.0.79/bin/startup.sh
 
 
 ################## Checking new WAR ################
 
-# See https://ri-confluence.hci.utah.edu/x/WIBLAw
-
-# Check in a browser
+# FetchOptions as a guest, this should pull the generic json file
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?fetchOptions=true
 http://localhost:8080/GQuery/search?fetchOptions=true for testing in eclipse
 
-# Will need authentication
-http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it 
+# Fetch a key, see https://ri-confluence.hci.utah.edu/x/WIBLAw for the user name and pw
+http://hci-clingen1.hci.utah.edu:8080/GQuery/fetchKey  # then encode it, see https://www.urlencoder.org/
+
+# Pull the options as a user, should now include the "searchableFiles" list
 http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
-bed=chr13:32,887,617-32,975,809&
-regexAll=/Germline/Avatar/&
+fetchOptions=true&
+key=A1W82DU%2BdiEZbZoQcsDKJA%3D%3D%3AozFK%2FittEgwz7wsjCb%2BnTTi9oDBTLeir%2Fqaczdy7UpY%3D
+
+# Perform a real search
+http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
+bed=chr17:43,091,393-43,094,877&
+regExDirPath=/Germline/Avatar/&
+regExFileName=vcf.gz&
+regExDataLine=CLNSIG%3DPathogenic&
 fetchData=true&
-key=NdlyOxbpUMkptpubn6iVPg%3D%3D%3AZNjy8xGkoP%2ByGl%2FwjSdlCLpNJ0re98KDwApqvxlC%2Feo%3D
+key=A1W82DU%2BdiEZbZoQcsDKJA%3D%3D%3AozFK%2FittEgwz7wsjCb%2BnTTi9oDBTLeir%2Fqaczdy7UpY%3D
 
-http://hci-clingen1.hci.utah.edu:8080/GQuery/search?
-matchVcf=true&
-vcf=13%0932914437%099325%09GT%09G%09.%09PASS%09.&
-key=NdlyOxbpUMkptpubn6iVPg%3D%3D%3AZNjy8xGkoP%2ByGl%2FwjSdlCLpNJ0re98KDwApqvxlC%2Feo%3D
-
-# Note first few queries on a new instance are slow but subsequent are faster.  Odd!
+# Note first few queries on a new instance are slow but subsequent are faster.  
 
 

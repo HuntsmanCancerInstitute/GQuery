@@ -52,7 +52,7 @@ public class QueryService implements ServletContextListener {
 	private static boolean authorizing = false;
 
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response processGetRequest(@Context UriInfo ui){
 		
 		//check to see if the service is running
@@ -82,7 +82,7 @@ public class QueryService implements ServletContextListener {
 
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response processPostRequest(
 			@FormDataParam("file") InputStream uploadedInputStream,
 			@FormDataParam("file") FormDataContentDisposition fileDetail,
@@ -134,6 +134,7 @@ public class QueryService implements ServletContextListener {
 		return processRequest(options, userQueryFile, user);
 	}
 
+	@Produces(MediaType.APPLICATION_JSON)
 	private Response processRequest(HashMap<String, String> options, File userQueryFile, User user) {
 		try{
 			//make a QueryRequest
@@ -144,7 +145,7 @@ public class QueryService implements ServletContextListener {
 			if (qr.getErrTxtForUser() != null) return Response.status(400).entity("Invalid request, "+qr.getErrTxtForUser()+", contact "+helpUrl+ " if needed").build();
 
 			//return results
-			else return Response.status(200).entity(qr.getJsonResults().toString(1)).build();
+			else return Response.status(200).entity(qr.getJsonResults().toString(1)).type("application/json").build();
 
 		} catch (Exception e){
 			String st = Util.getStackTrace(e);
