@@ -1,5 +1,5 @@
 # GQuery
-GQuery is a software tool for rapidly querying large numbers of bgzip compressed, tabix indexed genomic data files e.g. vcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to develop, debug, and maintain custom file parsers for every file format and flavor.  Just point the GQuery indexer at a collection of tabix indexed files and then run either the GQuery command line app or the web API to search them.  GQuery is built using a fast, multi-threaded, genomic range search engine with extensive junit testing.
+GQuery is a software tool for rapidly querying large numbers of bgzip compressed, tabix indexed genomic data files e.g. vcf, maf, bed, bedGraph, etc. from multiple species with different genome builds without the need to develop, debug, and maintain custom file parsers. Search for particular germline or somatic mutations, copy number changes, differentially expressed genes, epigenetic marks, anything that can be associated with genomic coordinates.  Just point the GQuery indexer at a collection of tabix indexed files and then run either the GQuery command line app or the web API to search them.  GQuery is built using a fast, multi-threaded, genomic range search engine with extensive junit testing.
 
 **The GQuery package includes three Java applications:**
 <ol>
